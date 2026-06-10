@@ -210,7 +210,7 @@ export default function Contact() {
         <div className="mx-auto max-w-6xl">
           <FadeIn className="text-center mb-14">
             <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 rounded-full px-4 py-1.5 text-sm font-bold mb-4">
-              <Send className="h-4 w-4 text-white" />
+              <Send className="h-4 w-4" />
               Free Quote
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-[#0a0f2e] tracking-tight">
@@ -271,7 +271,7 @@ export default function Contact() {
                     className="flex gap-4 items-start bg-gray-50 rounded-2xl border border-gray-100 p-4"
                   >
                     <div className="h-10 w-10 rounded-xl bg-[#0a0f2e] flex items-center justify-center flex-shrink-0">
-                      <Icon className="h-5 w-5 text-blue-300" />
+                      <Icon className="h-5 w-5 text-white" />
                     </div>
                     <div>
                       <p className="font-black text-[#0a0f2e] text-[13px] mb-0.5">

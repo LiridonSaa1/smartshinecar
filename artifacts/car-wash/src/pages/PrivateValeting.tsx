@@ -166,7 +166,7 @@ function HeroCarousel() {
 }
 
 function ContactForm() {
-  const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", service: "", message: "" });
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
 
@@ -177,77 +177,218 @@ function ContactForm() {
   };
 
   return (
-    <section
-      id="contact"
-      className="relative py-16 overflow-hidden"
-      style={{ background: "linear-gradient(135deg, #0a0f2e 0%, #1a2a6c 50%, #0a1845 100%)" }}
-    >
-      <div
-        className="absolute inset-0 opacity-25"
-        style={{ backgroundImage: "radial-gradient(ellipse at 50% 50%, #3b82f6 0%, transparent 70%)" }}
-      />
-      <div className="relative mx-auto max-w-3xl px-6">
-        <FadeIn className="text-center mb-8">
-          <p className="text-white/90 text-[15px] md:text-[17px] font-medium leading-relaxed">
+    <>
+      {/* CALL SECTION — matches Home page style exactly */}
+      <section
+        className="relative py-20 overflow-hidden"
+        style={{ background: "linear-gradient(135deg, #0a0f2e 0%, #1a2a6c 50%, #0a1845 100%)" }}
+      >
+        {/* background glows */}
+        <div className="absolute inset-0 opacity-25"
+          style={{ backgroundImage: "radial-gradient(ellipse at 30% 50%, #3b82f6 0%, transparent 55%)" }} />
+        <div className="absolute inset-0 opacity-15"
+          style={{ backgroundImage: "radial-gradient(ellipse at 75% 60%, #6366f1 0%, transparent 50%)" }} />
+
+        {/* decorative rings */}
+        <div className="absolute -top-16 -left-16 h-64 w-64 rounded-full border border-white/5" />
+        <div className="absolute -bottom-20 -right-10 h-72 w-72 rounded-full border border-white/5" />
+
+        <FadeIn className="relative mx-auto max-w-3xl px-6 text-center">
+          <div className="inline-flex items-center justify-center h-14 w-14 rounded-full bg-blue-500/20 border border-blue-400/30 mb-6 mx-auto">
+            <Phone className="h-6 w-6 text-blue-300" />
+          </div>
+
+          <p className="text-white/70 text-[13px] font-bold tracking-[0.25em] uppercase mb-4">
+            Get in touch today
+          </p>
+
+          <p className="text-white/90 text-[15px] md:text-[17px] font-medium leading-relaxed mb-8">
             Call Smart Shine Car Valeting Centre on{" "}
-            <a href="tel:07717310046" className="font-black text-white text-[18px] md:text-[20px] hover:text-blue-300 transition-colors">
-              07717 310 046
-            </a>
+            <span className="font-black text-white">07717 310 046</span>
             {" "}or{" "}
-            <a href="tel:01483236060" className="font-black text-white text-[18px] md:text-[20px] hover:text-blue-300 transition-colors">
-              01483 236 060
-            </a>
+            <span className="font-black text-white">01483 236 060</span>
             {" "}for private vehicle valeting service in Guildford
           </p>
-        </FadeIn>
 
-        {sent ? (
-          <FadeIn className="bg-white/10 backdrop-blur-sm rounded-2xl p-10 text-center">
-            <div className="text-4xl mb-3">✅</div>
-            <p className="text-white font-black text-xl mb-2">Message Sent!</p>
-            <p className="text-white/70 text-sm">We'll be in touch shortly to discuss your valeting needs.</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            {[
+              { number: "07717 310 046", href: "tel:07717310046" },
+              { number: "01483 236 060", href: "tel:01483236060" },
+            ].map(({ number, href }, i) => (
+              <motion.a
+                key={number}
+                href={href}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15, duration: 0.5 }}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.97 }}
+                className="group relative inline-flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm px-8 py-4 text-white transition-all duration-200 hover:bg-white/20 hover:border-blue-400/50 hover:shadow-lg hover:shadow-blue-500/20"
+              >
+                <span className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{ boxShadow: "0 0 0 2px rgba(96,165,250,0.4), 0 0 20px rgba(96,165,250,0.15)" }} />
+                <Phone className="h-5 w-5 text-blue-300 flex-shrink-0" />
+                <span className="text-[22px] md:text-[26px] font-black tracking-wide">{number}</span>
+              </motion.a>
+            ))}
+          </div>
+
+          <p className="mt-8 text-white/40 text-[13px]">Mon – Sun &nbsp;·&nbsp; 08:00 – 19:00</p>
+        </FadeIn>
+      </section>
+
+      {/* CONTACT FORM SECTION */}
+      <section id="contact" className="relative py-20 bg-gray-50 overflow-hidden">
+        <div className="absolute inset-0 opacity-40"
+          style={{ backgroundImage: "radial-gradient(ellipse at 80% 20%, #dbeafe 0%, transparent 60%)" }} />
+
+        <div className="relative mx-auto max-w-6xl px-6">
+          <FadeIn className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 rounded-full px-4 py-1.5 text-sm font-bold mb-4">
+              <Send className="h-4 w-4" />
+              Free Quote
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black text-[#0a0f2e] tracking-tight">
+              Or send us a message
+            </h2>
+            <p className="text-gray-500 mt-3 text-[15px] max-w-md mx-auto">
+              Tell us about your vehicle and we'll get back to you with a personalised quote.
+            </p>
           </FadeIn>
-        ) : (
-          <FadeIn delay={0.1}>
-            <form onSubmit={handleSubmit} className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {(["name", "email", "phone"] as const).map((field) => (
-                  <div key={field}>
-                    <label className="block text-white/80 text-xs font-bold uppercase tracking-widest mb-1.5 capitalize">{field}:</label>
+
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-10 items-start">
+            {/* Left info panel */}
+            <FadeIn direction="left" className="md:col-span-2 space-y-6">
+              {[
+                {
+                  icon: Phone,
+                  title: "Call us directly",
+                  lines: ["07717 310 046", "01483 236 060"],
+                  sub: "Mon – Sun, 08:00 – 19:00",
+                },
+                {
+                  icon: MapPin,
+                  title: "Our location",
+                  lines: ["Guildford, Surrey"],
+                  sub: "Also serving Godalming & Woking",
+                },
+                {
+                  icon: Clock,
+                  title: "Opening hours",
+                  lines: ["Monday – Sunday"],
+                  sub: "08:00 – 19:00",
+                },
+              ].map(({ icon: Icon, title, lines, sub }) => (
+                <div key={title} className="flex gap-4 p-5 bg-white rounded-2xl shadow-sm border border-gray-100">
+                  <div className="h-11 w-11 rounded-xl bg-[#0a0f2e] flex items-center justify-center flex-shrink-0">
+                    <Icon className="h-5 w-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-[#0a0f2e] font-black text-sm mb-1">{title}</p>
+                    {lines.map(l => <p key={l} className="text-gray-700 font-semibold text-[15px]">{l}</p>)}
+                    <p className="text-gray-400 text-xs mt-1">{sub}</p>
+                  </div>
+                </div>
+              ))}
+            </FadeIn>
+
+            {/* Form */}
+            <FadeIn direction="right" delay={0.1} className="md:col-span-3">
+              {sent ? (
+                <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-12 text-center">
+                  <div className="h-16 w-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-5">
+                    <span className="text-3xl">✅</span>
+                  </div>
+                  <p className="text-[#0a0f2e] font-black text-2xl mb-2">Message Sent!</p>
+                  <p className="text-gray-500 text-[15px]">We'll be in touch shortly to discuss your valeting needs.</p>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 space-y-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-[#0a0f2e] text-xs font-bold uppercase tracking-widest mb-2">Full Name *</label>
+                      <input
+                        type="text"
+                        value={form.name}
+                        onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                        required
+                        placeholder="John Smith"
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[#0a0f2e] text-xs font-bold uppercase tracking-widest mb-2">Phone Number *</label>
+                      <input
+                        type="tel"
+                        value={form.phone}
+                        onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                        required
+                        placeholder="07700 000 000"
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[#0a0f2e] text-xs font-bold uppercase tracking-widest mb-2">Email Address *</label>
                     <input
-                      type={field === "email" ? "email" : field === "phone" ? "tel" : "text"}
-                      value={form[field]}
-                      onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))}
+                      type="email"
+                      value={form.email}
+                      onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                       required
-                      className="w-full bg-white rounded-lg px-4 py-2.5 text-gray-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      placeholder="john@example.com"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
                     />
                   </div>
-                ))}
-              </div>
-              <div>
-                <label className="block text-white/80 text-xs font-bold uppercase tracking-widest mb-1.5">Message:</label>
-                <textarea
-                  rows={4}
-                  value={form.message}
-                  onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
-                  required
-                  className="w-full bg-white rounded-lg px-4 py-2.5 text-gray-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
-                />
-              </div>
-              <div className="flex justify-end pt-1">
-                <button
-                  type="submit"
-                  disabled={sending}
-                  className="inline-flex items-center gap-2 rounded-full bg-white text-[#0a0f2e] hover:bg-blue-50 px-8 py-3 text-[14px] font-black transition-all duration-150 disabled:opacity-60"
-                >
-                  {sending ? "Sending…" : <><Send className="h-4 w-4" /> Send Message</>}
-                </button>
-              </div>
-            </form>
-          </FadeIn>
-        )}
-      </div>
-    </section>
+
+                  <div>
+                    <label className="block text-[#0a0f2e] text-xs font-bold uppercase tracking-widest mb-2">Service Required</label>
+                    <select
+                      value={form.service}
+                      onChange={e => setForm(f => ({ ...f, service: e.target.value }))}
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all appearance-none"
+                    >
+                      <option value="">Select a package…</option>
+                      <option>Mini Valet — from £45</option>
+                      <option>Economy Valet — from £120</option>
+                      <option>Premier Valet — from £169</option>
+                      <option>Interior Valet — from £120</option>
+                      <option>Exterior Valet — from £139</option>
+                      <option>Commercial Vehicle — Call for quote</option>
+                      <option>Other / Not sure</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[#0a0f2e] text-xs font-bold uppercase tracking-widest mb-2">Your Message *</label>
+                    <textarea
+                      rows={4}
+                      value={form.message}
+                      onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
+                      required
+                      placeholder="Tell us about your vehicle and what you need…"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all resize-none"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1">
+                    <p className="text-gray-400 text-xs">* Required fields</p>
+                    <button
+                      type="submit"
+                      disabled={sending}
+                      className="inline-flex items-center gap-2 rounded-full bg-[#0a0f2e] hover:bg-blue-900 active:scale-95 px-8 py-3.5 text-[14px] font-black text-white transition-all duration-150 disabled:opacity-60 shadow-lg shadow-[#0a0f2e]/20"
+                    >
+                      {sending ? "Sending…" : <><Send className="h-4 w-4" /> Send Message</>}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </FadeIn>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }
 

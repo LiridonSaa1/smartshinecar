@@ -204,11 +204,7 @@ function ContactForm() {
           </p>
 
           <p className="text-white/90 text-[15px] md:text-[17px] font-medium leading-relaxed mb-8">
-            Call Smart Shine Car Valeting Centre on{" "}
-            <span className="font-black text-white">07717 310 046</span>
-            {" "}or{" "}
-            <span className="font-black text-white">01483 236 060</span>
-            {" "}for private vehicle valeting service in Guildford
+            Call Smart Shine Car Valeting Centre for a car valeting or detailing in Guildford
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -465,8 +461,12 @@ export default function PrivateValeting() {
       </section>
 
       {/* 2. WE CAN MAKE YOUR CAR SHINE */}
-      <section className="bg-[#0a0f2e]">
-        <div className="grid grid-cols-1 md:grid-cols-2">
+      <section className="relative overflow-hidden" style={{ background: "linear-gradient(135deg, #0a0f2e 0%, #1a2a6c 50%, #0a1845 100%)" }}>
+        <div className="absolute inset-0 opacity-25" style={{ backgroundImage: "radial-gradient(ellipse at 30% 50%, #3b82f6 0%, transparent 55%)" }} />
+        <div className="absolute inset-0 opacity-15" style={{ backgroundImage: "radial-gradient(ellipse at 75% 60%, #6366f1 0%, transparent 50%)" }} />
+        <div className="absolute -top-16 -left-16 h-64 w-64 rounded-full border border-white/5" />
+        <div className="absolute -bottom-20 -right-10 h-72 w-72 rounded-full border border-white/5" />
+        <div className="relative grid grid-cols-1 md:grid-cols-2">
           <FadeIn direction="left" className="flex items-center px-10 md:px-16 py-16 order-2 md:order-1">
             <div>
               <h2 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight">

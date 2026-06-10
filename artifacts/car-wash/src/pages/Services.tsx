@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/layout/Navbar";
+import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
 import { useListServices } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -106,16 +107,19 @@ export default function Services() {
 
 function Footer() {
   return (
-    <footer className="border-t border-border py-8 bg-card">
-      <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary">
-            <Droplets className="h-4 w-4 text-primary-foreground" />
+    <>
+      <footer className="border-t border-border py-8 bg-card">
+        <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary">
+              <Droplets className="h-4 w-4 text-primary-foreground" />
+            </div>
+            <span className="font-bold text-card-foreground">Car Wash Pro</span>
           </div>
-          <span className="font-bold text-card-foreground">Car Wash Pro</span>
+          <p className="text-sm text-muted-foreground">© 2024 Car Wash Pro. All rights reserved.</p>
         </div>
-        <p className="text-sm text-muted-foreground">© 2024 Car Wash Pro. All rights reserved.</p>
-      </div>
-    </footer>
+      </footer>
+      <FloatingWhatsApp />
+    </>
   );
 }

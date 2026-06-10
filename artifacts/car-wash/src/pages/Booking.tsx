@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
+import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
 import {
   useListServices,
   useGetAvailableSlots,
@@ -399,6 +400,7 @@ export default function Booking() {
           </AnimatePresence>
         </div>
       </main>
+      <FloatingWhatsApp />
     </div>
   );
 }

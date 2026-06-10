@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/layout/Navbar";
+import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
 import { useGetSettings } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -218,6 +219,7 @@ export default function Contact() {
           <p className="text-sm text-muted-foreground">© 2024 Car Wash Pro. All rights reserved.</p>
         </div>
       </footer>
+      <FloatingWhatsApp />
     </div>
   );
 }

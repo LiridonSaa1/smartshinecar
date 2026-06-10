@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/layout/Navbar";
+import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
 import { Link } from "wouter";
 import {
   ArrowRight, Star, Phone, MapPin, Clock,
@@ -618,6 +619,7 @@ export default function PrivateValeting() {
           </div>
         </div>
       </footer>
+      <FloatingWhatsApp />
     </div>
   );
 }

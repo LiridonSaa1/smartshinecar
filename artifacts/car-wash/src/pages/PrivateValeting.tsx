@@ -2,7 +2,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Link } from "wouter";
 import {
   ArrowRight, Star, Phone, MapPin, Clock,
-  ChevronLeft, ChevronRight, Sparkles,
+  ChevronLeft, ChevronRight, ChevronDown, Sparkles,
   Facebook, Twitter, Shield, Send,
   Droplets, Car, Crown, Layers, Paintbrush, Truck,
 } from "lucide-react";
@@ -170,6 +170,17 @@ function ContactForm() {
   const [form, setForm] = useState({ name: "", email: "", phone: "", service: "", message: "" });
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
+  const [serviceOpen, setServiceOpen] = useState(false);
+
+  const valetServices = [
+    "Mini Valet — from £45",
+    "Economy Valet — from £120",
+    "Premier Valet — from £169",
+    "Interior Valet — from £120",
+    "Exterior Valet — from £139",
+    "Commercial Vehicle — Call for quote",
+    "Other / Not sure",
+  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -279,7 +290,7 @@ function ContactForm() {
               ].map(({ icon: Icon, title, lines, sub }) => (
                 <div key={title} className="flex gap-4 p-5 bg-white rounded-2xl shadow-sm border border-gray-100">
                   <div className="h-11 w-11 rounded-xl bg-[#0a0f2e] flex items-center justify-center flex-shrink-0">
-                    <Icon className="h-5 w-5 text-blue-400" />
+                    <Icon className="h-5 w-5 text-white" />
                   </div>
                   <div>
                     <p className="text-[#0a0f2e] font-black text-sm mb-1">{title}</p>
@@ -339,22 +350,30 @@ function ContactForm() {
                     />
                   </div>
 
-                  <div>
+                  <div className="relative">
                     <label className="block text-[#0a0f2e] text-xs font-bold uppercase tracking-widest mb-2">Service Required</label>
-                    <select
-                      value={form.service}
-                      onChange={e => setForm(f => ({ ...f, service: e.target.value }))}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all appearance-none"
+                    <button
+                      type="button"
+                      onClick={() => setServiceOpen(o => !o)}
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all flex items-center justify-between"
                     >
-                      <option value="">Select a package…</option>
-                      <option>Mini Valet — from £45</option>
-                      <option>Economy Valet — from £120</option>
-                      <option>Premier Valet — from £169</option>
-                      <option>Interior Valet — from £120</option>
-                      <option>Exterior Valet — from £139</option>
-                      <option>Commercial Vehicle — Call for quote</option>
-                      <option>Other / Not sure</option>
-                    </select>
+                      <span className={form.service ? "text-gray-900" : "text-gray-400"}>{form.service || "Select a package…"}</span>
+                      <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${serviceOpen ? "rotate-180" : ""}`} />
+                    </button>
+                    {serviceOpen && (
+                      <div className="absolute z-50 mt-1 w-full rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
+                        {valetServices.map(s => (
+                          <button
+                            key={s}
+                            type="button"
+                            onClick={() => { setForm(f => ({ ...f, service: s })); setServiceOpen(false); }}
+                            className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 hover:text-blue-700 transition-colors ${form.service === s ? "bg-blue-50 text-blue-700 font-semibold" : "text-gray-800"}`}
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   <div>

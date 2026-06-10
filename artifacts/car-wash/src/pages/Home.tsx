@@ -3,7 +3,7 @@ import { useListReviews } from "@workspace/api-client-react";
 import { Link } from "wouter";
 import {
   ArrowRight, Star, Shield, Phone, MapPin, Clock,
-  ChevronLeft, ChevronRight, Sparkles, CheckCircle, Facebook, Twitter, Send,
+  ChevronLeft, ChevronRight, ChevronDown, Sparkles, CheckCircle, Facebook, Twitter, Send,
   Trophy, Banknote, Car, Wrench,
 } from "lucide-react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
@@ -231,6 +231,19 @@ function HomeContactForm() {
   const [form, setForm] = useState({ name: "", email: "", phone: "", service: "", message: "" });
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
+  const [serviceOpen, setServiceOpen] = useState(false);
+
+  const homeServices = [
+    "Mini Valet — from £45",
+    "Economy Valet — from £120",
+    "Premier Valet — from £169",
+    "Interior Valet — from £120",
+    "Exterior Valet — from £139",
+    "Commercial Vehicle",
+    "Car Detailing",
+    "Machine Polish",
+    "Other / Not sure",
+  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -267,7 +280,7 @@ function HomeContactForm() {
             ].map(({ icon: Icon, title, lines, sub }) => (
               <div key={title} className="flex gap-4 items-start bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
                 <div className="h-10 w-10 rounded-xl bg-[#0a0f2e] flex items-center justify-center flex-shrink-0">
-                  <Icon className="h-5 w-5 text-blue-300" />
+                  <Icon className="h-5 w-5 text-white" />
                 </div>
                 <div>
                   <p className="font-black text-[#0a0f2e] text-[14px] mb-1">{title}</p>
@@ -310,21 +323,30 @@ function HomeContactForm() {
                     className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[14px] text-gray-900 placeholder-gray-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
                     placeholder="john@example.com" />
                 </div>
-                <div>
+                <div className="relative">
                   <label className="block text-[12px] font-bold text-gray-600 uppercase tracking-wider mb-1.5">Service Required</label>
-                  <select value={form.service} onChange={e => setForm(f => ({ ...f, service: e.target.value }))}
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[14px] text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all appearance-none">
-                    <option value="">Select a service...</option>
-                    <option>Mini Valet — from £45</option>
-                    <option>Economy Valet — from £120</option>
-                    <option>Premier Valet — from £169</option>
-                    <option>Interior Valet — from £120</option>
-                    <option>Exterior Valet — from £139</option>
-                    <option>Commercial Vehicle</option>
-                    <option>Car Detailing</option>
-                    <option>Machine Polish</option>
-                    <option>Other / Not sure</option>
-                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setServiceOpen(o => !o)}
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[14px] text-left outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all flex items-center justify-between"
+                  >
+                    <span className={form.service ? "text-gray-900" : "text-gray-400"}>{form.service || "Select a service..."}</span>
+                    <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${serviceOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  {serviceOpen && (
+                    <div className="absolute z-50 mt-1 w-full rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
+                      {homeServices.map(s => (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => { setForm(f => ({ ...f, service: s })); setServiceOpen(false); }}
+                          className={`w-full text-left px-4 py-2.5 text-[14px] hover:bg-blue-50 hover:text-blue-700 transition-colors ${form.service === s ? "bg-blue-50 text-blue-700 font-semibold" : "text-gray-800"}`}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-[12px] font-bold text-gray-600 uppercase tracking-wider mb-1.5">Message</label>

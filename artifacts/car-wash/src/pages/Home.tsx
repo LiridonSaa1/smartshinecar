@@ -6,7 +6,7 @@ import {
   ChevronLeft, ChevronRight, Sparkles, CheckCircle, Facebook, Twitter,
 } from "lucide-react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import logoSrc from "@assets/Professional_Car_Valeting_Logo_in_Navy_and_Silver_1781123501610.png";
 import aboutImg from "@assets/image_1781123675503.png";
 import completeImg from "@assets/8BAB8335-072E-4691-B56A-98632CD0FC5E-535w_1781124055227.webp";
@@ -151,6 +151,40 @@ function HeroCarousel() {
   );
 }
 
+function Typewriter({ text, typingSpeed = 60, deletingSpeed = 35, pauseMs = 1800 }: {
+  text: string; typingSpeed?: number; deletingSpeed?: number; pauseMs?: number;
+}) {
+  const [displayed, setDisplayed] = useState("");
+  const [phase, setPhase] = useState<"typing" | "pausing" | "deleting" | "waiting">("typing");
+
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
+    if (phase === "typing") {
+      if (displayed.length < text.length) {
+        timeout = setTimeout(() => setDisplayed(text.slice(0, displayed.length + 1)), typingSpeed);
+      } else {
+        timeout = setTimeout(() => setPhase("pausing"), pauseMs);
+      }
+    } else if (phase === "pausing") {
+      setPhase("deleting");
+    } else if (phase === "deleting") {
+      if (displayed.length > 0) {
+        timeout = setTimeout(() => setDisplayed(displayed.slice(0, -1)), deletingSpeed);
+      } else {
+        timeout = setTimeout(() => setPhase("typing"), 500);
+      }
+    }
+    return () => clearTimeout(timeout);
+  }, [displayed, phase, text, typingSpeed, deletingSpeed, pauseMs]);
+
+  return (
+    <span>
+      {displayed}
+      <span className="inline-block w-0.5 h-[1em] bg-white align-middle ml-1 animate-pulse" />
+    </span>
+  );
+}
+
 function FadeIn({ children, className, delay = 0, direction = "up" }: {
   children: React.ReactNode; className?: string; delay?: number; direction?: "up" | "left" | "right";
 }) {
@@ -209,8 +243,8 @@ export default function Home() {
         {/* Top banner */}
         <div className="bg-[#0a0f2e] py-10 text-center">
           <FadeIn>
-            <h2 className="text-2xl md:text-3xl font-black text-white px-4">
-              Car valeting in Guildford and surrounding area
+            <h2 className="text-2xl md:text-3xl font-black text-white px-4 min-h-[2.5rem]">
+              <Typewriter text="Car valeting in Guildford and surrounding area" />
             </h2>
           </FadeIn>
         </div>

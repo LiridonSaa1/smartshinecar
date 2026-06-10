@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
+import { CookieBanner } from "@/components/ui/CookieBanner";
 import { useGetSettings } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -220,6 +221,7 @@ export default function Contact() {
         </div>
       </footer>
       <FloatingWhatsApp />
+      <CookieBanner />
     </div>
   );
 }

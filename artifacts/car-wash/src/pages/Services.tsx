@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
+import { CookieBanner } from "@/components/ui/CookieBanner";
 import { useListServices } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -120,6 +121,7 @@ function Footer() {
         </div>
       </footer>
       <FloatingWhatsApp />
+      <CookieBanner />
     </>
   );
 }

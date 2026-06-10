@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
+import { CookieBanner } from "@/components/ui/CookieBanner";
 import { Link } from "wouter";
 import {
   ArrowRight, Star, Phone, MapPin, Clock,
@@ -504,6 +505,7 @@ export default function CarDetailing() {
         </div>
       </footer>
       <FloatingWhatsApp />
+      <CookieBanner />
     </div>
   );
 }

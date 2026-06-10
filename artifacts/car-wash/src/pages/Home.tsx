@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
+import { CookieBanner } from "@/components/ui/CookieBanner";
 import { useListReviews } from "@workspace/api-client-react";
 import { Link } from "wouter";
 import {
@@ -792,6 +793,7 @@ export default function Home() {
         </div>
       </footer>
       <FloatingWhatsApp />
+      <CookieBanner />
     </div>
   );
 }

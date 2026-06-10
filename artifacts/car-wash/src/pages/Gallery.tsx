@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
+import { CookieBanner } from "@/components/ui/CookieBanner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
@@ -258,6 +259,7 @@ export default function Gallery() {
         )}
       </AnimatePresence>
       <FloatingWhatsApp />
+      <CookieBanner />
     </div>
   );
 }

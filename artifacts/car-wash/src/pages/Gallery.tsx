@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
 import { CookieBanner } from "@/components/ui/CookieBanner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
-import { Images, X, ChevronLeft, ChevronRight, ArrowRight, Droplets } from "lucide-react";
+import { Images, X, ChevronLeft, ChevronRight, ArrowRight, Sparkles, MoveHorizontal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const galleryItems = [
@@ -69,11 +69,88 @@ const galleryItems = [
 
 const CATEGORIES = ["All", "Exterior Wash", "Interior Clean", "Detailing", "Full Wash"];
 
+const FEATURED_SLIDES = [
+  { id: 0, label: "Full Exterior Detail", before: galleryItems[0].before, after: galleryItems[0].after },
+  { id: 1, label: "Paint Correction & Polish", before: galleryItems[2].before, after: galleryItems[2].after },
+  { id: 2, label: "Interior Deep Clean", before: galleryItems[1].before, after: galleryItems[1].after },
+];
+
+/* ─── Drag-to-reveal Before/After Slider ─────────────────────────── */
+function BeforeAfterSlider({ before, after, label }: { before: string; after: string; label: string }) {
+  const [pos, setPos] = useState(50);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dragging = useRef(false);
+
+  const updatePos = useCallback((clientX: number) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const pct = Math.min(100, Math.max(0, ((clientX - rect.left) / rect.width) * 100));
+    setPos(pct);
+  }, []);
+
+  const onMouseDown = (e: React.MouseEvent) => { dragging.current = true; updatePos(e.clientX); };
+  const onTouchStart = (e: React.TouchEvent) => { dragging.current = true; updatePos(e.touches[0].clientX); };
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => { if (dragging.current) updatePos(e.clientX); };
+    const onTouch = (e: TouchEvent) => { if (dragging.current) updatePos(e.touches[0].clientX); };
+    const onUp = () => { dragging.current = false; };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("touchmove", onTouch);
+    window.addEventListener("mouseup", onUp);
+    window.addEventListener("touchend", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("touchmove", onTouch);
+      window.removeEventListener("mouseup", onUp);
+      window.removeEventListener("touchend", onUp);
+    };
+  }, [updatePos]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden select-none cursor-col-resize shadow-2xl"
+      onMouseDown={onMouseDown}
+      onTouchStart={onTouchStart}
+    >
+      {/* After (base layer — full width) */}
+      <img src={after} alt="After" className="absolute inset-0 w-full h-full object-cover pointer-events-none" draggable={false} />
+
+      {/* Before (clipped to left side) */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ width: `${pos}%` }}>
+        <img src={before} alt="Before" className="absolute inset-0 w-full h-full object-cover" style={{ width: `${100 / (pos / 100 || 0.001)}%`, maxWidth: "none" }} draggable={false} />
+      </div>
+
+      {/* Divider line */}
+      <div className="absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_12px_rgba(0,0,0,0.6)]" style={{ left: `${pos}%`, transform: "translateX(-50%)" }}>
+        {/* Handle */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-white shadow-xl flex items-center justify-center">
+          <MoveHorizontal className="h-5 w-5 text-gray-700" />
+        </div>
+      </div>
+
+      {/* Labels */}
+      <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full pointer-events-none">
+        BEFORE
+      </div>
+      <div className="absolute top-4 right-4 bg-blue-600/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full pointer-events-none">
+        AFTER
+      </div>
+
+      {/* Title */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-sm text-white text-sm font-semibold px-4 py-1.5 rounded-full pointer-events-none whitespace-nowrap">
+        {label}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Gallery card (toggle, existing) ───────────────────────────── */
 type GalleryMode = "after" | "before";
 
 function GalleryCard({ item, onClick }: { item: typeof galleryItems[0]; onClick: () => void }) {
   const [mode, setMode] = useState<GalleryMode>("after");
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -89,24 +166,14 @@ function GalleryCard({ item, onClick }: { item: typeof galleryItems[0]; onClick:
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-
-        {/* Toggle */}
         <div
           className="absolute top-3 left-3 flex rounded-full overflow-hidden border border-white/30 text-xs font-semibold"
           onClick={(e) => { e.stopPropagation(); setMode(m => m === "after" ? "before" : "after"); }}
         >
-          <button
-            className={`px-3 py-1 transition-colors ${mode === "before" ? "bg-white text-black" : "bg-black/40 text-white"}`}
-          >Before</button>
-          <button
-            className={`px-3 py-1 transition-colors ${mode === "after" ? "bg-white text-black" : "bg-black/40 text-white"}`}
-          >After</button>
+          <button className={`px-3 py-1 transition-colors ${mode === "before" ? "bg-white text-black" : "bg-black/40 text-white"}`}>Before</button>
+          <button className={`px-3 py-1 transition-colors ${mode === "after" ? "bg-white text-black" : "bg-black/40 text-white"}`}>After</button>
         </div>
-
-        <Badge className="absolute top-3 right-3 bg-primary/80 text-primary-foreground text-xs border-0">
-          {item.category}
-        </Badge>
-
+        <Badge className="absolute top-3 right-3 bg-primary/80 text-primary-foreground text-xs border-0">{item.category}</Badge>
         <div className="absolute bottom-3 left-3 right-3">
           <p className="text-white font-semibold text-sm">{item.title}</p>
         </div>
@@ -115,21 +182,14 @@ function GalleryCard({ item, onClick }: { item: typeof galleryItems[0]; onClick:
   );
 }
 
+/* ─── Lightbox ───────────────────────────────────────────────────── */
 function Lightbox({ items, index, onClose, onPrev, onNext }: {
-  items: typeof galleryItems;
-  index: number;
-  onClose: () => void;
-  onPrev: () => void;
-  onNext: () => void;
+  items: typeof galleryItems; index: number; onClose: () => void; onPrev: () => void; onNext: () => void;
 }) {
   const item = items[index];
-  const [mode, setMode] = useState<GalleryMode>("after");
-
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
       onClick={onClose}
     >
@@ -137,14 +197,8 @@ function Lightbox({ items, index, onClose, onPrev, onNext }: {
         <button onClick={onClose} className="absolute -top-10 right-0 text-white/70 hover:text-white">
           <X className="h-6 w-6" />
         </button>
-        <div className="relative rounded-2xl overflow-hidden aspect-video">
-          <img src={mode === "after" ? item.after : item.before} alt={item.title} className="w-full h-full object-cover" />
-          <div
-            className="absolute top-4 left-4 flex rounded-full overflow-hidden border border-white/30 text-sm font-semibold"
-          >
-            <button onClick={() => setMode("before")} className={`px-4 py-1.5 transition-colors ${mode === "before" ? "bg-white text-black" : "bg-black/40 text-white"}`}>Before</button>
-            <button onClick={() => setMode("after")} className={`px-4 py-1.5 transition-colors ${mode === "after" ? "bg-white text-black" : "bg-black/40 text-white"}`}>After</button>
-          </div>
+        <div className="rounded-2xl overflow-hidden">
+          <BeforeAfterSlider before={item.before} after={item.after} label={item.title} />
         </div>
         <div className="flex items-center justify-between mt-4">
           <div>
@@ -165,14 +219,13 @@ function Lightbox({ items, index, onClose, onPrev, onNext }: {
   );
 }
 
+/* ─── Page ───────────────────────────────────────────────────────── */
 export default function Gallery() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [featuredIdx, setFeaturedIdx] = useState(0);
 
-  const filtered = activeCategory === "All"
-    ? galleryItems
-    : galleryItems.filter(i => i.category === activeCategory);
-
+  const filtered = activeCategory === "All" ? galleryItems : galleryItems.filter(i => i.category === activeCategory);
   const openLightbox = (idx: number) => setLightboxIndex(idx);
   const closeLightbox = () => setLightboxIndex(null);
   const prevItem = () => setLightboxIndex(i => (i === null ? 0 : (i - 1 + filtered.length) % filtered.length));
@@ -182,6 +235,7 @@ export default function Gallery() {
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
       <main className="flex-1">
+
         {/* Hero */}
         <section className="py-20 bg-primary/5 border-b border-border">
           <div className="container mx-auto px-4 text-center">
@@ -190,13 +244,56 @@ export default function Gallery() {
                 <Images className="h-4 w-4" />
                 Gallery
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-                Before & After Results
-              </h1>
+              <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Before & After Results</h1>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                See the transformation with your own eyes. Toggle between Before and After to see the difference our premium services make.
+                Drag the handle left and right to see the transformation our premium valeting service makes.
               </p>
             </motion.div>
+          </div>
+        </section>
+
+        {/* ── Featured Before/After Slider ─────────────────────────── */}
+        <section className="py-16" style={{ background: "linear-gradient(135deg, #0a0f2e 0%, #1a2a6c 60%, #0a1845 100%)" }}>
+          <div className="container mx-auto px-4 max-w-5xl">
+            <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8">
+              <div className="inline-flex items-center gap-2 bg-blue-500/20 border border-blue-400/30 text-blue-300 rounded-full px-4 py-1.5 text-xs font-bold tracking-widest uppercase mb-4">
+                <Sparkles className="h-3.5 w-3.5" />
+                Drag to Reveal
+              </div>
+              <h2 className="text-3xl md:text-4xl font-black text-white mb-2">See the difference</h2>
+              <p className="text-white/60 text-[15px]">Drag the white handle to compare before and after</p>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={featuredIdx}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.35 }}
+                >
+                  <BeforeAfterSlider
+                    before={FEATURED_SLIDES[featuredIdx].before}
+                    after={FEATURED_SLIDES[featuredIdx].after}
+                    label={FEATURED_SLIDES[featuredIdx].label}
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </motion.div>
+
+            {/* Slide selector */}
+            <div className="flex items-center justify-center gap-3 mt-6">
+              {FEATURED_SLIDES.map((s, i) => (
+                <button
+                  key={s.id}
+                  onClick={() => setFeaturedIdx(i)}
+                  className={`rounded-full text-sm font-semibold px-4 py-1.5 transition-all ${i === featuredIdx ? "bg-white text-[#0a0f2e]" : "bg-white/10 text-white/70 hover:bg-white/20"}`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -246,16 +343,10 @@ export default function Gallery() {
         </section>
       </main>
 
-      {/* Lightbox */}
+      {/* Lightbox — also uses the drag slider */}
       <AnimatePresence>
         {lightboxIndex !== null && (
-          <Lightbox
-            items={filtered}
-            index={lightboxIndex}
-            onClose={closeLightbox}
-            onPrev={prevItem}
-            onNext={nextItem}
-          />
+          <Lightbox items={filtered} index={lightboxIndex} onClose={closeLightbox} onPrev={prevItem} onNext={nextItem} />
         )}
       </AnimatePresence>
       <FloatingWhatsApp />

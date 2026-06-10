@@ -330,9 +330,14 @@ export default function Home() {
             <div>
               <h4 className="font-semibold text-card-foreground mb-3">Quick Links</h4>
               <div className="space-y-2">
-                {["/services", "/booking", "/reviews", "/about"].map((href) => (
-                  <Link key={href} href={href} className="block text-sm text-muted-foreground hover:text-primary transition-colors capitalize">
-                    {href.slice(1)}
+                {[
+                  { href: "/services", label: "Services" },
+                  { href: "/gallery", label: "Gallery" },
+                  { href: "/booking", label: "Book Now" },
+                  { href: "/contact", label: "Contact" },
+                ].map(({ href, label }) => (
+                  <Link key={href} href={href} className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                    {label}
                   </Link>
                 ))}
               </div>

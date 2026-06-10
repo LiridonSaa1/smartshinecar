@@ -70,6 +70,13 @@ export function Navbar() {
             ))}
           </nav>
 
+          {/* Login */}
+          <Link href="/admin/login" className="flex-shrink-0">
+            <button className="inline-flex items-center justify-center rounded-full border border-white/30 hover:bg-white/10 px-5 py-2.5 text-[13px] font-bold text-white transition-all duration-150">
+              Login
+            </button>
+          </Link>
+
           {/* Book Now */}
           <Link href="/booking" className="flex-shrink-0">
             <button className="inline-flex items-center justify-center rounded-full bg-blue-500 hover:bg-blue-400 active:bg-blue-600 px-6 py-2.5 text-[13px] font-bold text-white transition-all duration-150 shadow-lg shadow-blue-500/30">
@@ -121,6 +128,11 @@ export function Navbar() {
                 </Link>
               ))}
             </nav>
+            <Link href="/admin/login" onClick={() => setMobileOpen(false)}>
+              <button className="w-full rounded-2xl border border-white/30 hover:bg-white/10 py-3.5 text-[16px] font-bold text-white transition-colors mb-3">
+                Login
+              </button>
+            </Link>
             <Link href="/booking" onClick={() => setMobileOpen(false)}>
               <button className="w-full rounded-2xl bg-blue-600 hover:bg-blue-500 py-3.5 text-[16px] font-bold text-white transition-colors">
                 Book Now

@@ -376,7 +376,7 @@ export default function CommercialValeting() {
         <FadeIn>
           <div className="relative">
             <img
-              src={kenworthImg}
+              src="/kenworth-big-rig.png"
               alt="Kenworth truck valeted at Smart Shine Car Valeting Centre, Guildford"
               className="w-full h-[520px] md:h-[620px] object-cover object-center"
             />

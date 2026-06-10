@@ -527,6 +527,24 @@ export default function CommercialValeting() {
       {/* 1. HERO CAROUSEL */}
       <HeroCarousel />
 
+      {/* ABOUT US */}
+      <section className="py-16 bg-white border-b border-gray-100">
+        <div className="mx-auto max-w-4xl px-6">
+          <FadeIn className="text-center">
+            <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 rounded-full px-4 py-1.5 text-sm font-bold mb-5">
+              <Truck className="h-4 w-4" />
+              About Us
+            </div>
+            <h2 className="text-3xl md:text-4xl font-black text-[#0a0f2e] mb-5 leading-tight">
+              Top-class commercial vehicle valeting service in Guildford
+            </h2>
+            <p className="text-gray-600 text-[16px] leading-relaxed max-w-3xl mx-auto">
+              Commercial vehicles see much more wear and tear than private cars due to the amount of usage, and therefore need regular valeting. Count on Smart Shine Car Valeting Centre to clean your car or van and bring its shine back. We offer full valet and part valet services at competitive prices. Whether you need interior valeting or exterior valeting, you can rely on us.
+            </p>
+          </FadeIn>
+        </div>
+      </section>
+
       {/* 2. COMMERCIAL VALETING — text left, image right */}
       <section
         className="py-20"

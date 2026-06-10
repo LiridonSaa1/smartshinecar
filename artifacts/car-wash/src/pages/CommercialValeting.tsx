@@ -539,7 +539,12 @@ export default function CommercialValeting() {
               Top-class commercial vehicle valeting service in Guildford
             </h2>
             <p className="text-gray-600 text-[16px] leading-relaxed max-w-3xl mx-auto">
-              Commercial vehicles see much more wear and tear than private cars due to the amount of usage, and therefore need regular valeting. Count on Smart Shine Car Valeting Centre to clean your car or van and bring its shine back. We offer full valet and part valet services at competitive prices. Whether you need interior valeting or exterior valeting, you can rely on us.
+              Commercial vehicles see much more wear and tear than private cars
+              due to the amount of usage, and therefore need regular valeting.
+              Count on Smart Shine Car Valeting Centre to clean your car or van
+              and bring its shine back. We offer full valet and part valet
+              services at competitive prices. Whether you need interior valeting
+              or exterior valeting, you can rely on us.
             </p>
           </FadeIn>
         </div>
@@ -749,9 +754,20 @@ export default function CommercialValeting() {
                   </a>
                 </div>
               </div>
-              <a href="https://www.yell.com/biz/smart-shine-car-valeting-guildford/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 mt-4 group">
-                <img src="/yell-icon.png" alt="Yell" className="h-8 w-8 rounded" />
-                <span className="text-gray-400 text-sm font-semibold group-hover:text-white transition-colors">Find us on Yell</span>
+              <a
+                href="https://www.yell.com/biz/smart-shine-car-valeting-guildford/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 mt-4 group"
+              >
+                <img
+                  src="/yell-icon.png"
+                  alt="Yell"
+                  className="h-8 w-8 rounded"
+                />
+                <span className="text-gray-400 text-sm font-semibold group-hover:text-white transition-colors">
+                  Find us on Yell
+                </span>
               </a>
             </div>
           </div>
@@ -774,17 +790,6 @@ export default function CommercialValeting() {
                   <Icon className="h-5 w-5" />
                 </motion.a>
               ))}
-              <motion.a
-                href="https://www.yell.com/biz/smart-shine-car-valeting-guildford/"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                aria-label="Find us on Yell"
-                className="h-11 w-11 rounded-full bg-red-600 hover:bg-red-500 flex items-center justify-center text-white font-black text-xl transition-all duration-200"
-              >
-                y
-              </motion.a>
             </div>
             <div className="flex items-center justify-center gap-4 text-xs text-gray-500 mb-4">
               <Link

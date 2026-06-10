@@ -782,17 +782,6 @@ export default function Home() {
                   <Icon className="h-5 w-5" />
                 </motion.a>
               ))}
-              <motion.a
-                href="https://www.yell.com/biz/smart-shine-car-valeting-guildford/"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                aria-label="Find us on Yell"
-                className="h-11 w-11 rounded-full bg-red-600 hover:bg-red-500 flex items-center justify-center text-white font-black text-xl transition-all duration-200"
-              >
-                y
-              </motion.a>
             </div>
 
             <div className="flex items-center justify-center gap-4 text-xs text-gray-500 mb-4">

@@ -264,6 +264,40 @@ export default function Home() {
             </FadeIn>
           </div>
         </div>
+
+        {/* STATS CARDS */}
+        <div className="bg-gray-100 pb-10 px-6">
+          <div className="mx-auto max-w-5xl">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { value: "25+", label: "Years Experience", icon: "🏆", color: "from-blue-600 to-blue-800" },
+                { value: "5,000+", label: "Happy Customers", icon: "😊", color: "from-indigo-600 to-indigo-800" },
+                { value: "100%", label: "Fully Insured", icon: "🛡️", color: "from-blue-700 to-[#0a0f2e]" },
+                { value: "5★", label: "Rated Service", icon: "⭐", color: "from-[#0a0f2e] to-blue-900" },
+              ].map(({ value, label, icon, color }, i) => (
+                <motion.div
+                  key={label}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1, duration: 0.55, ease: [0.32, 0.72, 0, 1] }}
+                  className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${color} p-6 text-center shadow-lg shadow-blue-900/20`}
+                >
+                  {/* decorative circle */}
+                  <div className="absolute -top-4 -right-4 h-20 w-20 rounded-full bg-white/5" />
+                  <div className="absolute -bottom-6 -left-4 h-24 w-24 rounded-full bg-white/5" />
+                  <div className="relative">
+                    <div className="text-3xl mb-3">{icon}</div>
+                    <p className="text-4xl md:text-5xl font-black text-white tracking-tight leading-none mb-2">
+                      {value}
+                    </p>
+                    <p className="text-blue-200 text-[12px] font-bold uppercase tracking-widest">{label}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* 3. A COMPLETE VALETING SERVICE */}
@@ -315,23 +349,6 @@ export default function Home() {
 
       {/* 4. WHY CHOOSE US */}
       <section className="bg-gray-50">
-        {/* Stats bar */}
-        <div className="bg-[#0a0f2e]/5 border-b border-gray-200">
-          <div className="mx-auto max-w-5xl px-6 py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {[
-              { value: "25+", label: "Years Experience" },
-              { value: "5,000+", label: "Happy Customers" },
-              { value: "100%", label: "Fully Insured" },
-              { value: "5★", label: "Rated Service" },
-            ].map(({ value, label }) => (
-              <div key={label}>
-                <p className="text-3xl font-black text-[#0a0f2e]">{value}</p>
-                <p className="text-sm text-gray-500 font-medium mt-1">{label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2">
           {/* Text */}
           <FadeIn direction="left" className="flex items-center px-10 md:px-16 py-16">

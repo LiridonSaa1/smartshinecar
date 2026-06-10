@@ -245,7 +245,7 @@ export default function Home() {
         <div className="bg-gray-100 pt-16 pb-4 text-center px-4">
           <FadeIn>
             <h2
-              className="text-[clamp(1.8rem,5vw,3.5rem)] font-black tracking-tight leading-tight min-h-[2em]"
+              className="text-[clamp(1.1rem,2.5vw,1.75rem)] font-black tracking-tight leading-tight min-h-[2em]"
               style={{
                 WebkitTextStroke: "2px #0a0f2e",
                 color: "transparent",

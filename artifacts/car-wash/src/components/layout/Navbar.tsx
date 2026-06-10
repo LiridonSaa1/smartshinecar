@@ -1,9 +1,8 @@
 import { Link, useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Droplets, Menu, ChevronDown } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useState } from "react";
+import { Droplets, Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 const links = [
   { href: "/", label: "Home" },
@@ -15,86 +14,115 @@ const links = [
 export function Navbar() {
   const [location] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    if (mobileOpen) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary">
-            <Droplets className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <div className="hidden sm:block">
-            <span className="font-bold tracking-tight text-base leading-none">Car Wash Pro</span>
-            <p className="text-[10px] text-muted-foreground leading-none mt-0.5">Premium Valeting</p>
-          </div>
-        </Link>
-
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-1">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
-                location === link.href
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
-              )}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="hidden md:flex items-center gap-3">
-          <Link href="/booking">
-            <Button size="sm" className="font-semibold px-5">Book Now</Button>
-          </Link>
-        </div>
-
-        {/* Mobile */}
-        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-          <SheetTrigger asChild className="md:hidden">
-            <Button variant="ghost" size="icon">
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-72">
-            <div className="flex items-center gap-2 mb-8 mt-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary">
-                <Droplets className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <div>
-                <span className="font-bold tracking-tight text-base leading-none block">Car Wash Pro</span>
-                <p className="text-[10px] text-muted-foreground leading-none mt-0.5">Premium Valeting</p>
-              </div>
+    <>
+      <header
+        className={cn(
+          "sticky top-0 z-50 w-full transition-all duration-300",
+          scrolled
+            ? "bg-white/80 dark:bg-black/80 backdrop-blur-2xl backdrop-saturate-150 border-b border-gray-200/60 dark:border-white/10 shadow-sm"
+            : "bg-white/60 dark:bg-black/60 backdrop-blur-2xl backdrop-saturate-150"
+        )}
+      >
+        <div className="mx-auto max-w-6xl flex h-[52px] items-center justify-between px-5">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0 group">
+            <div className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-blue-600 shadow-sm shadow-blue-500/30 transition-transform group-hover:scale-105">
+              <Droplets className="h-4 w-4 text-white" />
             </div>
-            <div className="flex flex-col gap-1">
+            <span className="font-semibold text-[15px] tracking-tight text-gray-900 dark:text-white">
+              Car Wash Pro
+            </span>
+          </Link>
+
+          {/* Desktop Nav — centred */}
+          <nav className="hidden md:flex items-center gap-0.5 absolute left-1/2 -translate-x-1/2">
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  "px-3.5 py-1.5 rounded-full text-[14px] transition-all duration-150",
+                  location === link.href
+                    ? "text-gray-900 dark:text-white font-medium bg-black/5 dark:bg-white/10"
+                    : "text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10"
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Right: Book Now pill */}
+          <div className="hidden md:flex items-center gap-2">
+            <Link href="/booking">
+              <button className="inline-flex items-center justify-center rounded-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 px-4 py-1.5 text-[13px] font-medium text-white transition-all duration-150 shadow-sm shadow-blue-500/20 hover:shadow-blue-500/30">
+                Book Now
+              </button>
+            </Link>
+          </div>
+
+          {/* Mobile hamburger */}
+          <button
+            className="md:hidden flex items-center justify-center h-8 w-8 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+            onClick={() => setMobileOpen(o => !o)}
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X className="h-5 w-5 text-gray-700 dark:text-white" /> : <Menu className="h-5 w-5 text-gray-700 dark:text-white" />}
+          </button>
+        </div>
+      </header>
+
+      {/* Mobile fullscreen overlay */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            key="mobile-menu"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="fixed inset-0 top-[52px] z-40 bg-white/95 dark:bg-black/95 backdrop-blur-2xl backdrop-saturate-150 flex flex-col px-6 pt-8 pb-12"
+          >
+            <nav className="flex flex-col gap-1 mb-8">
               {links.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
                   className={cn(
-                    "px-4 py-3 rounded-lg text-base font-medium transition-colors",
+                    "px-4 py-3.5 rounded-2xl text-[17px] font-medium transition-colors",
                     location === link.href
-                      ? "bg-primary/10 text-primary"
-                      : "text-foreground hover:bg-muted"
+                      ? "bg-blue-600 text-white"
+                      : "text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10"
                   )}
                 >
                   {link.label}
                 </Link>
               ))}
-              <div className="h-px bg-border my-3" />
-              <Link href="/booking" onClick={() => setMobileOpen(false)}>
-                <Button className="w-full font-semibold">Book Now</Button>
-              </Link>
-            </div>
-          </SheetContent>
-        </Sheet>
-      </div>
-    </header>
+            </nav>
+            <Link href="/booking" onClick={() => setMobileOpen(false)}>
+              <button className="w-full rounded-2xl bg-blue-600 hover:bg-blue-500 py-3.5 text-[16px] font-semibold text-white transition-colors shadow-md shadow-blue-500/25">
+                Book Now
+              </button>
+            </Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

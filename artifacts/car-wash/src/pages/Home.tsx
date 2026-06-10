@@ -11,7 +11,7 @@ import logoSrc from "@assets/Professional_Car_Valeting_Logo_in_Navy_and_Silver_1
 import aboutImg from "@assets/image_1781123675503.png";
 import whyUsImg from "@assets/IMG_0034-576w_1781124058228.webp";
 
-const completeImg = "/lamborghini-nobg.png";
+import completeImg from "@assets/8BAB8335-072E-4691-B56A-98632CD0FC5E-535w_1781124055227.webp";
 
 const HERO_SLIDES = [
   {
@@ -268,14 +268,13 @@ export default function Home() {
 
       {/* 3. A COMPLETE VALETING SERVICE */}
       <section className="bg-[#0a0f2e] py-0">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 md:grid-cols-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 max-w-screen-2xl mx-auto">
             {/* Image */}
-            <FadeIn direction="left" className="flex items-end justify-center px-6 pt-8 md:pt-0">
+            <FadeIn direction="left" className="overflow-hidden min-h-[380px]">
               <img
                 src={completeImg}
                 alt="Complete Valeting Service"
-                className="w-full max-w-[480px] object-contain drop-shadow-2xl"
+                className="w-full h-full object-cover object-center min-h-[380px]"
               />
             </FadeIn>
 
@@ -303,7 +302,6 @@ export default function Home() {
                 </Link>
               </div>
             </FadeIn>
-          </div>
         </div>
       </section>
 

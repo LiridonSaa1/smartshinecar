@@ -135,7 +135,7 @@ export default function Contact() {
                 className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition-shadow"
               >
                 <div className="h-11 w-11 rounded-xl bg-[#0a0f2e] flex items-center justify-center mb-4">
-                  <item.icon className="h-5 w-5 text-blue-300" />
+                  <item.icon className="h-5 w-5 text-white" />
                 </div>
                 <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">{item.label}</p>
                 {item.href ? (

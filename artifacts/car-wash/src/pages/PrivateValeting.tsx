@@ -4,6 +4,7 @@ import {
   ArrowRight, Star, Phone, MapPin, Clock,
   ChevronLeft, ChevronRight, Sparkles,
   Facebook, Twitter, Shield, Send,
+  Droplets, Car, Crown, Layers, Paintbrush, Truck,
 } from "lucide-react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -34,12 +35,12 @@ const HERO_SLIDES = [
 ];
 
 const PACKAGES = [
-  { name: "Mini Valet", desc: "Exterior wash, leather dry, vacuum, window polish", price: "from £45.00" },
-  { name: "Economy Valet", desc: "For new and well maintained cars", price: "from £120.00" },
-  { name: "Premier Valet", desc: "To make your car look as good as new", price: "from £169.00" },
-  { name: "Interior Valet", desc: "Full interior deep clean and treatment", price: "from £120.00" },
-  { name: "Exterior Valet", desc: "Full exterior wash, polish and finish", price: "from £139.00" },
-  { name: "Commercial Vehicle", desc: "Valeting service for commercial vehicles in Guildford", price: "Call for quote" },
+  { name: "Mini Valet", desc: "Exterior wash, leather dry, vacuum, window polish", price: "from £45.00", icon: Droplets, color: "bg-blue-50 text-blue-600" },
+  { name: "Economy Valet", desc: "For new and well maintained cars", price: "from £120.00", icon: Car, color: "bg-indigo-50 text-indigo-600" },
+  { name: "Premier Valet", desc: "To make your car look as good as new", price: "from £169.00", icon: Crown, color: "bg-amber-50 text-amber-600" },
+  { name: "Interior Valet", desc: "Full interior deep clean and treatment", price: "from £120.00", icon: Layers, color: "bg-purple-50 text-purple-600" },
+  { name: "Exterior Valet", desc: "Full exterior wash, polish and finish", price: "from £139.00", icon: Paintbrush, color: "bg-green-50 text-green-600" },
+  { name: "Commercial Vehicle", desc: "Valeting service for commercial vehicles in Guildford", price: "Call for quote", icon: Truck, color: "bg-slate-100 text-slate-600" },
 ];
 
 function FadeIn({ children, className, delay = 0, direction = "up" }: {
@@ -415,30 +416,49 @@ export default function PrivateValeting() {
           </FadeIn>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {PACKAGES.map((pkg, i) => (
-              <motion.div
-                key={pkg.name}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08, duration: 0.55, ease: [0.32, 0.72, 0, 1] }}
-                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col gap-3 hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <h4 className="font-black text-[#0a0f2e] text-[16px] leading-tight">{pkg.name}</h4>
-                  <span className="inline-block bg-[#0a0f2e] text-white text-[11px] font-bold px-3 py-1 rounded-full whitespace-nowrap flex-shrink-0">
-                    {pkg.price}
-                  </span>
-                </div>
-                <p className="text-gray-500 text-[13px] leading-relaxed">{pkg.desc}</p>
-                <a
-                  href="#contact"
-                  className="mt-auto inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 text-[13px] font-bold transition-colors"
+            {PACKAGES.map((pkg, i) => {
+              const Icon = pkg.icon;
+              return (
+                <motion.div
+                  key={pkg.name}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08, duration: 0.55, ease: [0.32, 0.72, 0, 1] }}
+                  whileHover={{ y: -4, boxShadow: "0 12px 32px rgba(10,15,46,0.10)" }}
+                  className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col gap-4 cursor-default"
                 >
-                  Get Free Quote <ArrowRight className="h-3.5 w-3.5" />
-                </a>
-              </motion.div>
-            ))}
+                  {/* Icon + price row */}
+                  <div className="flex items-center justify-between">
+                    <motion.div
+                      whileHover={{ rotate: [0, -10, 10, -6, 0] }}
+                      transition={{ duration: 0.5 }}
+                      className={`h-11 w-11 rounded-xl flex items-center justify-center flex-shrink-0 ${pkg.color}`}
+                    >
+                      <Icon className="h-5 w-5" />
+                    </motion.div>
+                    <span className="inline-block bg-[#0a0f2e] text-white text-[11px] font-bold px-3 py-1 rounded-full whitespace-nowrap">
+                      {pkg.price}
+                    </span>
+                  </div>
+
+                  {/* Name + desc */}
+                  <div>
+                    <h4 className="font-black text-[#0a0f2e] text-[15px] mb-1">{pkg.name}</h4>
+                    <p className="text-gray-500 text-[13px] leading-relaxed">{pkg.desc}</p>
+                  </div>
+
+                  {/* CTA */}
+                  <a
+                    href="#contact"
+                    className="mt-auto inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 text-[13px] font-bold transition-colors group"
+                  >
+                    Get Free Quote
+                    <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                  </a>
+                </motion.div>
+              );
+            })}
           </div>
           <p className="text-gray-400 text-[13px] italic text-center mt-6">* Prices vary on the size of the car.</p>
         </div>

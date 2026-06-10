@@ -11,7 +11,6 @@ import {
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useState, useEffect, useCallback, useRef } from "react";
 import logoSrc from "@assets/Professional_Car_Valeting_Logo_in_Navy_and_Silver_1781123501610.png";
-import truckImg from "@assets/image_1781129523637.png";
 import vanImg from "@assets/IMG_1997-1920w_1781130022961.webp";
 import kenworthImg from "@assets/IMG_0022-8ade3f8e-1920w_1781130012426.webp";
 
@@ -365,7 +364,7 @@ export default function CommercialValeting() {
             </FadeIn>
             <FadeIn direction="right" delay={0.15}>
               <div className="rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
-                <img src={truckImg} alt="Commercial vehicle valeting truck" className="w-full h-80 object-cover" />
+                <img src={kenworthImg} alt="Commercial vehicle valeting truck" className="w-full h-80 object-cover" />
               </div>
             </FadeIn>
           </div>

@@ -241,44 +241,19 @@ export default function Home() {
 
       {/* 2. ABOUT US */}
       <section className="py-0">
-        {/* Top banner — photo bg + outline text */}
-        <div className="relative overflow-hidden">
-          {/* Background image */}
-          <img
-            src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80"
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover object-center scale-105"
-          />
-          {/* Dark gradient overlay — darker at top, fades to gray-100 at bottom */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0f2e]/90 via-[#0a0f2e]/80 to-gray-100" />
-
-          <div className="relative py-16 text-center px-4">
-            <FadeIn>
-              {/* Outline label above */}
-              <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-blue-300 mb-4">
-                Smart Shine Car Valeting Centre
-              </p>
-
-              {/* Big outline headline */}
-              <h2
-                className="text-[clamp(1.8rem,5vw,3.5rem)] font-black tracking-tight leading-tight min-h-[2em]"
-                style={{
-                  WebkitTextStroke: "2px white",
-                  color: "transparent",
-                  textShadow: "0 0 40px rgba(255,255,255,0.15)",
-                }}
-              >
-                <Typewriter text="Car valeting in Guildford and surrounding area" />
-              </h2>
-
-              {/* Thin divider line that runs into About */}
-              <div className="mt-10 flex items-center justify-center gap-3">
-                <div className="h-px w-16 bg-white/30" />
-                <div className="h-2 w-2 rounded-full bg-blue-400" />
-                <div className="h-px w-16 bg-white/30" />
-              </div>
-            </FadeIn>
-          </div>
+        {/* Top banner — outline text only, primary color */}
+        <div className="bg-gray-100 pt-16 pb-4 text-center px-4">
+          <FadeIn>
+            <h2
+              className="text-[clamp(1.8rem,5vw,3.5rem)] font-black tracking-tight leading-tight min-h-[2em]"
+              style={{
+                WebkitTextStroke: "2px #0a0f2e",
+                color: "transparent",
+              }}
+            >
+              <Typewriter text="Car valeting in Guildford and surrounding area" />
+            </h2>
+          </FadeIn>
         </div>
 
         {/* About content — sits directly below, connected */}

@@ -69,7 +69,7 @@ function HeroCarousel() {
   useEffect(() => { const t = setTimeout(next, 6000); return () => clearTimeout(t); }, [next]);
 
   return (
-    <section className="relative h-[70vh] min-h-[560px] overflow-hidden select-none">
+    <section className="relative h-screen min-h-[620px] overflow-hidden select-none">
       <AnimatePresence initial={false} mode="popLayout">
         <motion.div
           key={slide.id}
@@ -399,31 +399,6 @@ export default function PrivateValeting() {
 
       {/* 1. HERO CAROUSEL */}
       <HeroCarousel />
-
-      {/* 1b. INTRO SPLIT — Land Rover */}
-      <section className="bg-white border-b border-gray-100">
-        <div className="grid grid-cols-1 md:grid-cols-2 max-w-screen-xl mx-auto">
-          <FadeIn direction="left" className="overflow-hidden min-h-[360px]">
-            <img
-              src={defenderImg}
-              alt="Private vehicle valeting Guildford"
-              className="w-full h-full object-cover object-center min-h-[360px]"
-            />
-          </FadeIn>
-          <FadeIn direction="right" delay={0.15} className="flex items-center px-10 md:px-16 py-14">
-            <div>
-              <h2 className="text-2xl md:text-3xl font-black text-[#0a0f2e] mb-5 leading-tight">
-                Excellent private vehicle valeting service in Guildford.
-              </h2>
-              <p className="text-gray-600 leading-relaxed text-[15px]">
-                At Smart Shine Car Valeting Centre, we provide a wide variety of individually tailored valeting
-                packages to suit all your requirements in the Guildford area. We also welcome customers from
-                Godalming and Woking.
-              </p>
-            </div>
-          </FadeIn>
-        </div>
-      </section>
 
       {/* 2. WE CAN MAKE YOUR CAR SHINE */}
       <section className="bg-[#0a0f2e]">

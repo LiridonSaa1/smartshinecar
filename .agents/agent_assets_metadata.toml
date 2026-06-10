@@ -1,0 +1,26 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "z3YAuU9oXQw4KO8Oz8YPl"
+uri = "file://artifacts/car-wash/public/hero.png"
+type = "image"
+title = "Hero dramatic car wash"
+
+[[generated]]
+id = "CUQUuDQoezoCUWbWoRnW8"
+uri = "file://artifacts/car-wash/public/exterior.png"
+type = "image"
+title = "Exterior wash service"
+
+[[generated]]
+id = "HvDzWpJrCqWsQ2Bxjvj7-"
+uri = "file://artifacts/car-wash/public/interior.png"
+type = "image"
+title = "Interior detail service"
+
+[[generated]]
+id = "lBmN9UpoedbMdXOJacBmy"
+uri = "file://artifacts/car-wash/public/full-detail.png"
+type = "image"
+title = "Full detail service"

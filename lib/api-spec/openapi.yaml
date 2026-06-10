@@ -3,20 +3,32 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Car Wash Pro API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: services
+    description: Car wash services
+  - name: bookings
+    description: Customer bookings
+  - name: reviews
+    description: Customer reviews
+  - name: auth
+    description: Authentication
+  - name: analytics
+    description: Dashboard analytics
+  - name: settings
+    description: Business settings
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +36,379 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # AUTH
+  /auth/login:
+    post:
+      operationId: adminLogin
+      tags: [auth]
+      summary: Admin login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Unauthorized
+
+  /auth/logout:
+    post:
+      operationId: adminLogout
+      tags: [auth]
+      summary: Admin logout
+      responses:
+        "200":
+          description: Logged out
+
+  /auth/me:
+    get:
+      operationId: getAdminMe
+      tags: [auth]
+      summary: Get current admin user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+        "401":
+          description: Unauthorized
+
+  # SERVICES
+  /services:
+    get:
+      operationId: listServices
+      tags: [services]
+      summary: List all services
+      responses:
+        "200":
+          description: List of services
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Service"
+    post:
+      operationId: createService
+      tags: [services]
+      summary: Create a service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+
+  /services/{id}:
+    get:
+      operationId: getService
+      tags: [services]
+      summary: Get a service
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+    put:
+      operationId: updateService
+      tags: [services]
+      summary: Update a service
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+    delete:
+      operationId: deleteService
+      tags: [services]
+      summary: Delete a service
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # BOOKINGS
+  /bookings:
+    get:
+      operationId: listBookings
+      tags: [bookings]
+      summary: List all bookings
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, confirmed, in_progress, done, cancelled]
+        - name: date
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Booking"
+    post:
+      operationId: createBooking
+      tags: [bookings]
+      summary: Create a booking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookingInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+
+  /bookings/{id}:
+    get:
+      operationId: getBooking
+      tags: [bookings]
+      summary: Get a booking
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Booking
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+    put:
+      operationId: updateBooking
+      tags: [bookings]
+      summary: Update a booking
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookingUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+    delete:
+      operationId: deleteBooking
+      tags: [bookings]
+      summary: Delete a booking
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /bookings/slots:
+    get:
+      operationId: getAvailableSlots
+      tags: [bookings]
+      summary: Get available time slots for a given date and service
+      parameters:
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: serviceId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Available slots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimeSlot"
+
+  # REVIEWS
+  /reviews:
+    get:
+      operationId: listReviews
+      tags: [reviews]
+      summary: List reviews
+      responses:
+        "200":
+          description: List of reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Review"
+    post:
+      operationId: createReview
+      tags: [reviews]
+      summary: Submit a review
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review"
+
+  # ANALYTICS
+  /analytics/dashboard:
+    get:
+      operationId: getDashboardStats
+      tags: [analytics]
+      summary: Get dashboard summary stats
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /analytics/bookings-chart:
+    get:
+      operationId: getBookingsChart
+      tags: [analytics]
+      summary: Bookings per day for the past N days
+      parameters:
+        - name: days
+          in: query
+          schema:
+            type: integer
+            default: 30
+      responses:
+        "200":
+          description: Chart data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChartPoint"
+
+  /analytics/top-services:
+    get:
+      operationId: getTopServices
+      tags: [analytics]
+      summary: Top booked services
+      responses:
+        "200":
+          description: Top services
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TopService"
+
+  # SETTINGS
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      summary: Get business settings
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BusinessSettings"
+    put:
+      operationId: updateSettings
+      tags: [settings]
+      summary: Update business settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BusinessSettings"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BusinessSettings"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +416,266 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    LoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required: [email, password]
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/AdminUser"
+      required: [token, user]
+
+    AdminUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+      required: [id, name, email, role]
+
+    Service:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        duration:
+          type: integer
+          description: Duration in minutes
+        imageUrl:
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+      required: [id, name, price, duration, isActive, createdAt]
+
+    ServiceInput:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        duration:
+          type: integer
+        imageUrl:
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
+      required: [name, price, duration]
+
+    Booking:
+      type: object
+      properties:
+        id:
+          type: integer
+        customerName:
+          type: string
+        customerPhone:
+          type: string
+        customerEmail:
+          type: string
+          nullable: true
+        serviceId:
+          type: integer
+        serviceName:
+          type: string
+        servicePrice:
+          type: number
+        date:
+          type: string
+        time:
+          type: string
+        status:
+          type: string
+          enum: [pending, confirmed, in_progress, done, cancelled]
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+      required: [id, customerName, customerPhone, serviceId, serviceName, servicePrice, date, time, status, createdAt]
+
+    BookingInput:
+      type: object
+      properties:
+        customerName:
+          type: string
+        customerPhone:
+          type: string
+        customerEmail:
+          type: string
+          nullable: true
+        serviceId:
+          type: integer
+        date:
+          type: string
+        time:
+          type: string
+        notes:
+          type: string
+          nullable: true
+      required: [customerName, customerPhone, serviceId, date, time]
+
+    BookingUpdate:
+      type: object
+      properties:
+        customerName:
+          type: string
+        customerPhone:
+          type: string
+        customerEmail:
+          type: string
+          nullable: true
+        serviceId:
+          type: integer
+        date:
+          type: string
+        time:
+          type: string
+        status:
+          type: string
+          enum: [pending, confirmed, in_progress, done, cancelled]
+        notes:
+          type: string
+          nullable: true
+
+    TimeSlot:
+      type: object
+      properties:
+        time:
+          type: string
+        available:
+          type: boolean
+      required: [time, available]
+
+    Review:
+      type: object
+      properties:
+        id:
+          type: integer
+        customerName:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+        serviceName:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+      required: [id, customerName, rating, comment, createdAt]
+
+    ReviewInput:
+      type: object
+      properties:
+        customerName:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+        serviceName:
+          type: string
+          nullable: true
+      required: [customerName, rating, comment]
+
+    DashboardStats:
+      type: object
+      properties:
+        totalBookings:
+          type: integer
+        todayBookings:
+          type: integer
+        monthRevenue:
+          type: number
+        pendingBookings:
+          type: integer
+        confirmedBookings:
+          type: integer
+        completedBookings:
+          type: integer
+        averageRating:
+          type: number
+        totalReviews:
+          type: integer
+      required: [totalBookings, todayBookings, monthRevenue, pendingBookings, confirmedBookings, completedBookings, averageRating, totalReviews]
+
+    ChartPoint:
+      type: object
+      properties:
+        date:
+          type: string
+        bookings:
+          type: integer
+        revenue:
+          type: number
+      required: [date, bookings, revenue]
+
+    TopService:
+      type: object
+      properties:
+        serviceId:
+          type: integer
+        serviceName:
+          type: string
+        bookingCount:
+          type: integer
+        totalRevenue:
+          type: number
+      required: [serviceId, serviceName, bookingCount, totalRevenue]
+
+    BusinessSettings:
+      type: object
+      properties:
+        businessName:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        openTime:
+          type: string
+        closeTime:
+          type: string
+        slotDuration:
+          type: integer
+          description: Duration of each slot in minutes
+        workingDays:
+          type: array
+          items:
+            type: string
+      required: [businessName, address, phone, email, openTime, closeTime, slotDuration, workingDays]

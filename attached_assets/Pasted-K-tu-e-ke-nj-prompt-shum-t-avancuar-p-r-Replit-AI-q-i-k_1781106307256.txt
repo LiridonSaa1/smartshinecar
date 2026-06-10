@@ -1,0 +1,148 @@
+Këtu e ke një prompt shumë të avancuar për Replit AI që i kërkon me ndërtu website + PWA + UI modern + multi-pages + admin panel për car wash:
+
+🚀 PROMPT PËR REPLIT (FULL CAR WASH SYSTEM)
+
+Ndërto një modern Full-Stack Web Application + PWA për një Car Wash Booking System (vetëm një biznes) me UI shumë të bukur, multi-page dhe admin panel profesional.
+
+🎨 UI / UX KËRKESA (SHUMË E RËNDËSISHME)
+Dizajn modern, minimal dhe premium (Apple / Uber style)
+Responsive 100% (mobile-first)
+Smooth animations dhe transitions
+Loading states elegante
+Dark / Light mode (opsionale)
+Design i pastër me spacing të mirë
+Icons moderne (Lucide / Heroicons)
+📄 PAGES (FRONTEND)
+1. 🏠 Home Page
+Hero section me “Book Your Car Wash in Seconds”
+CTA button: Book Now
+Services preview
+Pricing preview
+Reviews section
+Location map
+2. 🧼 Services Page
+Listë e shërbimeve:
+Exterior Wash
+Interior Cleaning
+Full Wash
+Detailing
+Çmimet dhe koha për çdo shërbim
+“Select & Book” button
+3. 📅 Booking Page (CORE PAGE)
+Step-by-step booking flow:
+Zgjedh shërbimin
+Zgjedh datë dhe orë (calendar UI)
+Shkruan emrin + telefonin
+Confirm booking
+Shfaq “available slots”
+Success page pas rezervimit
+4. 📍 About / Contact Page
+Informata për car wash
+Location map (Google Maps embed)
+Contact form
+Working hours
+5. ⭐ Reviews Page
+Klientët mund të shohin reviews
+Star rating system
+🧑‍💼 ADMIN PANEL (DASHBOARD I KOMPLET)
+🔐 Admin Login
+Secure login form
+📊 Dashboard Home
+Total bookings
+Bookings today
+Revenue summary
+Quick stats cards
+📅 Bookings Management
+Table me të gjitha rezervimet
+Filter:
+pending
+confirmed
+in progress
+done
+cancelled
+Edit status
+Delete booking
+Manual add booking (walk-in customers)
+🧼 Services Management
+Add / edit / delete services
+Fields:
+name
+price
+duration
+📈 Analytics Page
+Graph:
+bookings per day/week
+revenue chart
+Top services
+⚙️ Settings Page
+Business info
+Working hours
+Slot duration (p.sh. 30 min / 60 min)
+Notification settings
+⚙️ BACKEND (FULL API)
+
+Ndërto backend me Node.js (Express) ose Laravel:
+
+API ENDPOINTS:
+POST /auth/login
+GET /services
+POST /services
+PUT /services/:id
+DELETE /services/:id
+GET /bookings
+POST /bookings
+PUT /bookings/:id
+DELETE /bookings/:id
+🗄️ DATABASE MODELS
+Users
+id
+name
+email
+password
+role (admin)
+Services
+id
+name
+price
+duration
+Bookings
+id
+name
+phone
+service_id
+date
+time
+status (pending, confirmed, in_progress, done, cancelled)
+📲 PWA REQUIREMENTS
+Installable (Add to Home Screen)
+Service Worker caching
+Offline fallback page
+Manifest.json:
+name: Car Wash Pro
+icons
+theme color
+Fast loading & app-like experience
+🎯 UI COMPONENTS (IMPORTANT)
+Navbar modern
+Sidebar admin panel
+Cards design për services
+Calendar UI për booking
+Tables moderne me pagination
+Toast notifications
+Modal dialogs për edit/delete
+💡 EXTRA FEATURES (NËSE MUNDESH)
+Real-time booking updates
+Email confirmation (optional)
+“Today available slots” live view
+Auto status flow (pending → confirmed → done)
+Smooth page transitions
+🎯 OUTPUT
+
+Gjenero një projekt komplet funksional me:
+
+Frontend modern multi-page
+Backend API
+Admin panel profesional
+Database setup
+PWA configuration
+Clean folder structure

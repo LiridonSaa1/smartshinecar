@@ -6,6 +6,7 @@ import bookingsRouter from "./bookings";
 import reviewsRouter from "./reviews";
 import analyticsRouter from "./analytics";
 import settingsRouter from "./settings";
+import contentRouter from "./content";
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use(bookingsRouter);
 router.use(reviewsRouter);
 router.use(analyticsRouter);
 router.use(settingsRouter);
+router.use(contentRouter);
 
 export default router;

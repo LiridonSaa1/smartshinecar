@@ -2,11 +2,12 @@ import { Navbar } from "@/components/layout/Navbar";
 import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
 import { CookieBanner } from "@/components/ui/CookieBanner";
 import { useListReviews } from "@workspace/api-client-react";
+import { useContentSection } from "@/lib/useContent";
 import { Link } from "wouter";
 import {
   ArrowRight, Star, Shield, Phone, MapPin, Clock, Mail,
   ChevronLeft, ChevronRight, ChevronDown, Sparkles, CheckCircle, Facebook, Twitter, Send,
-  Trophy, Banknote, Car, Wrench,
+  Car,
 } from "lucide-react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
@@ -212,16 +213,53 @@ function FadeIn({ children, className, delay = 0, direction = "up" }: {
   );
 }
 
-const WHY_CARDS = [
-  { icon: Trophy,       title: "25 Years Experience",   desc: "Over two decades of professional valeting expertise in Guildford" },
-  { icon: Star,         title: "5-Star Rated",          desc: "Consistently top-rated by hundreds of happy customers" },
-  { icon: Shield,       title: "Fully Insured",         desc: "All work fully insured for your complete peace of mind" },
-  { icon: CheckCircle,  title: "Showroom Standards",    desc: "Meticulous attention to detail on every single vehicle" },
-  { icon: Banknote,     title: "Competitive Rates",     desc: "Premium quality service at prices to suit any budget" },
-  { icon: Car,          title: "Private & Commercial",  desc: "Cars, vans, and commercial vehicles all welcome" },
-  { icon: Wrench,       title: "Dent & Scratch Repair", desc: "We also handle dent removal and machine polish" },
-  { icon: Clock,        title: "Mon – Sun 08–19",       desc: "Open 7 days a week — book at a time that suits you" },
+const WHY_CARDS_DEFAULT = [
+  { emoji: "🏆", title: "25 Years Experience",   desc: "Over two decades of professional valeting expertise in Guildford" },
+  { emoji: "⭐", title: "5-Star Rated",          desc: "Consistently top-rated by hundreds of happy customers" },
+  { emoji: "🛡️", title: "Fully Insured",         desc: "All work fully insured for your complete peace of mind" },
+  { emoji: "✅", title: "Showroom Standards",    desc: "Meticulous attention to detail on every single vehicle" },
+  { emoji: "💷", title: "Competitive Rates",     desc: "Premium quality service at prices to suit any budget" },
+  { emoji: "🚐", title: "Private & Commercial",  desc: "Cars, vans, and commercial vehicles all welcome" },
+  { emoji: "🔧", title: "Dent & Scratch Repair", desc: "We also handle dent removal and machine polish" },
+  { emoji: "🕐", title: "Mon – Sun 08–19",       desc: "Open 7 days a week — book at a time that suits you" },
 ];
+
+const WHY_DEFAULT_CONTENT = {
+  subtitle: "Over 25 years of experience, competitive prices, and results you can see.",
+  cards: WHY_CARDS_DEFAULT,
+};
+
+const CAR_SERVICES_DEFAULT = {
+  subtitle: "From a quick hand wash to full paint correction — we cover everything your vehicle needs.",
+  items: [
+    { label: "Car & Vehicle Valeting", icon: "🚗" },
+    { label: "Car Buffing",             icon: "✨" },
+    { label: "Car Detailing",           icon: "🔍" },
+    { label: "Car Scratch Repairs",     icon: "🛠️" },
+    { label: "Car Valeting",            icon: "🧽" },
+    { label: "Car Wash",                icon: "💧" },
+    { label: "Commercial Vehicle Valeting", icon: "🚐" },
+    { label: "Deep Cleaning",           icon: "🧹" },
+    { label: "Dent Removal",            icon: "🔧" },
+    { label: "Exterior Valet",          icon: "🌟" },
+    { label: "Hand Car Wash",           icon: "🤲" },
+    { label: "Interior Valet",          icon: "💺" },
+    { label: "Machine Polish",          icon: "⚙️" },
+    { label: "Mini Valets",             icon: "⚡" },
+    { label: "Private Vehicle Valeting",icon: "🔑" },
+    { label: "Stain Removal Services",  icon: "🪣" },
+    { label: "Wheel Cleaning",          icon: "🔵" },
+  ],
+};
+
+const GET_IN_TOUCH_DEFAULT = {
+  description: "Call Smart Shine Car Valeting Centre for a car valeting or detailing in Guildford",
+  phones: [
+    { number: "07717 310 046" },
+    { number: "01483 236 060" },
+  ],
+  hours: "Mon – Sun · 08:00 – 19:00",
+};
 
 const REVIEWS = [
   { name: "BillJu", text: "Bought a mechanically sound but filthy T5 Shuttle — all the seats were heavily stained and several had paint on them. Took it to Smart Shine and it pretty much looks like new now. Highly recommended.", rating: 5 },
@@ -376,8 +414,18 @@ function HomeContactForm() {
 
 export default function Home() {
   const { data: reviews } = useListReviews();
+  const whyContent = useContentSection("why_choose_us", WHY_DEFAULT_CONTENT);
+  const carServicesContent = useContentSection("car_vehicle_services", CAR_SERVICES_DEFAULT);
+  const getInTouchContent = useContentSection("get_in_touch", GET_IN_TOUCH_DEFAULT);
 
   const displayReviews = reviews?.slice(0, 3).length ? reviews.slice(0, 3) : REVIEWS;
+  const whyCards = (whyContent as typeof WHY_DEFAULT_CONTENT).cards ?? WHY_CARDS_DEFAULT;
+  const whySubtitle = (whyContent as typeof WHY_DEFAULT_CONTENT).subtitle ?? WHY_DEFAULT_CONTENT.subtitle;
+  const carServices = (carServicesContent as typeof CAR_SERVICES_DEFAULT).items ?? CAR_SERVICES_DEFAULT.items;
+  const carServicesSubtitle = (carServicesContent as typeof CAR_SERVICES_DEFAULT).subtitle ?? CAR_SERVICES_DEFAULT.subtitle;
+  const touchDesc = (getInTouchContent as typeof GET_IN_TOUCH_DEFAULT).description ?? GET_IN_TOUCH_DEFAULT.description;
+  const touchPhones = (getInTouchContent as typeof GET_IN_TOUCH_DEFAULT).phones ?? GET_IN_TOUCH_DEFAULT.phones;
+  const touchHours = (getInTouchContent as typeof GET_IN_TOUCH_DEFAULT).hours ?? GET_IN_TOUCH_DEFAULT.hours;
 
   return (
     <div className="min-h-screen flex flex-col bg-white font-[Montserrat,sans-serif]">
@@ -516,30 +564,12 @@ export default function Home() {
               Car &amp; Vehicle Services
             </h2>
             <p className="text-gray-500 mt-3 text-[15px] max-w-xl mx-auto">
-              From a quick hand wash to full paint correction — we cover everything your vehicle needs.
+              {carServicesSubtitle}
             </p>
           </FadeIn>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {[
-              { label: "Car & Vehicle Valeting", icon: "🚗" },
-              { label: "Car Buffing",             icon: "✨" },
-              { label: "Car Detailing",           icon: "🔍" },
-              { label: "Car Scratch Repairs",     icon: "🛠️" },
-              { label: "Car Valeting",            icon: "🧽" },
-              { label: "Car Wash",                icon: "💧" },
-              { label: "Commercial Vehicle Valeting", icon: "🚐" },
-              { label: "Deep Cleaning",           icon: "🧹" },
-              { label: "Dent Removal",            icon: "🔧" },
-              { label: "Exterior Valet",          icon: "🌟" },
-              { label: "Hand Car Wash",           icon: "🤲" },
-              { label: "Interior Valet",          icon: "💺" },
-              { label: "Machine Polish",          icon: "⚙️" },
-              { label: "Mini Valets",             icon: "⚡" },
-              { label: "Private Vehicle Valeting",icon: "🔑" },
-              { label: "Stain Removal Services",  icon: "🪣" },
-              { label: "Wheel Cleaning",          icon: "🔵" },
-            ].map(({ label, icon }, i) => (
+            {carServices.map(({ label, icon }, i) => (
               <motion.div
                 key={label}
                 initial={{ opacity: 0, y: 20 }}
@@ -586,7 +616,7 @@ export default function Home() {
               Why choose us?
             </h2>
             <p className="text-gray-500 mt-3 text-[15px] max-w-xl mx-auto">
-              Over 25 years of experience, competitive prices, and results you can see.
+              {whySubtitle}
             </p>
           </FadeIn>
 
@@ -596,9 +626,7 @@ export default function Home() {
             {/* Feature cards grid */}
             <FadeIn direction="left">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {WHY_CARDS.map((card, i) => {
-                  const Icon = card.icon;
-                  return (
+                {whyCards.map((card, i) => (
                     <motion.div
                       key={card.title}
                       initial={{ opacity: 0, y: 20 }}
@@ -608,16 +636,16 @@ export default function Home() {
                       whileHover={{ y: -3, boxShadow: "0 8px 24px rgba(10,15,46,0.08)" }}
                       className="flex gap-4 items-start bg-gray-50 hover:bg-blue-50 rounded-2xl p-5 border border-gray-100 hover:border-blue-100 transition-all duration-200 group cursor-default"
                     >
-                      <div className="h-10 w-10 rounded-xl bg-[#0a0f2e] group-hover:bg-blue-600 flex items-center justify-center flex-shrink-0 transition-colors duration-200">
-                        <Icon className="h-5 w-5 text-blue-300 group-hover:text-white" />
+                      <div className="h-10 w-10 rounded-xl bg-[#0a0f2e] group-hover:bg-blue-600 flex items-center justify-center flex-shrink-0 transition-colors duration-200 text-xl">
+                        {card.emoji}
                       </div>
                       <div>
                         <p className="font-black text-[#0a0f2e] text-[13px] mb-0.5">{card.title}</p>
                         <p className="text-gray-500 text-[12px] leading-relaxed">{card.desc}</p>
                       </div>
                     </motion.div>
-                  );
-                })}
+                  )
+                )}
               </div>
               <Link href="/private-valeting">
                 <motion.button
@@ -756,36 +784,35 @@ export default function Home() {
           </p>
 
           <p className="text-white/90 text-[15px] md:text-[17px] font-medium leading-relaxed mb-8">
-            Call Smart Shine Car Valeting Centre for a car valeting or detailing in Guildford
+            {touchDesc}
           </p>
 
           {/* Phone numbers as cards */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            {[
-              { number: "07717 310 046", href: "tel:07717310046" },
-              { number: "01483 236 060", href: "tel:01483236060" },
-            ].map(({ number, href }, i) => (
-              <motion.a
-                key={number}
-                href={href}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15, duration: 0.5 }}
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.97 }}
-                className="group relative inline-flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm px-8 py-4 text-white transition-all duration-200 hover:bg-white/20 hover:border-blue-400/50 hover:shadow-lg hover:shadow-blue-500/20"
-              >
-                {/* pulse ring */}
-                <span className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{ boxShadow: "0 0 0 2px rgba(96,165,250,0.4), 0 0 20px rgba(96,165,250,0.15)" }} />
-                <Phone className="h-5 w-5 text-blue-300 flex-shrink-0" />
-                <span className="text-[22px] md:text-[26px] font-black tracking-wide">{number}</span>
-              </motion.a>
-            ))}
+            {touchPhones.map(({ number }, i) => {
+              const href = "tel:" + number.replace(/\s/g, "");
+              return (
+                <motion.a
+                  key={number}
+                  href={href}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.15, duration: 0.5 }}
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="group relative inline-flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm px-8 py-4 text-white transition-all duration-200 hover:bg-white/20 hover:border-blue-400/50 hover:shadow-lg hover:shadow-blue-500/20"
+                >
+                  <span className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    style={{ boxShadow: "0 0 0 2px rgba(96,165,250,0.4), 0 0 20px rgba(96,165,250,0.15)" }} />
+                  <Phone className="h-5 w-5 text-blue-300 flex-shrink-0" />
+                  <span className="text-[22px] md:text-[26px] font-black tracking-wide">{number}</span>
+                </motion.a>
+              );
+            })}
           </div>
 
-          <p className="mt-8 text-white/40 text-[13px]">Mon – Sun &nbsp;·&nbsp; 08:00 – 19:00</p>
+          <p className="mt-8 text-white/40 text-[13px]">{touchHours}</p>
         </FadeIn>
       </section>
 

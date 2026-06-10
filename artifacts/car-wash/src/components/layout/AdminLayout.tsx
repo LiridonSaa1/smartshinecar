@@ -10,6 +10,7 @@ import {
   BarChart,
   Car,
   Menu,
+  FileText,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ const navItems = [
   { href: "/admin/bookings", label: "Bookings", icon: CalendarCheck },
   { href: "/admin/services", label: "Services", icon: Car },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart },
+  { href: "/admin/content", label: "Content", icon: FileText },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 

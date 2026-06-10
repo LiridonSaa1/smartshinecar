@@ -65,8 +65,17 @@ insert into services (name, description, price, duration, is_active) values
   ('Ceramic Coating', 'Long-lasting ceramic protection applied', 250.00, 300, true)
 on conflict do nothing;
 
--- 7. Disable RLS (since we use service_role key from server)
+-- 7. Site content table (CMS)
+create table if not exists site_content (
+  id bigserial primary key,
+  key text not null unique,
+  data jsonb not null default '{}',
+  updated_at timestamptz not null default now()
+);
+
+-- 8. Disable RLS (since we use service_role key from server)
 alter table services disable row level security;
 alter table bookings disable row level security;
 alter table reviews disable row level security;
 alter table settings disable row level security;
+alter table site_content disable row level security;

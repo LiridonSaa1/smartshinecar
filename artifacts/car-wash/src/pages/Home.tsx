@@ -4,7 +4,7 @@ import { CookieBanner } from "@/components/ui/CookieBanner";
 import { useListReviews } from "@workspace/api-client-react";
 import { Link } from "wouter";
 import {
-  ArrowRight, Star, Shield, Phone, MapPin, Clock,
+  ArrowRight, Star, Shield, Phone, MapPin, Clock, Mail,
   ChevronLeft, ChevronRight, ChevronDown, Sparkles, CheckCircle, Facebook, Twitter, Send,
   Trophy, Banknote, Car, Wrench,
 } from "lucide-react";
@@ -753,6 +753,7 @@ export default function Home() {
                 <div className="flex items-center gap-2.5"><MapPin className="h-4 w-4 text-white flex-shrink-0" /><span>Guildford, Surrey</span></div>
                 <div className="flex items-center gap-2.5"><Phone className="h-4 w-4 text-white flex-shrink-0" /><span>07717 310 046 / 01483 236 060</span></div>
                 <div className="flex items-center gap-2.5"><Clock className="h-4 w-4 text-white flex-shrink-0" /><span>Mon–Sun: 08:00 – 19:00</span></div>
+                <div className="flex items-center gap-2.5"><Mail className="h-4 w-4 text-white flex-shrink-0" /><a href="mailto:nazsalihi@me.com" className="hover:text-white transition-colors">nazsalihi@me.com</a></div>
               </div>
             </div>
           </div>
@@ -777,6 +778,17 @@ export default function Home() {
                   <Icon className="h-5 w-5" />
                 </motion.a>
               ))}
+              <motion.a
+                href="https://www.yell.com/biz/smart-shine-car-valeting-guildford/"
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                aria-label="Find us on Yell"
+                className="h-11 w-11 rounded-full bg-red-600 hover:bg-red-500 flex items-center justify-center text-white font-black text-xl transition-all duration-200"
+              >
+                y
+              </motion.a>
             </div>
 
             <div className="flex items-center justify-center gap-4 text-xs text-gray-500 mb-4">

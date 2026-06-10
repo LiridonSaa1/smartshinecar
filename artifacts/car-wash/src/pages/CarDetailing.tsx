@@ -3,8 +3,9 @@ import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
 import { CookieBanner } from "@/components/ui/CookieBanner";
 import { Link } from "wouter";
 import {
-  ArrowRight, Star, Phone, MapPin, Clock,
+  ArrowRight, Star, Phone, MapPin, Clock, Mail,
   ChevronLeft, ChevronRight, ChevronDown, Sparkles, Send,
+  Facebook, Twitter, Shield,
 } from "lucide-react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -494,10 +495,38 @@ export default function CarDetailing() {
                 <div className="flex items-center gap-2.5"><MapPin className="h-4 w-4 text-white flex-shrink-0" /><span>Guildford, Surrey</span></div>
                 <div className="flex items-center gap-2.5"><Phone className="h-4 w-4 text-white flex-shrink-0" /><span>07717 310 046 / 01483 236 060</span></div>
                 <div className="flex items-center gap-2.5"><Clock className="h-4 w-4 text-white flex-shrink-0" /><span>Mon–Sun: 08:00 – 19:00</span></div>
+                <div className="flex items-center gap-2.5"><Mail className="h-4 w-4 text-white flex-shrink-0" /><a href="mailto:nazsalihi@me.com" className="hover:text-white transition-colors">nazsalihi@me.com</a></div>
               </div>
             </div>
           </div>
-          <div className="border-t border-white/10 pt-6 text-center">
+          <div className="border-t border-white/10 pt-8 pb-4 text-center">
+            <p className="text-white font-bold text-[15px] mb-5">Follow us</p>
+            <div className="flex items-center justify-center gap-4 mb-8">
+              {[
+                { icon: Facebook, label: "Facebook", href: "#" },
+                { icon: Twitter, label: "Twitter / X", href: "#" },
+                { icon: Shield, label: "Checkatrade", href: "#" },
+              ].map(({ icon: Icon, label, href }) => (
+                <motion.a key={label} href={href} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }} aria-label={label}
+                  className="h-11 w-11 rounded-full bg-white/10 hover:bg-blue-600 flex items-center justify-center text-white/70 hover:text-white transition-all duration-200">
+                  <Icon className="h-5 w-5" />
+                </motion.a>
+              ))}
+              <motion.a
+                href="https://www.yell.com/biz/smart-shine-car-valeting-guildford/"
+                target="_blank" rel="noopener noreferrer"
+                whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}
+                aria-label="Find us on Yell"
+                className="h-11 w-11 rounded-full bg-red-600 hover:bg-red-500 flex items-center justify-center text-white font-black text-xl transition-all duration-200"
+              >y</motion.a>
+            </div>
+            <div className="flex items-center justify-center gap-4 text-xs text-gray-500 mb-4">
+              <Link href="/terms" className="hover:text-gray-300 transition-colors">Terms of Use</Link>
+              <span>|</span>
+              <Link href="/privacy" className="hover:text-gray-300 transition-colors">Privacy & Cookie Policy</Link>
+              <span>|</span>
+              <Link href="/trading" className="hover:text-gray-300 transition-colors">Trading Terms</Link>
+            </div>
             <p className="text-xs text-gray-600">
               © 2026. The content on this website is owned by us and our licensors. Do not copy any content (including images) without our consent.
             </p>

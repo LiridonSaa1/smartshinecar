@@ -3,7 +3,7 @@ import { useListReviews } from "@workspace/api-client-react";
 import { Link } from "wouter";
 import {
   ArrowRight, Star, Shield, Phone, MapPin, Clock,
-  ChevronLeft, ChevronRight, Sparkles, CheckCircle, Facebook, Twitter,
+  ChevronLeft, ChevronRight, Sparkles, CheckCircle, Facebook, Twitter, Send,
 } from "lucide-react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
@@ -227,6 +227,129 @@ const REVIEWS = [
   { name: "James K.", text: "Used Smart Shine for a full valet on my Range Rover. Exceptional attention to detail and very competitive pricing. Will definitely be back.", rating: 5 },
 ];
 
+function HomeContactForm() {
+  const [form, setForm] = useState({ name: "", email: "", phone: "", service: "", message: "" });
+  const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSending(true);
+    setTimeout(() => { setSending(false); setSent(true); }, 1200);
+  };
+
+  return (
+    <section id="contact" className="relative py-20 bg-gray-50 overflow-hidden">
+      <div className="absolute inset-0 opacity-40"
+        style={{ backgroundImage: "radial-gradient(ellipse at 80% 20%, #dbeafe 0%, transparent 60%)" }} />
+
+      <div className="relative mx-auto max-w-6xl px-6">
+        <FadeIn className="text-center mb-14">
+          <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 rounded-full px-4 py-1.5 text-sm font-bold mb-4">
+            <Send className="h-4 w-4" />
+            Free Quote
+          </div>
+          <h2 className="text-4xl md:text-5xl font-black text-[#0a0f2e] tracking-tight">
+            Send us a message
+          </h2>
+          <p className="text-gray-500 mt-3 text-[15px] max-w-md mx-auto">
+            Tell us about your vehicle and we'll get back to you with a personalised quote.
+          </p>
+        </FadeIn>
+
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-10 items-start">
+          {/* Left info panel */}
+          <FadeIn direction="left" className="md:col-span-2 space-y-6">
+            {[
+              { icon: Phone, title: "Call us directly", lines: ["07717 310 046", "01483 236 060"], sub: "Mon – Sun, 08:00 – 19:00" },
+              { icon: MapPin, title: "Our location", lines: ["Guildford, Surrey"], sub: "Also serving Godalming & Woking" },
+              { icon: Clock, title: "Opening hours", lines: ["Mon – Sun"], sub: "08:00 – 19:00" },
+            ].map(({ icon: Icon, title, lines, sub }) => (
+              <div key={title} className="flex gap-4 items-start bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+                <div className="h-10 w-10 rounded-xl bg-[#0a0f2e] flex items-center justify-center flex-shrink-0">
+                  <Icon className="h-5 w-5 text-blue-300" />
+                </div>
+                <div>
+                  <p className="font-black text-[#0a0f2e] text-[14px] mb-1">{title}</p>
+                  {lines.map(l => <p key={l} className="text-gray-800 font-semibold text-[13px]">{l}</p>)}
+                  <p className="text-gray-400 text-[12px] mt-0.5">{sub}</p>
+                </div>
+              </div>
+            ))}
+          </FadeIn>
+
+          {/* Form */}
+          <FadeIn direction="right" delay={0.1} className="md:col-span-3">
+            {sent ? (
+              <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-12 text-center">
+                <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                  <Send className="h-7 w-7 text-green-600" />
+                </div>
+                <h3 className="text-2xl font-black text-[#0a0f2e] mb-2">Message sent!</h3>
+                <p className="text-gray-500 text-[15px]">We'll get back to you as soon as possible.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-[12px] font-bold text-gray-600 uppercase tracking-wider mb-1.5">Full Name *</label>
+                    <input required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[14px] text-gray-900 placeholder-gray-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                      placeholder="John Smith" />
+                  </div>
+                  <div>
+                    <label className="block text-[12px] font-bold text-gray-600 uppercase tracking-wider mb-1.5">Phone</label>
+                    <input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[14px] text-gray-900 placeholder-gray-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                      placeholder="07700 000 000" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[12px] font-bold text-gray-600 uppercase tracking-wider mb-1.5">Email Address *</label>
+                  <input required type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[14px] text-gray-900 placeholder-gray-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                    placeholder="john@example.com" />
+                </div>
+                <div>
+                  <label className="block text-[12px] font-bold text-gray-600 uppercase tracking-wider mb-1.5">Service Required</label>
+                  <select value={form.service} onChange={e => setForm(f => ({ ...f, service: e.target.value }))}
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[14px] text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all appearance-none">
+                    <option value="">Select a service...</option>
+                    <option>Mini Valet — from £45</option>
+                    <option>Economy Valet — from £120</option>
+                    <option>Premier Valet — from £169</option>
+                    <option>Interior Valet — from £120</option>
+                    <option>Exterior Valet — from £139</option>
+                    <option>Commercial Vehicle</option>
+                    <option>Car Detailing</option>
+                    <option>Machine Polish</option>
+                    <option>Other / Not sure</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[12px] font-bold text-gray-600 uppercase tracking-wider mb-1.5">Message</label>
+                  <textarea rows={4} value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[14px] text-gray-900 placeholder-gray-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all resize-none"
+                    placeholder="Tell us about your vehicle and what you need..." />
+                </div>
+                <motion.button
+                  type="submit"
+                  disabled={sending}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#0a0f2e] hover:bg-blue-900 px-8 py-4 text-[15px] font-black text-white transition-all duration-150 disabled:opacity-60"
+                >
+                  {sending ? "Sending…" : (<><Send className="h-4 w-4" /> Send Message</>)}
+                </motion.button>
+              </form>
+            )}
+          </FadeIn>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   const { data: reviews } = useListReviews();
 
@@ -307,8 +430,12 @@ export default function Home() {
       </section>
 
       {/* 3. A COMPLETE VALETING SERVICE */}
-      <section className="bg-[#0a0f2e]">
-        <div className="grid grid-cols-1 md:grid-cols-2">
+      <section className="relative overflow-hidden" style={{ background: "linear-gradient(135deg, #0a0f2e 0%, #1a2a6c 50%, #0a1845 100%)" }}>
+        <div className="absolute inset-0 opacity-25" style={{ backgroundImage: "radial-gradient(ellipse at 30% 50%, #3b82f6 0%, transparent 55%)" }} />
+        <div className="absolute inset-0 opacity-15" style={{ backgroundImage: "radial-gradient(ellipse at 75% 60%, #6366f1 0%, transparent 50%)" }} />
+        <div className="absolute -top-16 -left-16 h-64 w-64 rounded-full border border-white/5" />
+        <div className="absolute -bottom-20 -right-10 h-72 w-72 rounded-full border border-white/5" />
+        <div className="relative grid grid-cols-1 md:grid-cols-2">
           {/* Image — full bleed */}
           <FadeIn direction="left" className="overflow-hidden min-h-[420px]">
             <img
@@ -437,7 +564,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. CALL */}
+      {/* 6. CONTACT FORM */}
+      <HomeContactForm />
+
+      {/* 7. CALL */}
       <section
         className="relative py-20 overflow-hidden"
         style={{ background: "linear-gradient(135deg, #0a0f2e 0%, #1a2a6c 50%, #0a1845 100%)" }}

@@ -586,7 +586,7 @@ export default function PrivateValeting() {
                 <div className="flex items-center gap-2.5"><Clock className="h-4 w-4 text-white flex-shrink-0" /><span>Mon–Sun: 08:00 – 19:00</span></div>
                 <div className="flex items-center gap-2.5"><Mail className="h-4 w-4 text-white flex-shrink-0" /><a href="mailto:nazsalihi@me.com" className="hover:text-white transition-colors">nazsalihi@me.com</a></div>
               </div>
-              <a href="https://www.yell.com/biz/smart-shine-car-valeting-guildford/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 mt-4 group">
+              <a href="https://www.yell.com/biz/smart-shine-valeting-centre-guildford-4715572/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 mt-4 group">
                 <img src="/yell-icon.png" alt="Yell" className="h-8 w-8 rounded" />
                 <span className="text-gray-400 text-sm font-semibold group-hover:text-white transition-colors">Find us on Yell</span>
               </a>

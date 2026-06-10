@@ -755,7 +755,7 @@ export default function CommercialValeting() {
                 </div>
               </div>
               <a
-                href="https://www.yell.com/biz/smart-shine-car-valeting-guildford/"
+                href="https://www.yell.com/biz/smart-shine-valeting-centre-guildford-4715572/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-3 mt-4 group"

@@ -21,6 +21,13 @@ const allLinks = [...topLinks, ...bottomLinks];
 export function Navbar() {
   const [location] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     if (mobileOpen) document.body.style.overflow = "hidden";
@@ -30,19 +37,26 @@ export function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full bg-[#0a0f2e] border-b border-white/10">
+      <header
+        className={cn(
+          "fixed top-0 left-0 right-0 z-50 w-full transition-all duration-500",
+          scrolled
+            ? "bg-[#0a0f2e]/95 backdrop-blur-md shadow-lg"
+            : "bg-transparent"
+        )}
+      >
         <div className="mx-auto max-w-6xl px-5 py-3 hidden md:block">
           {/* Top row */}
-          <nav className="flex items-center justify-center gap-1 mb-1">
+          <nav className="flex items-center justify-center gap-1 mb-0.5">
             {topLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "px-3 py-1 text-[14px] transition-colors",
+                  "px-3 py-1.5 text-[14px] transition-colors duration-200",
                   location === link.href
                     ? "text-white font-semibold"
-                    : "text-white/75 hover:text-white font-normal"
+                    : "text-white/80 hover:text-white font-normal"
                 )}
               >
                 {link.label}
@@ -57,10 +71,10 @@ export function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "px-3 py-1 text-[14px] transition-colors",
+                  "px-3 py-1.5 text-[14px] transition-colors duration-200",
                   location === link.href
                     ? "text-white font-semibold"
-                    : "text-white/75 hover:text-white font-normal"
+                    : "text-white/80 hover:text-white font-normal"
                 )}
               >
                 {link.label}
@@ -73,7 +87,7 @@ export function Navbar() {
         <div className="md:hidden flex items-center justify-between px-5 h-14">
           <span className="text-white font-semibold text-[15px]">Car Wash Pro</span>
           <button
-            className="flex items-center justify-center h-8 w-8 rounded-full hover:bg-white/10 transition-colors"
+            className="flex items-center justify-center h-8 w-8 rounded-full hover:bg-white/15 transition-colors"
             onClick={() => setMobileOpen(o => !o)}
             aria-label="Toggle menu"
           >

@@ -167,22 +167,27 @@ export default function Contact() {
 
               {/* Map + Extra Info */}
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col gap-6">
-                {/* Map placeholder */}
-                <div className="rounded-2xl overflow-hidden border border-border bg-muted h-64 flex flex-col items-center justify-center gap-3">
-                  <MapPin className="h-10 w-10 text-primary" />
-                  <div className="text-center">
-                    <p className="font-semibold text-foreground">{settings?.businessName ?? "Car Wash Pro"}</p>
-                    <p className="text-sm text-muted-foreground">{settings?.address ?? "123 Car Street, Prishtina"}</p>
-                  </div>
-                  <a
-                    href={`https://maps.google.com/?q=${encodeURIComponent(settings?.address ?? "Car Wash Pro Prishtina")}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-primary hover:underline"
-                  >
-                    Open in Google Maps →
-                  </a>
+                {/* Google Maps embed */}
+                <div className="rounded-2xl overflow-hidden border border-border shadow-sm h-72">
+                  <iframe
+                    title="Smart Shine Car Valeting Centre — Guildford"
+                    src="https://www.google.com/maps?q=Smart+Shine+Car+Valeting+Centre+Guildford+Surrey&output=embed"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
                 </div>
+                <a
+                  href="https://maps.google.com/?q=Smart+Shine+Car+Valeting+Centre+Guildford+Surrey"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline font-medium -mt-2"
+                >
+                  <MapPin className="h-4 w-4" /> Open in Google Maps →
+                </a>
 
                 {/* Why us quick cards */}
                 <div className="space-y-3">

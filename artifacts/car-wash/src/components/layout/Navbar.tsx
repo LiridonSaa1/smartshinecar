@@ -37,7 +37,7 @@ export function Navbar() {
         className={cn(
           "fixed top-0 left-0 right-0 z-50 w-full transition-all duration-500",
           scrolled
-            ? "bg-[#0a0f2e]/97 backdrop-blur-md shadow-lg"
+            ? "bg-black/30 backdrop-blur-xl shadow-sm"
             : "bg-transparent"
         )}
       >
@@ -48,7 +48,7 @@ export function Navbar() {
             <img
               src={logoSrc}
               alt="Smart Shine Car Valeting Centre"
-              className="h-16 w-auto object-contain brightness-0 invert"
+              className="h-20 w-auto object-contain brightness-0 invert"
             />
           </Link>
 

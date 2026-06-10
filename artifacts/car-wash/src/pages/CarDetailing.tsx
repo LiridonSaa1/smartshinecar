@@ -388,44 +388,37 @@ export default function CarDetailing() {
       </section>
 
       {/* 3. WE CAN MAKE YOUR CAR SHINE */}
-      <section className="relative overflow-hidden" style={{ background: "linear-gradient(135deg, #0a0f2e 0%, #1a2a6c 50%, #0a1845 100%)" }}>
+      <section className="relative py-20 overflow-hidden" style={{ background: "linear-gradient(135deg, #0a0f2e 0%, #1a2a6c 50%, #0a1845 100%)" }}>
         <div className="absolute inset-0 opacity-25" style={{ backgroundImage: "radial-gradient(ellipse at 30% 50%, #3b82f6 0%, transparent 55%)" }} />
         <div className="absolute inset-0 opacity-15" style={{ backgroundImage: "radial-gradient(ellipse at 75% 60%, #6366f1 0%, transparent 50%)" }} />
         <div className="absolute -top-16 -left-16 h-64 w-64 rounded-full border border-white/5" />
         <div className="absolute -bottom-20 -right-10 h-72 w-72 rounded-full border border-white/5" />
-        <div className="relative grid grid-cols-1 md:grid-cols-2">
-          <FadeIn direction="left" className="flex items-start px-10 md:px-16 py-16 order-2 md:order-1">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-black text-white mb-5 leading-tight">
-                We can make your car shine
-              </h2>
-              <p className="text-white/75 leading-relaxed text-[15px] mb-6">
-                We can offer a detailing service to all makes of car. Whatever car you have, regardless of make
-                and model, our service includes paintwork correction to help bring it back to a showroom standard
-                whether your car is new or old. Whether it is car scratch removal, dent removal, or machine polish,
-                you can count on us.
-              </p>
-              <h2 className="text-3xl md:text-4xl font-black text-white mb-5 leading-tight">
-                We can make your car shine
-              </h2>
-              <p className="text-white/75 leading-relaxed text-[15px] mb-8">
-                Our car detailing service removes the defects such as scratches, 3d holograms and swirls by
-                removing a thin layer of clear coat which reveals the defect free surface. We also provide
-                interior valeting and exterior valeting. For your convenience, we offer full valet and part
-                valet services.
-              </p>
+        <div className="relative mx-auto max-w-4xl px-6 text-center">
+          <FadeIn>
+            <h2 className="text-3xl md:text-4xl font-black text-white mb-5 leading-tight">
+              We can make your car shine
+            </h2>
+            <p className="text-white/75 leading-relaxed text-[15px] mb-10 mx-auto max-w-3xl">
+              We can offer a detailing service to all makes of car. Whatever car you have, regardless of make
+              and model, our service includes paintwork correction to help bring it back to a showroom standard
+              whether your car is new or old. Whether it is car scratch removal, dent removal, or machine polish,
+              you can count on us.
+            </p>
+            <h2 className="text-3xl md:text-4xl font-black text-white mb-5 leading-tight">
+              We can make your car shine
+            </h2>
+            <p className="text-white/75 leading-relaxed text-[15px] mb-10 mx-auto max-w-3xl">
+              Our car detailing service removes the defects such as scratches, 3d holograms and swirls by
+              removing a thin layer of clear coat which reveals the defect free surface. We also provide
+              interior valeting and exterior valeting. For your convenience, we offer full valet and part
+              valet services.
+            </p>
+            <div className="flex items-center justify-center">
               <a href="tel:07717310046" className="inline-flex items-center gap-2 rounded-full bg-blue-500 hover:bg-blue-400 px-7 py-3 text-[14px] font-bold text-white transition-all duration-150">
                 <Phone className="h-4 w-4" />
                 07717 310 046
               </a>
             </div>
-          </FadeIn>
-          <FadeIn direction="right" delay={0.1} className="overflow-hidden min-h-[480px] order-1 md:order-2">
-            <img
-              src={shineImg}
-              alt="Car Detailing Service"
-              className="w-full h-full object-cover object-center min-h-[480px]"
-            />
           </FadeIn>
         </div>
       </section>

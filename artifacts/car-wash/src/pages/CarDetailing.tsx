@@ -497,6 +497,9 @@ export default function CarDetailing() {
                 <div className="flex items-center gap-2.5"><Clock className="h-4 w-4 text-white flex-shrink-0" /><span>Mon–Sun: 08:00 – 19:00</span></div>
                 <div className="flex items-center gap-2.5"><Mail className="h-4 w-4 text-white flex-shrink-0" /><a href="mailto:nazsalihi@me.com" className="hover:text-white transition-colors">nazsalihi@me.com</a></div>
               </div>
+              <a href="https://www.yell.com/biz/smart-shine-car-valeting-guildford/" target="_blank" rel="noopener noreferrer" className="inline-block mt-4">
+                <img src="/yell-logo.png" alt="Find us on Yell" className="h-14 rounded" />
+              </a>
             </div>
           </div>
           <div className="border-t border-white/10 pt-8 pb-4 text-center">

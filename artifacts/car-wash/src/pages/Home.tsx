@@ -10,7 +10,7 @@ import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import logoSrc from "@assets/Professional_Car_Valeting_Logo_in_Navy_and_Silver_1781123501610.png";
 import aboutImg from "@assets/image_1781123675503.png";
-import whyUsImg from "@assets/IMG_0034-576w_1781124058228.webp";
+import whyUsImg from "@assets/469415684_588164513901484_5794834001610611799_n_1781127569004.jpg";
 
 import completeImg from "@assets/516887103_745437798174154_273580891758286555_n_1781127553222.jpg";
 

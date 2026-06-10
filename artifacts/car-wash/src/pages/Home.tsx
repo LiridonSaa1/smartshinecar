@@ -9,8 +9,9 @@ import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import logoSrc from "@assets/Professional_Car_Valeting_Logo_in_Navy_and_Silver_1781123501610.png";
 import aboutImg from "@assets/image_1781123675503.png";
-import completeImg from "@assets/8BAB8335-072E-4691-B56A-98632CD0FC5E-535w_1781124055227.webp";
 import whyUsImg from "@assets/IMG_0034-576w_1781124058228.webp";
+
+const completeImg = "/lamborghini-nobg.png";
 
 const HERO_SLIDES = [
   {
@@ -270,11 +271,11 @@ export default function Home() {
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-2">
             {/* Image */}
-            <FadeIn direction="left" className="overflow-hidden">
+            <FadeIn direction="left" className="flex items-end justify-center px-6 pt-8 md:pt-0">
               <img
                 src={completeImg}
                 alt="Complete Valeting Service"
-                className="w-full h-full object-cover min-h-[380px]"
+                className="w-full max-w-[480px] object-contain drop-shadow-2xl"
               />
             </FadeIn>
 

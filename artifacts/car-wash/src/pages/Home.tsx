@@ -4,6 +4,7 @@ import { Link } from "wouter";
 import {
   ArrowRight, Star, Shield, Phone, MapPin, Clock,
   ChevronLeft, ChevronRight, Sparkles, CheckCircle, Facebook, Twitter, Send,
+  Trophy, Banknote, Car, Wrench,
 } from "lucide-react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
@@ -209,16 +210,15 @@ function FadeIn({ children, className, delay = 0, direction = "up" }: {
   );
 }
 
-const WHY_US = [
-  "25 years of experience in the valeting industry",
-  "High-standard car valeting service",
-  "Friendly and thorough service",
-  "Competitive rates",
-  "Both exterior and interior valeting",
-  "Fully insured work",
-  "Dent removals handled",
-  "Free quotes and pre-service consultations",
-  "Private and commercial vehicles handled",
+const WHY_CARDS = [
+  { icon: Trophy,       title: "25 Years Experience",   desc: "Over two decades of professional valeting expertise in Guildford" },
+  { icon: Star,         title: "5-Star Rated",          desc: "Consistently top-rated by hundreds of happy customers" },
+  { icon: Shield,       title: "Fully Insured",         desc: "All work fully insured for your complete peace of mind" },
+  { icon: CheckCircle,  title: "Showroom Standards",    desc: "Meticulous attention to detail on every single vehicle" },
+  { icon: Banknote,     title: "Competitive Rates",     desc: "Premium quality service at prices to suit any budget" },
+  { icon: Car,          title: "Private & Commercial",  desc: "Cars, vans, and commercial vehicles all welcome" },
+  { icon: Wrench,       title: "Dent & Scratch Repair", desc: "We also handle dent removal and machine polish" },
+  { icon: Clock,        title: "Mon – Sun 08–19",       desc: "Open 7 days a week — book at a time that suits you" },
 ];
 
 const REVIEWS = [
@@ -481,47 +481,118 @@ export default function Home() {
       </section>
 
       {/* 4. WHY CHOOSE US */}
-      <section className="bg-gray-50">
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          {/* Text */}
-          <FadeIn direction="left" className="flex items-center px-10 md:px-16 py-16">
-            <div>
-              <span className="inline-block text-blue-600 text-xs font-bold tracking-widest uppercase mb-4">Why Smart Shine?</span>
-              <h2 className="text-3xl md:text-4xl font-black text-[#0a0f2e] mb-8 leading-tight">
-                Why choose us?
-              </h2>
-              <ul className="space-y-3">
-                {WHY_US.map((item, i) => (
-                  <motion.li
-                    key={item}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.06, duration: 0.5 }}
-                    className="flex items-start gap-3"
-                  >
-                    <CheckCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-700 text-[15px] font-medium">{item}</span>
-                  </motion.li>
-                ))}
-              </ul>
-              <Link href="/private-valeting">
-                <button className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#0a0f2e] hover:bg-blue-900 px-7 py-3 text-[14px] font-bold text-white transition-all duration-150">
-                  View Our Services
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </Link>
+      <section className="py-20 bg-white overflow-hidden">
+        <div className="mx-auto max-w-7xl px-6">
+
+          {/* Header */}
+          <FadeIn className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 rounded-full px-4 py-1.5 text-sm font-bold mb-4">
+              <Sparkles className="h-4 w-4" />
+              Why Smart Shine?
             </div>
+            <h2 className="text-4xl md:text-5xl font-black text-[#0a0f2e] tracking-tight">
+              Why choose us?
+            </h2>
+            <p className="text-gray-500 mt-3 text-[15px] max-w-xl mx-auto">
+              Over 25 years of experience, competitive prices, and results you can see.
+            </p>
           </FadeIn>
 
-          {/* Image */}
-          <FadeIn direction="right" delay={0.1} className="overflow-hidden min-h-[500px]">
-            <img
-              src={whyUsImg}
-              alt="Why Choose Smart Shine"
-              className="w-full h-full object-cover min-h-[500px]"
-            />
-          </FadeIn>
+          {/* Two-column: cards + image */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+            {/* Feature cards grid */}
+            <FadeIn direction="left">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {WHY_CARDS.map((card, i) => {
+                  const Icon = card.icon;
+                  return (
+                    <motion.div
+                      key={card.title}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.07, duration: 0.5 }}
+                      whileHover={{ y: -3, boxShadow: "0 8px 24px rgba(10,15,46,0.08)" }}
+                      className="flex gap-4 items-start bg-gray-50 hover:bg-blue-50 rounded-2xl p-5 border border-gray-100 hover:border-blue-100 transition-all duration-200 group cursor-default"
+                    >
+                      <div className="h-10 w-10 rounded-xl bg-[#0a0f2e] group-hover:bg-blue-600 flex items-center justify-center flex-shrink-0 transition-colors duration-200">
+                        <Icon className="h-5 w-5 text-blue-300 group-hover:text-white" />
+                      </div>
+                      <div>
+                        <p className="font-black text-[#0a0f2e] text-[13px] mb-0.5">{card.title}</p>
+                        <p className="text-gray-500 text-[12px] leading-relaxed">{card.desc}</p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+              <Link href="/private-valeting">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#0a0f2e] hover:bg-blue-900 px-7 py-3 text-[14px] font-bold text-white transition-all duration-150"
+                >
+                  View Our Services
+                  <ArrowRight className="h-4 w-4" />
+                </motion.button>
+              </Link>
+            </FadeIn>
+
+            {/* Image with floating stat badges */}
+            <FadeIn direction="right" delay={0.1} className="relative">
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl">
+                <img
+                  src={whyUsImg}
+                  alt="Why Choose Smart Shine"
+                  className="w-full h-[520px] object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f2e]/50 via-transparent to-transparent" />
+              </div>
+
+              {/* Badge: years */}
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.35, duration: 0.5 }}
+                className="absolute top-6 -left-5 bg-white rounded-2xl shadow-xl px-5 py-4 border border-gray-100"
+              >
+                <p className="text-3xl font-black text-[#0a0f2e] leading-none">25+</p>
+                <p className="text-[11px] text-gray-500 font-bold mt-0.5 uppercase tracking-wide">Years Experience</p>
+              </motion.div>
+
+              {/* Badge: customers */}
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+                className="absolute top-6 -right-5 bg-[#0a0f2e] rounded-2xl shadow-xl px-5 py-4"
+              >
+                <p className="text-3xl font-black text-white leading-none">5k+</p>
+                <p className="text-[11px] text-blue-300 font-bold mt-0.5 uppercase tracking-wide">Happy Customers</p>
+              </motion.div>
+
+              {/* Badge: stars */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.65, duration: 0.5 }}
+                className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white rounded-2xl shadow-xl px-6 py-4 border border-gray-100 flex items-center gap-3"
+              >
+                <div className="flex gap-0.5">
+                  {[1,2,3,4,5].map(s => <Star key={s} className="h-4 w-4 fill-yellow-400 text-yellow-400" />)}
+                </div>
+                <div>
+                  <p className="text-[13px] font-black text-[#0a0f2e] leading-none">5-Star Rated</p>
+                  <p className="text-[11px] text-gray-400 mt-0.5">Google Reviews</p>
+                </div>
+              </motion.div>
+            </FadeIn>
+
+          </div>
         </div>
       </section>
 

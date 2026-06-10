@@ -400,10 +400,10 @@ export default function PrivateValeting() {
       {/* 1. HERO CAROUSEL */}
       <HeroCarousel />
 
-      {/* 1b. ABOUT / INTRO */}
-      <section className="bg-gray-100 py-16">
-        <div className="mx-auto max-w-4xl px-6 text-center">
-          <FadeIn>
+      {/* 1b. ABOUT / INTRO + PACKAGES CARDS */}
+      <section className="bg-gray-100 py-16 pb-20">
+        <div className="mx-auto max-w-6xl px-6">
+          <FadeIn className="text-center mb-12">
             <h3 className="text-2xl font-black text-[#0a0f2e] mb-6">
               Excellent private vehicle valeting service in Guildford.
             </h3>
@@ -413,6 +413,34 @@ export default function PrivateValeting() {
               Godalming and Woking.
             </p>
           </FadeIn>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {PACKAGES.map((pkg, i) => (
+              <motion.div
+                key={pkg.name}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08, duration: 0.55, ease: [0.32, 0.72, 0, 1] }}
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col gap-3 hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <h4 className="font-black text-[#0a0f2e] text-[16px] leading-tight">{pkg.name}</h4>
+                  <span className="inline-block bg-[#0a0f2e] text-white text-[11px] font-bold px-3 py-1 rounded-full whitespace-nowrap flex-shrink-0">
+                    {pkg.price}
+                  </span>
+                </div>
+                <p className="text-gray-500 text-[13px] leading-relaxed">{pkg.desc}</p>
+                <a
+                  href="#contact"
+                  className="mt-auto inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 text-[13px] font-bold transition-colors"
+                >
+                  Get Free Quote <ArrowRight className="h-3.5 w-3.5" />
+                </a>
+              </motion.div>
+            ))}
+          </div>
+          <p className="text-gray-400 text-[13px] italic text-center mt-6">* Prices vary on the size of the car.</p>
         </div>
       </section>
 
@@ -444,51 +472,6 @@ export default function PrivateValeting() {
               alt="Professional Car Valeting"
               className="w-full h-full object-cover object-center min-h-[420px]"
             />
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* 3. CHOOSE FROM OUR PACKAGES */}
-      <section id="packages" className="bg-gray-100">
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          <FadeIn direction="left" delay={0.05} className="overflow-hidden min-h-[420px]">
-            <img
-              src={packagesImg}
-              alt="Choose from our packages"
-              className="w-full h-full object-cover object-center min-h-[420px]"
-            />
-          </FadeIn>
-          <FadeIn direction="right" delay={0.15} className="flex items-center px-10 md:px-16 py-16">
-            <div className="w-full">
-              <h2 className="text-3xl md:text-4xl font-black text-[#0a0f2e] mb-8 leading-tight">
-                Choose from one of our packages
-              </h2>
-              <div className="space-y-3">
-                {PACKAGES.map((pkg, i) => (
-                  <motion.div
-                    key={pkg.name}
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.07, duration: 0.5 }}
-                    className="flex items-start justify-between gap-4 py-3 border-b border-gray-200 last:border-0"
-                  >
-                    <div>
-                      <p className="font-bold text-[#0a0f2e] text-[14px]">{pkg.name}</p>
-                      <p className="text-gray-500 text-[13px] mt-0.5">{pkg.desc}</p>
-                    </div>
-                    <span className="inline-block bg-[#0a0f2e] text-white text-[12px] font-bold px-3 py-1 rounded-full whitespace-nowrap flex-shrink-0">
-                      {pkg.price}
-                    </span>
-                  </motion.div>
-                ))}
-              </div>
-              <p className="text-gray-500 text-[13px] mt-5 italic">* Prices vary on the size of the car.</p>
-              <a href="#contact" className="inline-flex items-center gap-2 mt-6 rounded-full bg-[#0a0f2e] hover:bg-blue-900 px-7 py-3 text-[14px] font-bold text-white transition-all duration-150">
-                Get Free Quote
-                <ArrowRight className="h-4 w-4" />
-              </a>
-            </div>
           </FadeIn>
         </div>
       </section>

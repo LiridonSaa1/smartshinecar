@@ -504,7 +504,75 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. WHY CHOOSE US */}
+      {/* 4. PRODUCTS & SERVICES */}
+      <section className="py-20 bg-white overflow-hidden">
+        <div className="mx-auto max-w-7xl px-6">
+          <FadeIn className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 rounded-full px-4 py-1.5 text-sm font-bold mb-4">
+              <Car className="h-4 w-4" />
+              Products &amp; Services
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black text-[#0a0f2e] tracking-tight">
+              Car &amp; Vehicle Services
+            </h2>
+            <p className="text-gray-500 mt-3 text-[15px] max-w-xl mx-auto">
+              From a quick hand wash to full paint correction — we cover everything your vehicle needs.
+            </p>
+          </FadeIn>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {[
+              { label: "Car & Vehicle Valeting", icon: "🚗" },
+              { label: "Car Buffing",             icon: "✨" },
+              { label: "Car Detailing",           icon: "🔍" },
+              { label: "Car Scratch Repairs",     icon: "🛠️" },
+              { label: "Car Valeting",            icon: "🧽" },
+              { label: "Car Wash",                icon: "💧" },
+              { label: "Commercial Vehicle Valeting", icon: "🚐" },
+              { label: "Deep Cleaning",           icon: "🧹" },
+              { label: "Dent Removal",            icon: "🔧" },
+              { label: "Exterior Valet",          icon: "🌟" },
+              { label: "Hand Car Wash",           icon: "🤲" },
+              { label: "Interior Valet",          icon: "💺" },
+              { label: "Machine Polish",          icon: "⚙️" },
+              { label: "Mini Valets",             icon: "⚡" },
+              { label: "Private Vehicle Valeting",icon: "🔑" },
+              { label: "Stain Removal Services",  icon: "🪣" },
+              { label: "Wheel Cleaning",          icon: "🔵" },
+            ].map(({ label, icon }, i) => (
+              <motion.div
+                key={label}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.04, duration: 0.5 }}
+                whileHover={{ y: -4, boxShadow: "0 8px 28px rgba(10,15,46,0.10)" }}
+                className="flex flex-col items-center gap-3 rounded-2xl border border-gray-100 bg-gray-50 hover:bg-blue-50 hover:border-blue-100 p-5 text-center transition-all duration-200 cursor-default group"
+              >
+                <span className="text-3xl">{icon}</span>
+                <p className="text-[13px] font-bold text-[#0a0f2e] group-hover:text-blue-700 leading-snug transition-colors duration-200">
+                  {label}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+
+          <FadeIn className="text-center mt-10">
+            <Link href="/booking">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="inline-flex items-center gap-2 rounded-full bg-[#0a0f2e] hover:bg-blue-900 px-8 py-3.5 text-[15px] font-black text-white transition-all duration-150 shadow-lg shadow-blue-900/20"
+              >
+                Book a Service
+                <ArrowRight className="h-4 w-4" />
+              </motion.button>
+            </Link>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* 5. WHY CHOOSE US */}
       <section className="py-20 bg-white overflow-hidden">
         <div className="mx-auto max-w-7xl px-6">
 

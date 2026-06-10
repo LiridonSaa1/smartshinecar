@@ -9,8 +9,8 @@ import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useState, useEffect, useCallback, useRef } from "react";
 import logoSrc from "@assets/Professional_Car_Valeting_Logo_in_Navy_and_Silver_1781123501610.png";
 import aboutImg from "@assets/image_1781123675503.png";
-import completeImg from "@assets/image_1781123693979.png";
-import whyUsImg from "@assets/image_1781123721812.png";
+import completeImg from "@assets/8BAB8335-072E-4691-B56A-98632CD0FC5E-535w_1781124055227.webp";
+import whyUsImg from "@assets/IMG_0034-576w_1781124058228.webp";
 
 const HERO_SLIDES = [
   {

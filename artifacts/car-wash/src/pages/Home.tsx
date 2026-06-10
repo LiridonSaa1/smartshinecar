@@ -267,81 +267,111 @@ export default function Home() {
       </section>
 
       {/* 3. A COMPLETE VALETING SERVICE */}
-      <section className="bg-[#0a0f2e] py-0">
-        <div className="grid grid-cols-1 md:grid-cols-2 max-w-screen-2xl mx-auto">
-            {/* Image */}
-            <FadeIn direction="left" className="overflow-hidden min-h-[380px]">
-              <img
-                src={completeImg}
-                alt="Complete Valeting Service"
-                className="w-full h-full object-cover object-center min-h-[380px]"
-              />
-            </FadeIn>
+      <section className="bg-[#0a0f2e]">
+        <div className="grid grid-cols-1 md:grid-cols-2">
+          {/* Image — full bleed */}
+          <FadeIn direction="left" className="overflow-hidden min-h-[420px]">
+            <img
+              src={completeImg}
+              alt="Complete Valeting Service"
+              className="w-full h-full object-cover object-center min-h-[420px]"
+            />
+          </FadeIn>
 
-            {/* Text */}
-            <FadeIn direction="right" delay={0.15} className="flex items-center px-10 md:px-16 py-16">
-              <div>
-                <h2 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight">
-                  A complete valeting service
-                </h2>
-                <p className="text-white/75 leading-relaxed mb-5 text-[15px]">
-                  At Smart Shine Car Valeting Centre we value our customers and we strive to satisfy your individual requirements.
-                  We are happy to spend as much time as necessary on your car to ensure that you receive the standard of service
-                  that you expect and deserve.
-                </p>
-                <p className="text-white/75 leading-relaxed mb-8 text-[15px]">
-                  Based in Guildford, we welcome both private and commercial clients from Godalming, Woking and the surrounding areas.
-                  We have a wide range of packages to choose from, at competitive prices to suit any budget. We also offer car scratch
-                  removal and machine polish.
-                </p>
-                <Link href="/contact">
+          {/* Text */}
+          <FadeIn direction="right" delay={0.15} className="flex items-center px-10 md:px-16 py-16">
+            <div>
+              <span className="inline-block text-blue-400 text-xs font-bold tracking-widest uppercase mb-4">Our Services</span>
+              <h2 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight">
+                A complete valeting service
+              </h2>
+              <p className="text-white/75 leading-relaxed mb-5 text-[15px]">
+                At Smart Shine Car Valeting Centre we value our customers and we strive to satisfy your individual requirements.
+                We are happy to spend as much time as necessary on your car to ensure that you receive the standard of service
+                that you expect and deserve.
+              </p>
+              <p className="text-white/75 leading-relaxed mb-8 text-[15px]">
+                Based in Guildford, we welcome both private and commercial clients from Godalming, Woking and the surrounding areas.
+                We have a wide range of packages to choose from, at competitive prices to suit any budget. We also offer car scratch
+                removal and machine polish.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Link href="/private-valeting">
                   <button className="inline-flex items-center gap-2 rounded-full bg-blue-500 hover:bg-blue-400 px-7 py-3 text-[14px] font-bold text-white transition-all duration-150">
-                    Get in touch for a free quote
+                    View Packages
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </Link>
+                <Link href="/contact">
+                  <button className="inline-flex items-center gap-2 rounded-full border border-white/30 hover:bg-white/10 px-7 py-3 text-[14px] font-bold text-white transition-all duration-150">
+                    Get Free Quote
+                  </button>
+                </Link>
               </div>
-            </FadeIn>
+            </div>
+          </FadeIn>
         </div>
       </section>
 
       {/* 4. WHY CHOOSE US */}
-      <section className="bg-gray-100 py-0">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 md:grid-cols-2">
-            {/* Text */}
-            <FadeIn direction="left" className="flex items-center px-10 md:px-16 py-16">
-              <div>
-                <h2 className="text-3xl md:text-4xl font-black text-[#0a0f2e] mb-8 leading-tight">
-                  Why choose us?
-                </h2>
-                <ul className="space-y-3">
-                  {WHY_US.map((item, i) => (
-                    <motion.li
-                      key={item}
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.06, duration: 0.5 }}
-                      className="flex items-start gap-3"
-                    >
-                      <CheckCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700 text-[15px] font-medium">{item}</span>
-                    </motion.li>
-                  ))}
-                </ul>
+      <section className="bg-gray-50">
+        {/* Stats bar */}
+        <div className="bg-[#0a0f2e]/5 border-b border-gray-200">
+          <div className="mx-auto max-w-5xl px-6 py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            {[
+              { value: "25+", label: "Years Experience" },
+              { value: "5,000+", label: "Happy Customers" },
+              { value: "100%", label: "Fully Insured" },
+              { value: "5★", label: "Rated Service" },
+            ].map(({ value, label }) => (
+              <div key={label}>
+                <p className="text-3xl font-black text-[#0a0f2e]">{value}</p>
+                <p className="text-sm text-gray-500 font-medium mt-1">{label}</p>
               </div>
-            </FadeIn>
-
-            {/* Image */}
-            <FadeIn direction="right" delay={0.1} className="overflow-hidden">
-              <img
-                src={whyUsImg}
-                alt="Why Choose Smart Shine"
-                className="w-full h-full object-cover min-h-[440px]"
-              />
-            </FadeIn>
+            ))}
           </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2">
+          {/* Text */}
+          <FadeIn direction="left" className="flex items-center px-10 md:px-16 py-16">
+            <div>
+              <span className="inline-block text-blue-600 text-xs font-bold tracking-widest uppercase mb-4">Why Smart Shine?</span>
+              <h2 className="text-3xl md:text-4xl font-black text-[#0a0f2e] mb-8 leading-tight">
+                Why choose us?
+              </h2>
+              <ul className="space-y-3">
+                {WHY_US.map((item, i) => (
+                  <motion.li
+                    key={item}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.06, duration: 0.5 }}
+                    className="flex items-start gap-3"
+                  >
+                    <CheckCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-gray-700 text-[15px] font-medium">{item}</span>
+                  </motion.li>
+                ))}
+              </ul>
+              <Link href="/private-valeting">
+                <button className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#0a0f2e] hover:bg-blue-900 px-7 py-3 text-[14px] font-bold text-white transition-all duration-150">
+                  View Our Services
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </Link>
+            </div>
+          </FadeIn>
+
+          {/* Image */}
+          <FadeIn direction="right" delay={0.1} className="overflow-hidden min-h-[500px]">
+            <img
+              src={whyUsImg}
+              alt="Why Choose Smart Shine"
+              className="w-full h-full object-cover min-h-[500px]"
+            />
+          </FadeIn>
         </div>
       </section>
 

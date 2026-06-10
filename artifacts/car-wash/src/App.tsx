@@ -12,6 +12,7 @@ import Reviews from "@/pages/Reviews";
 import About from "@/pages/About";
 import Gallery from "@/pages/Gallery";
 import Contact from "@/pages/Contact";
+import PrivateValeting from "@/pages/PrivateValeting";
 import AdminLogin from "@/pages/admin/Login";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminBookings from "@/pages/admin/Bookings";
@@ -35,6 +36,7 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/gallery" component={Gallery} />
       <Route path="/contact" component={Contact} />
+      <Route path="/private-valeting" component={PrivateValeting} />
       <Route path="/admin" component={() => <Redirect to="/admin/login" />} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin/dashboard" component={AdminDashboard} />

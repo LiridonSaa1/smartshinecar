@@ -1,51 +1,37 @@
 import { Navbar } from "@/components/layout/Navbar";
-import { useListServices, useListReviews } from "@workspace/api-client-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useListReviews } from "@workspace/api-client-react";
 import { Link } from "wouter";
 import {
-  Clock, ArrowRight, Star, Shield, Zap, Phone, MapPin, CheckCircle,
-  ChevronLeft, ChevronRight, Sparkles, Car, Droplets,
+  ArrowRight, Star, Shield, Phone, MapPin, Clock,
+  ChevronLeft, ChevronRight, Sparkles, CheckCircle, Facebook, Twitter,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence, useInView } from "framer-motion";
+import { useState, useEffect, useCallback, useRef } from "react";
 import logoSrc from "@assets/Professional_Car_Valeting_Logo_in_Navy_and_Silver_1781123501610.png";
-
-const serviceImages: Record<string, string> = {
-  "Exterior Wash": "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=500&q=80",
-  "Interior Cleaning": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80",
-  "Full Wash": "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=500&q=80",
-  "Detailing": "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=500&q=80",
-};
+import aboutImg from "@assets/image_1781123675503.png";
+import completeImg from "@assets/image_1781123693979.png";
+import whyUsImg from "@assets/image_1781123721812.png";
 
 const HERO_SLIDES = [
   {
     id: 0,
     image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=1600&q=85",
-    eyebrow: "Premium Car Valeting",
-    headline: "Your Car Deserves\nthe Best Care",
-    sub: "Professional valeting services that restore your vehicle to showroom condition. Book in seconds.",
-    cta: { label: "Book Your Valet", href: "/booking" },
-    ctaSecondary: { label: "View Services", href: "/services" },
+    headline: "Premium Car\nValeting Service",
+    sub: "Professional valeting that restores your vehicle to showroom condition. Serving Guildford and surrounding areas.",
     accent: "from-black/80 via-black/50 to-transparent",
   },
   {
     id: 1,
     image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=1600&q=85",
-    eyebrow: "Expert Detailing",
     headline: "Showroom Finish,\nEvery Time",
     sub: "Deep paint correction and interior detailing to restore your vehicle to pristine condition.",
-    cta: { label: "Explore Detailing", href: "/car-detailing" },
-    ctaSecondary: { label: "See Gallery", href: "/gallery" },
     accent: "from-black/80 via-black/50 to-transparent",
   },
   {
     id: 2,
     image: "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=1600&q=85",
-    eyebrow: "Trusted & Guaranteed",
     headline: "Trusted by\nThousands of Drivers",
-    sub: "Over 5,000 happy customers and a 4.9-star rating. Experience the Smart Shine difference today.",
-    cta: { label: "Book Now", href: "/booking" },
-    ctaSecondary: { label: "Read Reviews", href: "/reviews" },
+    sub: "Over 25 years of experience. Over 5,000 happy customers. Experience the Smart Shine difference.",
     accent: "from-black/80 via-black/50 to-transparent",
   },
 ];
@@ -57,7 +43,6 @@ function HeroCarousel() {
   const go = useCallback((nextIdx: number, direction: number) => {
     setSlide([nextIdx, direction]);
   }, []);
-
   const prev = () => go((index - 1 + HERO_SLIDES.length) % HERO_SLIDES.length, -1);
   const next = useCallback(() => go((index + 1) % HERO_SLIDES.length, 1), [index, go]);
 
@@ -68,22 +53,16 @@ function HeroCarousel() {
 
   return (
     <section className="relative h-screen min-h-[620px] overflow-hidden select-none">
-      <AnimatePresence initial={false} custom={dir} mode="popLayout">
+      <AnimatePresence initial={false} mode="popLayout">
         <motion.div
           key={slide.id}
-          custom={dir}
-          variants={{
-            enter: (d: number) => ({ opacity: 0, scale: 1.04, x: d > 0 ? 30 : -30 }),
-            center: { opacity: 1, scale: 1, x: 0 },
-            exit: (d: number) => ({ opacity: 0, scale: 0.98, x: d > 0 ? -30 : 30 }),
-          }}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={{ duration: 0.75, ease: [0.32, 0.72, 0, 1] }}
+          initial={{ opacity: 0, scale: 1.04 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.97 }}
+          transition={{ duration: 0.8, ease: [0.32, 0.72, 0, 1] }}
           className="absolute inset-0"
         >
-          <img src={slide.image} alt="" className="w-full h-full object-cover object-center" />
+          <img src={slide.image} alt="" className="w-full h-full object-cover" />
           <div className={`absolute inset-0 bg-gradient-to-r ${slide.accent}`} />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
         </motion.div>
@@ -94,34 +73,34 @@ function HeroCarousel() {
           <AnimatePresence mode="wait">
             <motion.div
               key={slide.id}
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -16 }}
-              transition={{ duration: 0.55, ease: [0.32, 0.72, 0, 1] }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
               className="max-w-2xl"
             >
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 }}
-                className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/25 rounded-full px-4 py-1.5 text-white/95 text-xs font-semibold tracking-wide uppercase mb-6"
+                className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/25 rounded-full px-4 py-1.5 text-white/95 text-xs font-bold tracking-widest uppercase mb-6"
               >
-                <Sparkles className="h-3.5 w-3.5" />
-                {slide.eyebrow}
+                <Sparkles className="h-3.5 w-3.5 text-blue-300" />
+                Smart Shine Car Valeting Centre
               </motion.div>
 
               <motion.h1
-                initial={{ opacity: 0, y: 18 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.18 }}
-                className="text-[clamp(2.6rem,5.5vw,4.5rem)] font-black text-white leading-[1.05] tracking-tight mb-5 whitespace-pre-line"
-                style={{ textShadow: "0 2px 20px rgba(0,0,0,0.4)" }}
+                className="text-[clamp(2.8rem,6vw,5rem)] font-black text-white leading-[1.03] tracking-tight mb-6 whitespace-pre-line"
+                style={{ textShadow: "0 2px 24px rgba(0,0,0,0.5)" }}
               >
                 {slide.headline}
               </motion.h1>
 
               <motion.p
-                initial={{ opacity: 0, y: 14 }}
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.26 }}
                 className="text-[16px] text-white/80 mb-9 leading-relaxed max-w-lg"
@@ -130,70 +109,41 @@ function HeroCarousel() {
               </motion.p>
 
               <motion.div
-                initial={{ opacity: 0, y: 14 }}
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.34 }}
-                className="flex flex-wrap gap-3 mb-10"
+                className="flex flex-wrap gap-3"
               >
-                <Link href={slide.cta.href}>
-                  <button className="inline-flex items-center gap-2 rounded-full bg-blue-600 hover:bg-blue-500 active:scale-95 px-7 py-3 text-[15px] font-bold text-white transition-all duration-150 shadow-xl shadow-blue-600/40">
-                    {slide.cta.label}
+                <Link href="/booking">
+                  <button className="inline-flex items-center gap-2 rounded-full bg-blue-600 hover:bg-blue-500 active:scale-95 px-8 py-3.5 text-[15px] font-black text-white transition-all duration-150 shadow-xl shadow-blue-600/40">
+                    Book Your Valet
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </Link>
-                <Link href={slide.ctaSecondary.href}>
-                  <button className="inline-flex items-center gap-2 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 border border-white/35 px-7 py-3 text-[15px] font-semibold text-white backdrop-blur-sm transition-all duration-150">
-                    {slide.ctaSecondary.label}
+                <Link href="/contact">
+                  <button className="inline-flex items-center gap-2 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 border border-white/35 px-8 py-3.5 text-[15px] font-bold text-white backdrop-blur-sm transition-all duration-150">
+                    Get Free Quote
                   </button>
                 </Link>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.46 }}
-                className="flex items-center gap-6"
-              >
-                {[
-                  { icon: Shield, text: "Pro Staff" },
-                  { icon: Star, text: "4.9 Rating" },
-                  { icon: CheckCircle, text: "100% Guaranteed" },
-                ].map(({ icon: Icon, text }) => (
-                  <div key={text} className="flex items-center gap-1.5">
-                    <Icon className="h-4 w-4 text-blue-400" />
-                    <span className="text-sm text-white/75 font-medium">{text}</span>
-                  </div>
-                ))}
               </motion.div>
             </motion.div>
           </AnimatePresence>
         </div>
       </div>
 
-      <button
-        onClick={prev}
-        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-white/15 hover:bg-white/30 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-all duration-150 active:scale-90"
-        aria-label="Previous slide"
-      >
+      <button onClick={prev} className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 h-11 w-11 rounded-full bg-white/15 hover:bg-white/30 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-all active:scale-90">
         <ChevronLeft className="h-5 w-5" />
       </button>
-      <button
-        onClick={next}
-        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-white/15 hover:bg-white/30 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-all duration-150 active:scale-90"
-        aria-label="Next slide"
-      >
+      <button onClick={next} className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 h-11 w-11 rounded-full bg-white/15 hover:bg-white/30 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-all active:scale-90">
         <ChevronRight className="h-5 w-5" />
       </button>
 
-      <div className="absolute bottom-7 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5">
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5">
         {HERO_SLIDES.map((s, i) => (
           <button
             key={s.id}
             onClick={() => go(i, i > index ? 1 : -1)}
-            aria-label={`Slide ${i + 1}`}
-            className={`transition-all duration-300 rounded-full ${
-              i === index ? "bg-white w-7 h-1.5" : "bg-white/40 w-1.5 h-1.5 hover:bg-white/70"
-            }`}
+            className={`transition-all duration-300 rounded-full ${i === index ? "bg-white w-8 h-2" : "bg-white/40 w-2 h-2 hover:bg-white/70"}`}
           />
         ))}
       </div>
@@ -201,271 +151,240 @@ function HeroCarousel() {
   );
 }
 
-function StarRating({ rating }: { rating: number }) {
+function FadeIn({ children, className, delay = 0, direction = "up" }: {
+  children: React.ReactNode; className?: string; delay?: number; direction?: "up" | "left" | "right";
+}) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const variants = {
+    hidden: { opacity: 0, y: direction === "up" ? 30 : 0, x: direction === "left" ? -40 : direction === "right" ? 40 : 0 },
+    visible: { opacity: 1, y: 0, x: 0 },
+  };
   return (
-    <div className="flex gap-0.5">
-      {[1, 2, 3, 4, 5].map((s) => (
-        <Star key={s} className={`h-4 w-4 ${s <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-200"}`} />
-      ))}
-    </div>
+    <motion.div
+      ref={ref}
+      variants={variants}
+      initial="hidden"
+      animate={inView ? "visible" : "hidden"}
+      transition={{ duration: 0.7, delay, ease: [0.32, 0.72, 0, 1] }}
+      className={className}
+    >
+      {children}
+    </motion.div>
   );
 }
 
-const whyUs = [
-  { icon: Shield, title: "Satisfaction Guaranteed", desc: "100% satisfaction or we redo it free of charge — every time." },
-  { icon: Zap, title: "Fast & Efficient", desc: "In and out in record time without ever cutting corners." },
-  { icon: Sparkles, title: "Premium Products", desc: "We only use professional-grade cleaning and detailing products." },
-  { icon: CheckCircle, title: "Expert Technicians", desc: "Fully trained and experienced valeting technicians on every job." },
+const WHY_US = [
+  "25 years of experience in the valeting industry",
+  "High-standard car valeting service",
+  "Friendly and thorough service",
+  "Competitive rates",
+  "Both exterior and interior valeting",
+  "Fully insured work",
+  "Dent removals handled",
+  "Free quotes and pre-service consultations",
+  "Private and commercial vehicles handled",
+];
+
+const REVIEWS = [
+  { name: "BillJu", text: "Bought a mechanically sound but filthy T5 Shuttle — all the seats were heavily stained and several had paint on them. Took it to Smart Shine and it pretty much looks like new now. Highly recommended.", rating: 5 },
+  { name: "Sarah M.", text: "Absolutely brilliant service. My car looks better than when I first bought it. The team were professional, friendly and incredibly thorough.", rating: 5 },
+  { name: "James K.", text: "Used Smart Shine for a full valet on my Range Rover. Exceptional attention to detail and very competitive pricing. Will definitely be back.", rating: 5 },
 ];
 
 export default function Home() {
-  const { data: services, isLoading: servicesLoading } = useListServices();
-  const { data: reviews, isLoading: reviewsLoading } = useListReviews();
+  const { data: reviews } = useListReviews();
 
-  const avgRating = reviews?.length
-    ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
-    : "4.9";
+  const displayReviews = reviews?.slice(0, 3).length ? reviews.slice(0, 3) : REVIEWS;
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-white font-[Montserrat,sans-serif]">
       <Navbar />
 
-      {/* ── HERO ── */}
+      {/* 1. CAROUSEL */}
       <HeroCarousel />
 
-      {/* ── SERVICES ── */}
-      <section className="py-24 bg-white">
-        <div className="mx-auto max-w-7xl px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-14"
-          >
-            <span className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 rounded-full px-4 py-1.5 text-sm font-semibold mb-4">
-              <Car className="h-4 w-4" />
-              Our Services
-            </span>
-            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">Our Popular Services</h2>
-            <p className="text-gray-500 mt-4 max-w-xl mx-auto text-[16px]">
-              Choose the perfect valeting package for your vehicle, from a quick refresh to a full detail.
-            </p>
-          </motion.div>
+      {/* 2. ABOUT US */}
+      <section className="py-0">
+        {/* Top banner */}
+        <div className="bg-[#0a0f2e] py-10 text-center">
+          <FadeIn>
+            <h2 className="text-2xl md:text-3xl font-black text-white px-4">
+              Car valeting in Guildford and surrounding area
+            </h2>
+          </FadeIn>
+        </div>
 
-          {servicesLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-72 rounded-3xl" />)}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {services?.filter(s => s.isActive).slice(0, 4).map((service, i) => (
-                <motion.div
-                  key={service.id}
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.08 }}
-                  className="group bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5"
-                  data-testid={`card-service-home-${service.id}`}
-                >
-                  <div className="relative h-40 overflow-hidden">
-                    <img
-                      src={service.imageUrl || serviceImages[service.name] || "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=500&q=80"}
-                      alt={service.name}
-                      className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    <span className="absolute bottom-3 right-3 font-bold text-white text-sm bg-blue-600 rounded-full px-3 py-1">
-                      From £{service.price}
-                    </span>
-                  </div>
-                  <div className="p-5">
-                    <h3 className="font-bold text-gray-900 text-[16px] mb-1.5">{service.name}</h3>
-                    <p className="text-sm text-gray-500 mb-4 line-clamp-2 leading-relaxed">
-                      {service.description || "Professional car care service."}
-                    </p>
-                    <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-4">
-                      <Clock className="h-3.5 w-3.5" /> {service.duration} min
-                    </div>
-                    <Link href={`/booking?serviceId=${service.id}`}>
-                      <button
-                        className="w-full rounded-full bg-[#0a0f2e] hover:bg-blue-700 active:scale-95 py-2.5 text-sm font-bold text-white transition-all duration-150"
-                        data-testid={`button-book-home-${service.id}`}
-                      >
-                        Book Now
-                      </button>
-                    </Link>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-
-          <div className="text-center mt-12">
-            <Link href="/services">
-              <button className="inline-flex items-center gap-2 rounded-full border-2 border-[#0a0f2e] hover:bg-[#0a0f2e] hover:text-white px-7 py-3 text-[14px] font-bold text-[#0a0f2e] transition-all duration-200">
-                View All Services <ArrowRight className="h-4 w-4" />
-              </button>
-            </Link>
+        {/* About content */}
+        <div className="bg-gray-100 py-16">
+          <div className="mx-auto max-w-4xl px-6 text-center">
+            <FadeIn>
+              <h3 className="text-2xl font-black text-[#0a0f2e] mb-6">About us</h3>
+              <p className="text-gray-600 leading-loose text-[15px] max-w-3xl mx-auto">
+                Smart Shine Car Valeting Centre is a well-established business with over 25 years of experience in the valeting industry.
+                We pride ourselves on our commitment to provide professional and high-class services to each and every client. We
+                provide an extensive range of valeting services, including a full interior and exterior valet. Smart Shine endeavours to place
+                customer satisfaction at the centre of all work carried out. We offer both part valet and full valet services.
+              </p>
+            </FadeIn>
           </div>
         </div>
       </section>
 
-      {/* ── WHY CHOOSE US ── */}
-      <section className="py-24 bg-gray-950">
-        <div className="mx-auto max-w-7xl px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-14"
-          >
-            <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight">Why Choose Smart Shine?</h2>
-            <p className="text-gray-400 mt-4 max-w-xl mx-auto text-[16px]">
-              We're committed to delivering the finest valeting experience every single visit.
-            </p>
-          </motion.div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {whyUs.map((item, i) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.09 }}
-                className="bg-white/5 border border-white/10 rounded-3xl p-7 text-center hover:bg-white/8 transition-colors"
-              >
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/15 mx-auto mb-5">
-                  <item.icon className="h-7 w-7 text-blue-400" />
-                </div>
-                <h3 className="font-bold text-white mb-2.5 text-[16px]">{item.title}</h3>
-                <p className="text-sm text-gray-400 leading-relaxed">{item.desc}</p>
-              </motion.div>
-            ))}
+      {/* 3. A COMPLETE VALETING SERVICE */}
+      <section className="bg-[#0a0f2e] py-0">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            {/* Image */}
+            <FadeIn direction="left" className="overflow-hidden">
+              <img
+                src={completeImg}
+                alt="Complete Valeting Service"
+                className="w-full h-full object-cover min-h-[380px]"
+              />
+            </FadeIn>
+
+            {/* Text */}
+            <FadeIn direction="right" delay={0.15} className="flex items-center px-10 md:px-16 py-16">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight">
+                  A complete valeting service
+                </h2>
+                <p className="text-white/75 leading-relaxed mb-5 text-[15px]">
+                  At Smart Shine Car Valeting Centre we value our customers and we strive to satisfy your individual requirements.
+                  We are happy to spend as much time as necessary on your car to ensure that you receive the standard of service
+                  that you expect and deserve.
+                </p>
+                <p className="text-white/75 leading-relaxed mb-8 text-[15px]">
+                  Based in Guildford, we welcome both private and commercial clients from Godalming, Woking and the surrounding areas.
+                  We have a wide range of packages to choose from, at competitive prices to suit any budget. We also offer car scratch
+                  removal and machine polish.
+                </p>
+                <Link href="/contact">
+                  <button className="inline-flex items-center gap-2 rounded-full bg-blue-500 hover:bg-blue-400 px-7 py-3 text-[14px] font-bold text-white transition-all duration-150">
+                    Get in touch for a free quote
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </Link>
+              </div>
+            </FadeIn>
           </div>
         </div>
       </section>
 
-      {/* ── STATS ── */}
-      <section className="py-20 bg-blue-600 text-white">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              { value: "5,000+", label: "Happy Customers" },
-              { value: avgRating + "★", label: "Average Rating" },
-              { value: "10+", label: "Service Types" },
-              { value: "7", label: "Days a Week" },
-            ].map((stat) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-              >
-                <p className="text-4xl md:text-5xl font-black tracking-tight">{stat.value}</p>
-                <p className="text-blue-200 mt-2 text-sm font-medium">{stat.label}</p>
-              </motion.div>
-            ))}
+      {/* 4. WHY CHOOSE US */}
+      <section className="bg-gray-100 py-0">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            {/* Text */}
+            <FadeIn direction="left" className="flex items-center px-10 md:px-16 py-16">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-black text-[#0a0f2e] mb-8 leading-tight">
+                  Why choose us?
+                </h2>
+                <ul className="space-y-3">
+                  {WHY_US.map((item, i) => (
+                    <motion.li
+                      key={item}
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.06, duration: 0.5 }}
+                      className="flex items-start gap-3"
+                    >
+                      <CheckCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700 text-[15px] font-medium">{item}</span>
+                    </motion.li>
+                  ))}
+                </ul>
+              </div>
+            </FadeIn>
+
+            {/* Image */}
+            <FadeIn direction="right" delay={0.1} className="overflow-hidden">
+              <img
+                src={whyUsImg}
+                alt="Why Choose Smart Shine"
+                className="w-full h-full object-cover min-h-[440px]"
+              />
+            </FadeIn>
           </div>
         </div>
       </section>
 
-      {/* ── REVIEWS ── */}
-      <section className="py-24 bg-gray-50">
+      {/* 5. WHAT OUR CUSTOMERS SAY */}
+      <section className="py-20 bg-white">
         <div className="mx-auto max-w-7xl px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-14"
-          >
-            <span className="inline-flex items-center gap-2 bg-yellow-50 text-yellow-700 rounded-full px-4 py-1.5 text-sm font-semibold mb-4">
+          <FadeIn className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 bg-yellow-50 text-yellow-700 rounded-full px-4 py-1.5 text-sm font-bold mb-4">
               <Star className="h-4 w-4 fill-yellow-500" />
               Customer Reviews
-            </span>
-            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">What Our Clients Say</h2>
-          </motion.div>
-
-          {reviewsLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-44 rounded-3xl" />)}
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {reviews?.slice(0, 3).map((review, i) => (
-                <motion.div
-                  key={review.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="bg-white border border-gray-100 rounded-3xl p-7 shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <StarRating rating={review.rating} />
-                  <p className="text-gray-600 text-[15px] mt-4 leading-relaxed">"{review.comment}"</p>
-                  <div className="flex items-center gap-3 mt-5 pt-5 border-t border-gray-100">
-                    <div className="h-10 w-10 rounded-full bg-[#0a0f2e] flex items-center justify-center flex-shrink-0">
-                      <span className="text-white font-bold text-sm">{review.customerName[0]}</span>
-                    </div>
-                    <div>
-                      <p className="font-bold text-gray-900 text-sm">{review.customerName}</p>
-                      {review.serviceName && <p className="text-xs text-blue-600 font-medium">{review.serviceName}</p>}
-                    </div>
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
+              What our customers say?
+            </h2>
+          </FadeIn>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {displayReviews.map((review: any, i: number) => (
+              <FadeIn key={review.id ?? i} delay={i * 0.12} className="bg-gray-50 border border-gray-100 rounded-3xl p-7 shadow-sm hover:shadow-lg transition-shadow">
+                <div className="flex gap-0.5 mb-4">
+                  {[1,2,3,4,5].map(s => (
+                    <Star key={s} className={`h-4 w-4 ${s <= (review.rating ?? 5) ? "fill-yellow-400 text-yellow-400" : "text-gray-200"}`} />
+                  ))}
+                </div>
+                <p className="text-gray-600 text-[15px] leading-relaxed italic mb-5">
+                  "{review.comment ?? review.text}"
+                </p>
+                <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+                  <div className="h-10 w-10 rounded-full bg-[#0a0f2e] flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-black text-sm">{(review.customerName ?? review.name)[0]}</span>
                   </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-
-          <div className="text-center mt-12">
-            <Link href="/reviews">
-              <button className="inline-flex items-center gap-2 rounded-full border-2 border-gray-200 hover:border-yellow-400 hover:bg-yellow-50 px-7 py-3 text-[14px] font-bold text-gray-700 transition-all duration-200">
-                See All Reviews <ArrowRight className="h-4 w-4" />
-              </button>
-            </Link>
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm">{review.customerName ?? review.name}</p>
+                    {review.serviceName && <p className="text-xs text-blue-600 font-medium">{review.serviceName}</p>}
+                  </div>
+                </div>
+              </FadeIn>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── BOOKING CTA ── */}
+      {/* 6. CALL */}
       <section
-        className="relative py-28 text-white overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #0a0f2e 0%, #1a2060 50%, #0a1845 100%)" }}
+        className="relative py-16 overflow-hidden"
+        style={{ background: "linear-gradient(135deg, #0a0f2e 0%, #1a2a6c 50%, #0a1845 100%)" }}
       >
-        <div className="absolute inset-0 opacity-10"
-          style={{ backgroundImage: "radial-gradient(circle at 20% 50%, #3b82f6 0%, transparent 50%), radial-gradient(circle at 80% 20%, #60a5fa 0%, transparent 40%)" }}
+        <div className="absolute inset-0 opacity-20"
+          style={{ backgroundImage: "radial-gradient(ellipse at 50% 50%, #3b82f6 0%, transparent 70%)" }}
         />
-        <div className="relative mx-auto max-w-3xl px-6 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <img src={logoSrc} alt="Smart Shine" className="h-20 mx-auto mb-8 brightness-0 invert opacity-90" />
-            <h2 className="text-4xl md:text-5xl font-black mb-5 tracking-tight">Ready to Shine?</h2>
-            <p className="text-white/60 text-[17px] mb-10 leading-relaxed max-w-xl mx-auto">
-              Book your appointment now and give your car the premium care it deserves. Fast, easy, guaranteed.
-            </p>
-            <Link href="/booking">
-              <button className="inline-flex items-center gap-2.5 rounded-full bg-blue-500 hover:bg-blue-400 active:scale-95 px-10 py-4 text-[16px] font-bold text-white transition-all duration-150 shadow-2xl shadow-blue-500/30" data-testid="button-cta-book">
-                Book Now — It's Free
-                <ArrowRight className="h-5 w-5" />
-              </button>
-            </Link>
-          </motion.div>
-        </div>
+        <FadeIn className="relative mx-auto max-w-4xl px-6 text-center">
+          <p className="text-white/90 text-[15px] md:text-[18px] font-medium leading-relaxed">
+            Call Smart Shine Car Valeting Centre on{" "}
+            <a href="tel:07717310046" className="font-black text-white text-[20px] md:text-[24px] hover:text-blue-300 transition-colors">
+              07717 310 046
+            </a>
+            {" "}or{" "}
+            <a href="tel:01483236060" className="font-black text-white text-[20px] md:text-[24px] hover:text-blue-300 transition-colors">
+              01483 236 060
+            </a>
+            {" "}for a car valeting or detailing in Guildford
+          </p>
+        </FadeIn>
       </section>
 
-      {/* ── FOOTER ── */}
-      <footer className="border-t border-gray-100 py-12 bg-white">
+      {/* 7. FOLLOW US (Footer) */}
+      <footer className="bg-gray-900 pt-12 pb-6">
         <div className="mx-auto max-w-7xl px-6">
+          {/* Main footer content */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
             <div>
-              <img src={logoSrc} alt="Smart Shine" className="h-14 mb-4" style={{ filter: "brightness(0) saturate(100%) invert(13%) sepia(93%) saturate(600%) hue-rotate(210deg)" }} />
-              <p className="text-sm text-gray-500 leading-relaxed">Professional car valeting services that make your car shine like new. Trusted by thousands across the region.</p>
+              <img src={logoSrc} alt="Smart Shine" className="h-16 mb-4 brightness-0 invert opacity-90" />
+              <p className="text-sm text-gray-400 leading-relaxed">Professional car valeting services with over 25 years of experience. Serving Guildford, Godalming, Woking and surrounding areas.</p>
             </div>
             <div>
-              <h4 className="font-bold text-gray-900 mb-4 text-[14px] uppercase tracking-wider">Quick Links</h4>
+              <h4 className="font-black text-white mb-4 text-[13px] uppercase tracking-widest">Quick Links</h4>
               <div className="space-y-2.5">
                 {[
                   { href: "/private-valeting", label: "Private Vehicle Valeting" },
@@ -475,23 +394,54 @@ export default function Home() {
                   { href: "/booking", label: "Book Now" },
                   { href: "/contact", label: "Contact" },
                 ].map(({ href, label }) => (
-                  <Link key={href} href={href} className="block text-sm text-gray-500 hover:text-blue-700 transition-colors font-medium">
+                  <Link key={href} href={href} className="block text-sm text-gray-400 hover:text-white transition-colors font-medium">
                     {label}
                   </Link>
                 ))}
               </div>
             </div>
             <div>
-              <h4 className="font-bold text-gray-900 mb-4 text-[14px] uppercase tracking-wider">Contact Us</h4>
-              <div className="space-y-3 text-sm text-gray-500">
-                <div className="flex items-center gap-2.5"><MapPin className="h-4 w-4 text-blue-700 flex-shrink-0" /><span>123 Car Street, Prishtina</span></div>
-                <div className="flex items-center gap-2.5"><Phone className="h-4 w-4 text-blue-700 flex-shrink-0" /><span>+383 44 123 456</span></div>
-                <div className="flex items-center gap-2.5"><Clock className="h-4 w-4 text-blue-700 flex-shrink-0" /><span>Mon–Sun: 08:00 – 19:00</span></div>
+              <h4 className="font-black text-white mb-4 text-[13px] uppercase tracking-widest">Contact Us</h4>
+              <div className="space-y-3 text-sm text-gray-400 mb-6">
+                <div className="flex items-center gap-2.5"><MapPin className="h-4 w-4 text-blue-400 flex-shrink-0" /><span>Guildford, Surrey</span></div>
+                <div className="flex items-center gap-2.5"><Phone className="h-4 w-4 text-blue-400 flex-shrink-0" /><span>07717 310 046 / 01483 236 060</span></div>
+                <div className="flex items-center gap-2.5"><Clock className="h-4 w-4 text-blue-400 flex-shrink-0" /><span>Mon–Sun: 08:00 – 19:00</span></div>
               </div>
             </div>
           </div>
-          <div className="border-t border-gray-100 pt-6 text-center text-sm text-gray-400">
-            © 2025 Smart Shine Car Valeting Centre. All rights reserved.
+
+          {/* Follow us */}
+          <div className="border-t border-white/10 pt-8 pb-4 text-center">
+            <p className="text-white font-bold text-[15px] mb-5">Follow us</p>
+            <div className="flex items-center justify-center gap-4 mb-8">
+              {[
+                { icon: Facebook, label: "Facebook", href: "#" },
+                { icon: Twitter, label: "Twitter / X", href: "#" },
+                { icon: Shield, label: "Checkatrade", href: "#" },
+              ].map(({ icon: Icon, label, href }) => (
+                <motion.a
+                  key={label}
+                  href={href}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  aria-label={label}
+                  className="h-11 w-11 rounded-full bg-white/10 hover:bg-blue-600 flex items-center justify-center text-white/70 hover:text-white transition-all duration-200"
+                >
+                  <Icon className="h-5 w-5" />
+                </motion.a>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-center gap-4 text-xs text-gray-500 mb-4">
+              <Link href="/terms" className="hover:text-gray-300 transition-colors">Terms of Use</Link>
+              <span>|</span>
+              <Link href="/privacy" className="hover:text-gray-300 transition-colors">Privacy & Cookie Policy</Link>
+              <span>|</span>
+              <Link href="/trading" className="hover:text-gray-300 transition-colors">Trading Terms</Link>
+            </div>
+            <p className="text-xs text-gray-600">
+              © 2026. The content on this website is owned by us and our licensors. Do not copy any content (including images) without our consent.
+            </p>
           </div>
         </div>
       </footer>

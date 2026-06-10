@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useAdminLogin } from "@workspace/api-client-react";
-import { useAuth } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,22 +11,19 @@ export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { login } = useAuth();
+  const [loading, setLoading] = useState(false);
   const [, setLocation] = useLocation();
-  const loginMutation = useAdminLogin();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    loginMutation.mutate(
-      { data: { email, password } },
-      {
-        onSuccess: (data) => {
-          login(data.token);
-          setLocation("/admin/dashboard");
-        },
-        onError: () => toast.error("Invalid credentials. Please try again."),
-      }
-    );
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(false);
+    if (error) {
+      toast.error("Invalid credentials. Please try again.");
+    } else {
+      setLocation("/admin/dashboard");
+    }
   };
 
   return (
@@ -42,7 +38,7 @@ export default function AdminLogin() {
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 mx-auto mb-4">
               <Droplets className="h-7 w-7 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-white">Car Wash Pro</h1>
+            <h1 className="text-2xl font-bold text-white">Smart Shine</h1>
             <p className="text-slate-400 text-sm mt-1">Admin Panel</p>
           </div>
 
@@ -50,11 +46,10 @@ export default function AdminLogin() {
             <div>
               <label className="text-sm font-medium text-slate-300 mb-1.5 block">Email</label>
               <Input
-                data-testid="input-admin-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@carwash.com"
+                placeholder="admin@smartshine.co.uk"
                 className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500 focus:border-blue-500"
                 required
               />
@@ -63,7 +58,6 @@ export default function AdminLogin() {
               <label className="text-sm font-medium text-slate-300 mb-1.5 block">Password</label>
               <div className="relative">
                 <Input
-                  data-testid="input-admin-password"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -81,21 +75,16 @@ export default function AdminLogin() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
-              <span>Demo: admin@carwash.com / admin123</span>
-            </div>
-
             <Button
               type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-              disabled={loginMutation.isPending}
-              data-testid="button-admin-login"
+              disabled={loading}
             >
-              {loginMutation.isPending ? "Logging in..." : "Log In"}
+              {loading ? "Duke u kyçur..." : "Kyçu"}
             </Button>
           </form>
         </div>
-        <p className="text-center text-slate-600 text-xs mt-6">© 2024 Car Wash Pro. Admin Panel.</p>
+        <p className="text-center text-slate-600 text-xs mt-6">© 2025 Smart Shine Car Valeting Centre</p>
       </motion.div>
     </div>
   );

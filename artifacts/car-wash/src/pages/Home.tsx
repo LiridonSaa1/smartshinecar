@@ -725,7 +725,7 @@ export default function Home() {
           {/* Main footer content */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
             <div>
-              <img src={logoSrc} alt="Smart Shine" className="h-24 mb-4 brightness-0 invert opacity-90" />
+              <img src={logoSrc} alt="Smart Shine" className="h-40 mb-4 brightness-0 invert opacity-90" />
               <p className="text-sm text-gray-400 leading-relaxed">Professional car valeting services with over 25 years of experience. Serving Guildford, Godalming, Woking and surrounding areas.</p>
             </div>
             <div>

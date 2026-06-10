@@ -33,8 +33,8 @@ function NavItem({ href, label, icon: Icon }: { href: string; label: string; ico
       className={cn(
         "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium",
         isActive
-          ? "bg-primary text-primary-foreground"
-          : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
+          ? "bg-blue-600 text-white"
+          : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
       )}
     >
       <Icon className="h-4 w-4" />
@@ -46,12 +46,12 @@ function NavItem({ href, label, icon: Icon }: { href: string; label: string; ico
 function Sidebar({ onLogout }: { onLogout: () => void }) {
   return (
     <div className="flex flex-col h-full">
-      <div className="h-16 flex items-center px-5 border-b border-border flex-shrink-0">
+      <div className="h-16 flex items-center px-5 border-b border-gray-200 flex-shrink-0">
         <Link href="/admin/dashboard" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <Droplets className="h-5 w-5 text-primary-foreground" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
+            <Droplets className="h-5 w-5 text-white" />
           </div>
-          <span className="font-bold tracking-tight text-base text-card-foreground">Admin Pro</span>
+          <span className="font-bold tracking-tight text-base text-gray-900">Smart Shine</span>
         </Link>
       </div>
       <nav className="flex-1 p-3 flex flex-col gap-0.5 overflow-y-auto">
@@ -59,10 +59,10 @@ function Sidebar({ onLogout }: { onLogout: () => void }) {
           <NavItem key={item.href} {...item} />
         ))}
       </nav>
-      <div className="p-3 border-t border-border flex-shrink-0">
+      <div className="p-3 border-t border-gray-200 flex-shrink-0">
         <Button
           variant="ghost"
-          className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+          className="w-full justify-start text-gray-500 hover:text-red-600 hover:bg-red-50"
           onClick={onLogout}
         >
           <LogOut className="h-4 w-4 mr-2" />
@@ -100,20 +100,20 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="flex min-h-screen w-full bg-muted/30 dark">
+    <div className="flex min-h-screen w-full bg-gray-50">
       {/* Desktop Sidebar */}
-      <aside className="w-56 border-r border-border bg-card hidden md:flex flex-col flex-shrink-0">
+      <aside className="w-56 border-r border-gray-200 bg-white hidden md:flex flex-col flex-shrink-0">
         <Sidebar onLogout={handleLogout} />
       </aside>
 
       {/* Mobile */}
       <div className="flex flex-col flex-1 min-w-0">
-        <header className="h-14 border-b border-border bg-card flex items-center justify-between px-4 md:hidden flex-shrink-0">
+        <header className="h-14 border-b border-gray-200 bg-white flex items-center justify-between px-4 md:hidden flex-shrink-0">
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary">
-              <Droplets className="h-4 w-4 text-primary-foreground" />
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600">
+              <Droplets className="h-4 w-4 text-white" />
             </div>
-            <span className="font-bold text-card-foreground">Admin Pro</span>
+            <span className="font-bold text-gray-900">Smart Shine</span>
           </div>
           <Sheet>
             <SheetTrigger asChild>
@@ -121,7 +121,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-56 p-0 bg-card border-border dark">
+            <SheetContent side="left" className="w-56 p-0 bg-white border-gray-200">
               <Sidebar onLogout={handleLogout} />
             </SheetContent>
           </Sheet>

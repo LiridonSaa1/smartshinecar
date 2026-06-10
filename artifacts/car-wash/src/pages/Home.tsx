@@ -12,7 +12,7 @@ import logoSrc from "@assets/Professional_Car_Valeting_Logo_in_Navy_and_Silver_1
 import aboutImg from "@assets/image_1781123675503.png";
 import whyUsImg from "@assets/IMG_0034-576w_1781124058228.webp";
 
-import completeImg from "@assets/8BAB8335-072E-4691-B56A-98632CD0FC5E-535w_1781124055227.webp";
+import completeImg from "@assets/516887103_745437798174154_273580891758286555_n_1781127553222.jpg";
 
 const HERO_SLIDES = [
   {

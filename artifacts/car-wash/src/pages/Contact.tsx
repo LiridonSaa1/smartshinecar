@@ -97,23 +97,33 @@ export default function Contact() {
       <Navbar />
 
       {/* 1. HERO */}
-      <section className="bg-gray-100 pt-28 pb-16 text-center px-4">
-        <FadeIn>
-          <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 rounded-full px-4 py-1.5 text-sm font-bold mb-4">
+      <section
+        className="relative overflow-hidden pt-28 pb-16 text-center px-4"
+        style={{ background: "linear-gradient(135deg, #0a0f2e 0%, #1a2a6c 50%, #0a1845 100%)" }}
+      >
+        <div className="absolute inset-0 opacity-25" style={{ backgroundImage: "radial-gradient(ellipse at 30% 50%, #3b82f6 0%, transparent 55%)" }} />
+        <div className="absolute inset-0 opacity-15" style={{ backgroundImage: "radial-gradient(ellipse at 75% 60%, #6366f1 0%, transparent 50%)" }} />
+        <div className="absolute -top-16 -left-16 h-64 w-64 rounded-full border border-white/5" />
+        <div className="absolute -bottom-20 -right-10 h-72 w-72 rounded-full border border-white/5" />
+        <FadeIn className="relative">
+          <div className="inline-flex items-center gap-2 bg-white/10 text-blue-300 rounded-full px-4 py-1.5 text-sm font-bold mb-4 border border-white/10">
             <Phone className="h-4 w-4" />
             Get In Touch
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-[#0a0f2e] tracking-tight mb-4">
+          <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4">
             Contact Us
           </h1>
-          <p className="text-gray-500 text-[15px] max-w-2xl mx-auto leading-relaxed">
+          <p className="text-white/70 text-[15px] max-w-2xl mx-auto leading-relaxed">
             Have a question or want to book a service? We're here to help. Reach out and we'll get back to you as soon as possible.
           </p>
         </FadeIn>
       </section>
 
       {/* 2. INFO CARDS */}
-      <section className="bg-gray-100 pb-16 px-6">
+      <section
+        className="relative pb-16 px-6 pt-12"
+        style={{ background: "linear-gradient(135deg, #0a0f2e 0%, #1a2a6c 50%, #0a1845 100%)" }}
+      >
         <div className="mx-auto max-w-6xl">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {infoCards.map((item, i) => (

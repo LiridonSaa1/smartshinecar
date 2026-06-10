@@ -12,7 +12,7 @@ import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useState, useEffect, useCallback, useRef } from "react";
 import logoSrc from "@assets/Professional_Car_Valeting_Logo_in_Navy_and_Silver_1781123501610.png";
 import truckImg from "@assets/image_1781129523637.png";
-import vanImg from "@assets/image_1781129549524.png";
+import vanImg from "@assets/IMG_1997-1920w_1781130022961.webp";
 import kenworthImg from "@assets/IMG_0022-8ade3f8e-1920w_1781130012426.webp";
 
 const HERO_SLIDES = [

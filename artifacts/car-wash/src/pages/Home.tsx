@@ -439,24 +439,60 @@ export default function Home() {
 
       {/* 6. CALL */}
       <section
-        className="relative py-16 overflow-hidden"
+        className="relative py-20 overflow-hidden"
         style={{ background: "linear-gradient(135deg, #0a0f2e 0%, #1a2a6c 50%, #0a1845 100%)" }}
       >
-        <div className="absolute inset-0 opacity-20"
-          style={{ backgroundImage: "radial-gradient(ellipse at 50% 50%, #3b82f6 0%, transparent 70%)" }}
-        />
-        <FadeIn className="relative mx-auto max-w-4xl px-6 text-center">
-          <p className="text-white/90 text-[15px] md:text-[18px] font-medium leading-relaxed">
-            Call Smart Shine Car Valeting Centre on{" "}
-            <a href="tel:07717310046" className="font-black text-white text-[20px] md:text-[24px] hover:text-blue-300 transition-colors">
-              07717 310 046
-            </a>
-            {" "}or{" "}
-            <a href="tel:01483236060" className="font-black text-white text-[20px] md:text-[24px] hover:text-blue-300 transition-colors">
-              01483 236 060
-            </a>
-            {" "}for a car valeting or detailing in Guildford
+        {/* background glows */}
+        <div className="absolute inset-0 opacity-25"
+          style={{ backgroundImage: "radial-gradient(ellipse at 30% 50%, #3b82f6 0%, transparent 55%)" }} />
+        <div className="absolute inset-0 opacity-15"
+          style={{ backgroundImage: "radial-gradient(ellipse at 75% 60%, #6366f1 0%, transparent 50%)" }} />
+
+        {/* decorative ring top-left */}
+        <div className="absolute -top-16 -left-16 h-64 w-64 rounded-full border border-white/5" />
+        <div className="absolute -bottom-20 -right-10 h-72 w-72 rounded-full border border-white/5" />
+
+        <FadeIn className="relative mx-auto max-w-3xl px-6 text-center">
+          {/* icon */}
+          <div className="inline-flex items-center justify-center h-14 w-14 rounded-full bg-blue-500/20 border border-blue-400/30 mb-6 mx-auto">
+            <Phone className="h-6 w-6 text-blue-300" />
+          </div>
+
+          <p className="text-white/70 text-[13px] font-bold tracking-[0.25em] uppercase mb-4">
+            Get in touch today
           </p>
+
+          <p className="text-white/90 text-[15px] md:text-[17px] font-medium leading-relaxed mb-8">
+            Call Smart Shine Car Valeting Centre for a car valeting or detailing in Guildford
+          </p>
+
+          {/* Phone numbers as cards */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            {[
+              { number: "07717 310 046", href: "tel:07717310046" },
+              { number: "01483 236 060", href: "tel:01483236060" },
+            ].map(({ number, href }, i) => (
+              <motion.a
+                key={number}
+                href={href}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15, duration: 0.5 }}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.97 }}
+                className="group relative inline-flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm px-8 py-4 text-white transition-all duration-200 hover:bg-white/20 hover:border-blue-400/50 hover:shadow-lg hover:shadow-blue-500/20"
+              >
+                {/* pulse ring */}
+                <span className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{ boxShadow: "0 0 0 2px rgba(96,165,250,0.4), 0 0 20px rgba(96,165,250,0.15)" }} />
+                <Phone className="h-5 w-5 text-blue-300 flex-shrink-0" />
+                <span className="text-[22px] md:text-[26px] font-black tracking-wide">{number}</span>
+              </motion.a>
+            ))}
+          </div>
+
+          <p className="mt-8 text-white/40 text-[13px]">Mon – Sun &nbsp;·&nbsp; 08:00 – 19:00</p>
         </FadeIn>
       </section>
 

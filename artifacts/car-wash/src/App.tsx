@@ -14,6 +14,7 @@ import Gallery from "@/pages/Gallery";
 import Contact from "@/pages/Contact";
 import PrivateValeting from "@/pages/PrivateValeting";
 import CarDetailing from "@/pages/CarDetailing";
+import CommercialValeting from "@/pages/CommercialValeting";
 import AdminLogin from "@/pages/admin/Login";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminBookings from "@/pages/admin/Bookings";
@@ -39,6 +40,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/private-valeting" component={PrivateValeting} />
       <Route path="/car-vehicle-detailing-service" component={CarDetailing} />
+      <Route path="/commercial-valeting" component={CommercialValeting} />
       <Route path="/admin" component={() => <Redirect to="/admin/login" />} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin/dashboard" component={AdminDashboard} />

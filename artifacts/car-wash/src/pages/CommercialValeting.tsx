@@ -13,6 +13,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import logoSrc from "@assets/Professional_Car_Valeting_Logo_in_Navy_and_Silver_1781123501610.png";
 import truckImg from "@assets/image_1781129523637.png";
 import vanImg from "@assets/image_1781129549524.png";
+import kenworthImg from "@assets/IMG_0022-8ade3f8e-1920w_1781130012426.webp";
 
 const HERO_SLIDES = [
   {
@@ -371,7 +372,33 @@ export default function CommercialValeting() {
         </div>
       </section>
 
-      {/* 3. OUR SERVICES INCLUDE — image left, list right */}
+      {/* 3. KENWORTH SHOWCASE */}
+      <section className="relative overflow-hidden bg-gray-900">
+        <FadeIn>
+          <div className="relative">
+            <img
+              src={kenworthImg}
+              alt="Kenworth truck valeted at Smart Shine Car Valeting Centre, Guildford"
+              className="w-full h-[520px] md:h-[620px] object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
+              <div className="mx-auto max-w-6xl">
+                <div className="inline-flex items-center gap-2 bg-blue-500/30 border border-blue-400/40 text-blue-200 rounded-full px-4 py-1.5 text-xs font-bold tracking-widest uppercase mb-3">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Smart Shine — Guildford
+                </div>
+                <h3 className="text-2xl md:text-3xl font-black text-white leading-tight">
+                  Kenworth Big Rig — Full Commercial Valet
+                </h3>
+                <p className="text-white/70 text-sm mt-1">Photographed at Smart Shine Car Valeting Centre, Guildford</p>
+              </div>
+            </div>
+          </div>
+        </FadeIn>
+      </section>
+
+      {/* 4. OUR SERVICES INCLUDE — image left, list right */}
       <section className="py-20 bg-gray-50">
         <div className="mx-auto max-w-6xl px-6">
           <FadeIn className="text-center mb-14">

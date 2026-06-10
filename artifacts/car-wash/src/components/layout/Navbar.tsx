@@ -48,7 +48,7 @@ export function Navbar() {
             <img
               src={logoSrc}
               alt="Smart Shine Car Valeting Centre"
-              className="h-20 w-auto object-contain brightness-0 invert"
+              className="h-28 w-auto object-contain brightness-0 invert"
             />
           </Link>
 
@@ -81,7 +81,7 @@ export function Navbar() {
         {/* Mobile */}
         <div className="md:hidden flex items-center justify-between px-5 h-16">
           <Link href="/">
-            <img src={logoSrc} alt="Smart Shine" className="h-11 w-auto brightness-0 invert" />
+            <img src={logoSrc} alt="Smart Shine" className="h-16 w-auto brightness-0 invert" />
           </Link>
           <button
             className="flex items-center justify-center h-9 w-9 rounded-full hover:bg-white/15 transition-colors"

@@ -8,7 +8,7 @@ import logoSrc from "@assets/Professional_Car_Valeting_Logo_in_Navy_and_Silver_1
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/private-valeting", label: "Private Vehicle Valeting" },
-  { href: "/car-detailing", label: "Car Detailing" },
+  { href: "/car-vehicle-detailing-service", label: "Car Detailing" },
   { href: "/commercial-valeting", label: "Commercial Valeting" },
   { href: "/gallery", label: "Gallery" },
   { href: "/contact", label: "Contact" },

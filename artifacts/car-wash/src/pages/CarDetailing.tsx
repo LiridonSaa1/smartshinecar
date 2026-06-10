@@ -2,7 +2,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Link } from "wouter";
 import {
   ArrowRight, Star, Phone, MapPin, Clock,
-  ChevronLeft, ChevronRight, Sparkles, Send, Quote,
+  ChevronLeft, ChevronRight, Sparkles, Send,
 } from "lucide-react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -408,43 +408,33 @@ export default function CarDetailing() {
 
       {/* 4. CUSTOMER REVIEW */}
       <section className="py-20 bg-white">
-        <div className="mx-auto max-w-4xl px-6">
-          <FadeIn className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-yellow-50 text-yellow-700 rounded-full px-4 py-1.5 text-sm font-bold mb-2">
+        <div className="mx-auto max-w-4xl px-6 text-center">
+          <FadeIn>
+            <div className="inline-flex items-center gap-2 bg-yellow-50 text-yellow-700 rounded-full px-4 py-1.5 text-sm font-bold mb-8">
               <Star className="h-4 w-4 fill-yellow-500" />
-              Customer Reviews
+              Our Customer's Comments on Our Service
             </div>
-            <h2 className="text-3xl md:text-4xl font-black text-[#0a0f2e] mt-2">
-              Our customer's comments on our service.
-            </h2>
-          </FadeIn>
-
-          <FadeIn delay={0.1}>
-            <motion.div
-              whileHover={{ y: -4 }}
-              className="relative bg-gray-50 border border-gray-100 rounded-3xl p-10 md:p-14 shadow-sm"
-            >
-              <Quote className="absolute top-8 left-8 h-10 w-10 text-blue-100" />
-              <div className="flex gap-0.5 mb-6 justify-center">
-                {[1,2,3,4,5].map(s => <Star key={s} className="h-5 w-5 fill-yellow-400 text-yellow-400" />)}
+            <div className="flex gap-0.5 justify-center mb-6">
+              {[1,2,3,4,5].map(s => (
+                <Star key={s} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+              ))}
+            </div>
+            <blockquote className="text-gray-600 text-[16px] md:text-[18px] leading-relaxed italic max-w-3xl mx-auto mb-8">
+              "What a fantastic valet service; my Audi A6 was looking dirty and very well used. With a dog and two kids
+              it had accumulated a huge amount of dirt inside and the outside needed a jolly good clean and finish. To
+              put it mildly, I was astonished at what Smart Shine achieved — the car looked brand new. It is rare to
+              find someone who takes a real pride in their work and Smart Shine is one of those rare businesses. I
+              cannot recommend them highly enough. I will go back again and again."
+            </blockquote>
+            <div className="flex items-center justify-center gap-3">
+              <div className="h-12 w-12 rounded-full bg-[#0a0f2e] flex items-center justify-center">
+                <span className="text-white font-black text-base">A</span>
               </div>
-              <p className="text-gray-700 text-[16px] md:text-[18px] leading-relaxed italic text-center mb-8">
-                "What a fantastic valet service; my Audi A6 was looking dirty and very well used. With a dog
-                and two kids it had accumulated a huge amount of dirt inside and the outside needed a jolly good
-                clean and finish. To put it mildly, I was astonished at what Smart Shine achieved — the car looked
-                brand new. It is rare to find someone who takes a real pride in their work and Smart Shine is one
-                of those rare businesses. I cannot recommend them highly enough. I will go back again and again."
-              </p>
-              <div className="flex items-center justify-center gap-3">
-                <div className="h-11 w-11 rounded-full bg-[#0a0f2e] flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-black text-sm">A</span>
-                </div>
-                <div className="text-left">
-                  <p className="font-black text-[#0a0f2e] text-[15px]">Adrian Shaw</p>
-                  <p className="text-blue-600 text-[12px] font-semibold">Verified Customer</p>
-                </div>
+              <div className="text-left">
+                <p className="font-black text-gray-900 text-base">Adrian Shaw</p>
+                <p className="text-sm text-blue-600 font-medium">Verified Customer</p>
               </div>
-            </motion.div>
+            </div>
           </FadeIn>
         </div>
       </section>

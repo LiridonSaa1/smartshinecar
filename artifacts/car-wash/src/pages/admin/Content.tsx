@@ -9,7 +9,7 @@ import {
   Car, Sparkles, Star, Phone, MapPin, Wrench, ListChecks,
   Image, Check, Loader2, Plus, Trash2, ChevronRight,
   GalleryHorizontal, Info, BarChart3, Layers, Home,
-  Contact, Briefcase, Shield,
+  Contact, Shield,
 } from "lucide-react";
 import { ImageUpload } from "@/components/ui/ImageUpload";
 
@@ -596,70 +596,6 @@ function GetInTouchEditor() {
   );
 }
 
-// ─── SERVICES PAGE HERO ───────────────────────────────────────────────────────
-const DEFAULT_SERVICES_HERO = {
-  title: "Premium Car Care Services",
-  subtitle: "From a quick exterior rinse to a full premium detailing — we have the perfect service for your car.",
-};
-
-function ServicesHeroEditor() {
-  const { data, isLoading } = useSection("services_hero", DEFAULT_SERVICES_HERO);
-  const save = useSave("services_hero");
-  const [local, setLocal] = useState(DEFAULT_SERVICES_HERO);
-  const [dirty, setDirty] = useState(false);
-  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_SERVICES_HERO); setDirty(false); } }, [data]);
-  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
-  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
-  return (
-    <div className="space-y-4">
-      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Page title</label><Input value={local.title} onChange={e => mark({ ...local, title: e.target.value })} placeholder="Premium Car Care Services" /></div>
-      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Page subtitle</label><Textarea value={local.subtitle} rows={3} onChange={e => mark({ ...local, subtitle: e.target.value })} className="text-sm" /></div>
-      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
-    </div>
-  );
-}
-
-// ─── OUR SERVICES INCLUDE ─────────────────────────────────────────────────────
-const DEFAULT_OUR_SERVICES = { title: "Our services include", subtitle: "A complete range of professional valeting and detailing services." };
-
-function OurServicesEditor() {
-  const { data, isLoading } = useSection("our_services_include", DEFAULT_OUR_SERVICES);
-  const save = useSave("our_services_include");
-  const [local, setLocal] = useState(DEFAULT_OUR_SERVICES);
-  const [dirty, setDirty] = useState(false);
-  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_OUR_SERVICES); setDirty(false); } }, [data]);
-  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
-  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-gray-500 bg-gray-50 rounded-lg p-3">This section appears on the individual service pages (Private Valeting, Commercial Valeting, etc.)</p>
-      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Section heading</label><Input value={local.title} onChange={e => mark({ ...local, title: e.target.value })} placeholder="Our services include" /></div>
-      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Section subtitle</label><Textarea value={local.subtitle} rows={2} onChange={e => mark({ ...local, subtitle: e.target.value })} className="text-sm" /></div>
-      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
-    </div>
-  );
-}
-
-// ─── PRICING NOTE ─────────────────────────────────────────────────────────────
-const DEFAULT_PRICING = { note: "Prices vary on the size of the car", subtitle: "All prices include materials and labour. Free quotes available on request." };
-
-function PricingNoteEditor() {
-  const { data, isLoading } = useSection("pricing_note", DEFAULT_PRICING);
-  const save = useSave("pricing_note");
-  const [local, setLocal] = useState(DEFAULT_PRICING);
-  const [dirty, setDirty] = useState(false);
-  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_PRICING); setDirty(false); } }, [data]);
-  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
-  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
-  return (
-    <div className="space-y-4">
-      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Pricing note (shown above services grid)</label><Input value={local.note} onChange={e => mark({ ...local, note: e.target.value })} placeholder="Prices vary on the size of the car" /></div>
-      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Pricing subtitle</label><Textarea value={local.subtitle} rows={2} onChange={e => mark({ ...local, subtitle: e.target.value })} className="text-sm" /></div>
-      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
-    </div>
-  );
-}
-
 // ─── GALLERY ──────────────────────────────────────────────────────────────────
 const DEFAULT_GALLERY = { title: "Our Work", subtitle: "Select a brand to see our work on that vehicle type" };
 
@@ -1035,16 +971,6 @@ const PAGE_GROUPS: PageGroup[] = [
       { key: "why_choose_us", label: "Why Choose Us?", description: "Feature cards in the Why Choose Us section", icon: Sparkles, editor: WhyUsEditor },
       { key: "customers_say", label: "Reviews Heading", description: "Section title for the reviews block", icon: Star, editor: ReviewsHeaderEditor },
       { key: "get_in_touch", label: "Get in Touch", description: "Phone numbers, call-to-action, hours", icon: Phone, editor: GetInTouchEditor },
-    ],
-  },
-  {
-    page: "Services",
-    icon: Briefcase,
-    color: "violet",
-    sections: [
-      { key: "services_hero", label: "Services Page Hero", description: "Title and subtitle for the services listing page", icon: Wrench, editor: ServicesHeroEditor },
-      { key: "our_services_include", label: "Our Services Include", description: "Section heading on individual service pages", icon: ListChecks, editor: OurServicesEditor },
-      { key: "pricing_note", label: "Pricing Note", description: "Pricing note and subtitle text", icon: ListChecks, editor: PricingNoteEditor },
     ],
   },
   {

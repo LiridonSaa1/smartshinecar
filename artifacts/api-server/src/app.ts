@@ -1,6 +1,9 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
+import path from "path";
+import { fileURLToPath } from "url";
+import { existsSync } from "fs";
 import router from "./routes";
 import { logger } from "./lib/logger";
 
@@ -29,14 +32,27 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/", (_req, res) => {
-  res.send("API is running 🚀");
-});
+// Resolve public dir relative to the compiled bundle (dist/index.mjs → public/)
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
+const publicDir = path.resolve(currentDir, "..", "public");
+
+// Serve frontend static assets if the build exists
+if (existsSync(publicDir)) {
+  app.use(express.static(publicDir));
+}
 
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
 
 app.use("/api", router);
+
+// SPA fallback — return index.html for any non-API route so client-side
+// routing (React Router / Wouter) works correctly on deep links
+if (existsSync(publicDir)) {
+  app.get("*", (_req, res) => {
+    res.sendFile(path.join(publicDir, "index.html"));
+  });
+}
 
 export default app;

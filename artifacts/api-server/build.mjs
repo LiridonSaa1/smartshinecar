@@ -3,14 +3,49 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build as esbuild } from "esbuild";
 import esbuildPluginPino from "esbuild-plugin-pino";
-import { rm } from "node:fs/promises";
+import { rm, cp } from "node:fs/promises";
+import { execSync } from "node:child_process";
+import { existsSync } from "node:fs";
 
 // Plugins (e.g. 'esbuild-plugin-pino') may use `require` to resolve dependencies
 globalThis.require = createRequire(import.meta.url);
 
 const artifactDir = path.dirname(fileURLToPath(import.meta.url));
 
+async function buildFrontend() {
+  const carWashDir = path.resolve(artifactDir, "../car-wash");
+  if (!existsSync(carWashDir)) {
+    console.log("car-wash directory not found, skipping frontend build.");
+    return;
+  }
+
+  console.log("📦 Installing frontend dependencies...");
+  execSync("npm install --ignore-scripts", {
+    cwd: carWashDir,
+    stdio: "inherit",
+  });
+
+  console.log("🏗️  Building frontend...");
+  execSync("npm run build", {
+    cwd: carWashDir,
+    stdio: "inherit",
+    env: { ...process.env, BASE_PATH: "/" },
+  });
+
+  const frontendDist = path.resolve(carWashDir, "dist");
+  const publicDir = path.resolve(artifactDir, "public");
+
+  console.log("📂 Copying frontend build to public/...");
+  await rm(publicDir, { recursive: true, force: true });
+  await cp(frontendDist, publicDir, { recursive: true });
+  console.log("✅ Frontend build copied.");
+}
+
 async function buildAll() {
+  // 1. Build the React frontend first
+  await buildFrontend();
+
+  // 2. Build the Express backend with esbuild
   const distDir = path.resolve(artifactDir, "dist");
   await rm(distDir, { recursive: true, force: true });
 
@@ -22,11 +57,6 @@ async function buildAll() {
     outdir: distDir,
     outExtension: { ".js": ".mjs" },
     logLevel: "info",
-    // Some packages may not be bundleable, so we externalize them, we can add more here as needed.
-    // Some of the packages below may not be imported or installed, but we're adding them in case they are in the future.
-    // Examples of unbundleable packages:
-    // - uses native modules and loads them dynamically (e.g. sharp)
-    // - use path traversal to read files (e.g. @google-cloud/secret-manager loads sibling .proto files)
     external: [
       "*.node",
       "sharp",

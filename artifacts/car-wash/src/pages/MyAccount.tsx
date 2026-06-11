@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Car, Loader2, LogIn } from "lucide-react";
+import { Eye, EyeOff, Loader2, LogIn } from "lucide-react";
 import { useCustomerAuth } from "@/lib/customerAuth";
+import logoSrc from "@assets/Professional_Car_Valeting_Logo_in_Navy_and_Silver_1781123501610.png";
 
 export default function MyAccount() {
   const { customer, loading, login } = useCustomerAuth();
@@ -50,8 +51,8 @@ export default function MyAccount() {
         className="w-full max-w-md"
       >
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-blue-600 mb-4">
-            <Car className="h-8 w-8 text-white" />
+          <div className="flex justify-center mb-5">
+            <img src={logoSrc} alt="Smart Shine Car Valeting Centre" className="h-28 w-auto brightness-0 invert" />
           </div>
           <h1 className="text-2xl font-black text-white">My Account</h1>
           <p className="text-gray-400 mt-1 text-sm">Track your bookings &amp; car status</p>

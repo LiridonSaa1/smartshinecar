@@ -11,6 +11,7 @@ import {
   GalleryHorizontal, Info, BarChart3, Layers, Home,
   Contact, Briefcase, Shield,
 } from "lucide-react";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 
 const API = "/api/content";
 
@@ -107,9 +108,8 @@ function HeroSlidesEditor() {
                 <Textarea value={slide.sub} rows={2} onChange={e => updateSlide(i, "sub", e.target.value)} className="text-sm" placeholder="Subtitle text…" />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">Background image URL</label>
-                <Input value={slide.image} onChange={e => updateSlide(i, "image", e.target.value)} className="text-xs" placeholder="https://images.unsplash.com/…" />
-                {slide.image && <img src={slide.image} alt="" className="mt-2 h-20 w-full object-cover rounded-lg" onError={e => (e.currentTarget.style.display = "none")} />}
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Background image</label>
+                <ImageUpload value={slide.image} onChange={val => updateSlide(i, "image", val)} placeholder="https://images.unsplash.com/…" />
               </div>
             </div>
           ))}
@@ -232,32 +232,9 @@ function CompleteValetingEditor() {
       <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">First paragraph</label><Textarea value={local.paragraph1} rows={4} onChange={e => mark({ ...local, paragraph1: e.target.value })} className="text-sm" /></div>
       <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Second paragraph</label><Textarea value={local.paragraph2} rows={4} onChange={e => mark({ ...local, paragraph2: e.target.value })} className="text-sm" /></div>
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Section photo (URL)</label>
-        <Input
-          value={local.image ?? ""}
-          onChange={e => mark({ ...local, image: e.target.value })}
-          placeholder="https://images.unsplash.com/… or leave blank for default"
-          className="text-xs"
-        />
-        {local.image ? (
-          <div className="mt-2 relative rounded-xl overflow-hidden border border-gray-200 h-40">
-            <img
-              src={local.image}
-              alt="Preview"
-              className="w-full h-full object-cover"
-              onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-            />
-            <button
-              onClick={() => mark({ ...local, image: "" })}
-              className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow transition-colors"
-              title="Remove image"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        ) : (
-          <p className="text-xs text-gray-400 mt-1.5">Leave blank to use the default photo already on the website.</p>
-        )}
+        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Section photo</label>
+        <p className="text-xs text-gray-400 mb-2">Leave empty to use the default photo already on the website.</p>
+        <ImageUpload value={local.image ?? ""} onChange={val => mark({ ...local, image: val })} />
       </div>
       <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
     </div>
@@ -352,32 +329,9 @@ function WhyUsEditor() {
     <div>
       <div className="mb-6"><label className="block text-sm font-semibold text-gray-700 mb-1.5">Section subtitle</label><Textarea value={local.subtitle} rows={2} onChange={e => mark({ ...local, subtitle: e.target.value })} className="text-sm" /></div>
       <div className="mb-6">
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Section photo (URL)</label>
-        <Input
-          value={local.image ?? ""}
-          onChange={e => mark({ ...local, image: e.target.value })}
-          placeholder="https://images.unsplash.com/… or leave blank for default"
-          className="text-xs"
-        />
-        {local.image ? (
-          <div className="mt-2 relative rounded-xl overflow-hidden border border-gray-200 h-40">
-            <img
-              src={local.image}
-              alt="Preview"
-              className="w-full h-full object-cover"
-              onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-            />
-            <button
-              onClick={() => mark({ ...local, image: "" })}
-              className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow transition-colors"
-              title="Remove image"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        ) : (
-          <p className="text-xs text-gray-400 mt-1.5">Leave blank to use the default photo already on the website.</p>
-        )}
+        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Section photo</label>
+        <p className="text-xs text-gray-400 mb-2">Leave empty to use the default photo already on the website.</p>
+        <ImageUpload value={local.image ?? ""} onChange={val => mark({ ...local, image: val })} />
       </div>
       <div className="mb-4">
         <div className="flex items-center justify-between mb-3">

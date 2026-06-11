@@ -7,6 +7,7 @@ import reviewsRouter from "./reviews";
 import analyticsRouter from "./analytics";
 import settingsRouter from "./settings";
 import contentRouter from "./content";
+import storageRouter from "./storage";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(reviewsRouter);
 router.use(analyticsRouter);
 router.use(settingsRouter);
 router.use(contentRouter);
+router.use(storageRouter);
 
 export default router;

@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Clock, CheckCircle, ChevronLeft, ChevronRight, Calendar,
   User, Phone, Mail, Sparkles, Car, Zap, Shield, Star,
-  MapPin, CreditCard, Banknote, Landmark, Wallet,
+  MapPin, CreditCard, Banknote, Landmark, Wallet, Hash, Truck,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -33,6 +33,9 @@ interface BookingForm {
   customerEmail: string;
   notes: string;
   paymentMethod: PaymentMethod;
+  vehicleMake: string;
+  vehicleModel: string;
+  vehicleReg: string;
 }
 
 const PAYMENT_OPTIONS: { id: PaymentMethod; label: string; desc: string; icon: ElementType; color: string; badge: string }[] = [
@@ -218,6 +221,9 @@ export default function Booking() {
     customerEmail: "",
     notes: "",
     paymentMethod: "cash",
+    vehicleMake: "",
+    vehicleModel: "",
+    vehicleReg: "",
   });
   const [confirmedBookingId, setConfirmedBookingId] = useState<number | null>(null);
   const [, setLocation] = useLocation();
@@ -239,7 +245,9 @@ export default function Booking() {
       return;
     }
     const paymentLabel = PAYMENT_OPTIONS.find(p => p.id === form.paymentMethod)?.label ?? form.paymentMethod;
-    const notesWithPayment = [form.notes, `Payment: ${paymentLabel}`].filter(Boolean).join(" | ");
+    const vehicleParts = [form.vehicleMake, form.vehicleModel, form.vehicleReg].filter(Boolean);
+    const vehicleStr = vehicleParts.length ? `Vehicle: ${vehicleParts.join(" ")}` : null;
+    const notesWithPayment = [vehicleStr, form.notes, `Payment: ${paymentLabel}`].filter(Boolean).join(" | ");
     createBooking.mutate(
       {
         data: {
@@ -292,6 +300,8 @@ export default function Booking() {
                   { icon: Car, label: "Service", value: selectedService?.name },
                   { icon: Calendar, label: "Date", value: formatDate(form.date) },
                   { icon: Clock, label: "Time", value: form.time },
+                  ...([form.vehicleMake, form.vehicleModel].filter(Boolean).length ? [{ icon: Truck, label: "Vehicle", value: [form.vehicleMake, form.vehicleModel].filter(Boolean).join(" ") }] : []),
+                  ...(form.vehicleReg ? [{ icon: Hash, label: "Reg Plate", value: form.vehicleReg }] : []),
                   { icon: Wallet, label: "Payment", value: PAYMENT_OPTIONS.find(p => p.id === form.paymentMethod)?.label },
                   { icon: CreditCard, label: "Total", value: `£${selectedService?.price}` },
                 ].map(({ icon: Icon, label, value }) => (
@@ -580,6 +590,53 @@ export default function Booking() {
                           </div>
                         ))}
 
+                        {/* Vehicle Details */}
+                        <div className="rounded-2xl border border-white/8 p-5" style={{ background: "rgba(255,255,255,0.02)" }}>
+                          <div className="flex items-center gap-2 mb-4">
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(139,92,246,0.2)" }}>
+                              <Truck className="h-4 w-4 text-purple-400" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold text-white">Your Vehicle</p>
+                              <p className="text-xs text-slate-500">Helps us prepare the right equipment</p>
+                            </div>
+                            <span className="ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-full text-slate-400 border border-white/10">optional</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            {[
+                              { key: "vehicleMake", label: "Make", placeholder: "e.g. BMW", icon: Car },
+                              { key: "vehicleModel", label: "Model", placeholder: "e.g. 3 Series", icon: Car },
+                            ].map(({ key, label, placeholder, icon: Icon }) => (
+                              <div key={key}>
+                                <label className="flex items-center gap-1.5 text-xs font-medium text-slate-400 mb-1.5">
+                                  <Icon className="h-3.5 w-3.5" />
+                                  {label}
+                                </label>
+                                <input
+                                  type="text"
+                                  value={form[key as keyof BookingForm] as string}
+                                  onChange={(e) => setForm(f => ({ ...f, [key]: e.target.value }))}
+                                  placeholder={placeholder}
+                                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500/40 transition-all"
+                                />
+                              </div>
+                            ))}
+                            <div className="col-span-2">
+                              <label className="flex items-center gap-1.5 text-xs font-medium text-slate-400 mb-1.5">
+                                <Hash className="h-3.5 w-3.5" />
+                                Registration Plate
+                              </label>
+                              <input
+                                type="text"
+                                value={form.vehicleReg}
+                                onChange={(e) => setForm(f => ({ ...f, vehicleReg: e.target.value.toUpperCase() }))}
+                                placeholder="e.g. AB12 CDE"
+                                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white placeholder-slate-600 text-sm font-mono tracking-widest uppercase focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500/40 transition-all"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
                         {/* Payment Method */}
                         <div>
                           <label className="flex items-center gap-2 text-sm font-medium text-slate-300 mb-3">
@@ -675,6 +732,8 @@ export default function Booking() {
                           { icon: User, label: "Name", value: form.customerName },
                           { icon: Phone, label: "Phone", value: form.customerPhone },
                           ...(form.customerEmail ? [{ icon: Mail, label: "Email", value: form.customerEmail, accent: false }] : []),
+                          ...([form.vehicleMake, form.vehicleModel].filter(Boolean).length ? [{ icon: Truck, label: "Vehicle", value: [form.vehicleMake, form.vehicleModel].filter(Boolean).join(" "), accent: false }] : []),
+                          ...(form.vehicleReg ? [{ icon: Hash, label: "Reg Plate", value: form.vehicleReg, accent: false }] : []),
                           ...(form.notes ? [{ icon: Sparkles, label: "Notes", value: form.notes, accent: false }] : []),
                           { icon: Wallet, label: "Payment", value: PAYMENT_OPTIONS.find(p => p.id === form.paymentMethod)?.label, accent: false },
                         ].map(({ icon: Icon, label, value, accent }) => (
@@ -758,6 +817,8 @@ export default function Booking() {
                     { icon: Clock, label: "Time", value: form.time || null, placeholder: "Not selected" },
                     { icon: User, label: "Name", value: form.customerName || null, placeholder: "Not provided" },
                     { icon: Phone, label: "Phone", value: form.customerPhone || null, placeholder: "Not provided" },
+                    { icon: Truck, label: "Vehicle", value: [form.vehicleMake, form.vehicleModel].filter(Boolean).join(" ") || null, placeholder: "Not provided" },
+                    ...(form.vehicleReg ? [{ icon: Hash, label: "Reg Plate", value: form.vehicleReg, placeholder: "" }] : []),
                     { icon: Wallet, label: "Payment", value: PAYMENT_OPTIONS.find(p => p.id === form.paymentMethod)?.label ?? null, placeholder: "Not selected" },
                   ].map(({ icon: Icon, label, value, placeholder }) => (
                     <div key={label} className="flex items-start gap-3">

@@ -472,6 +472,10 @@ const DEFAULT_HERO = {
     { headline: "Showroom Finish,\nEvery Time", sub: "Deep paint correction and interior detailing to restore your vehicle to pristine condition.", image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=1600&q=85" },
     { headline: "Trusted by\nThousands of Drivers", sub: "Over 25 years of experience. Over 5,000 happy customers. Experience the Smart Shine difference.", image: "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=1600&q=85" },
   ],
+  btn1Label: "Book Your Valet",
+  btn1Link: "/booking",
+  btn2Label: "Get Free Quote",
+  btn2Link: "/contact",
 };
 
 function HeroSlidesEditor() {
@@ -494,38 +498,65 @@ function HeroSlidesEditor() {
   if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <p className="text-sm text-gray-500">Edit the hero carousel slides shown at the top of the homepage.</p>
-        <Button size="sm" variant="outline" onClick={addSlide} className="text-xs h-8 flex-shrink-0">
-          <Plus className="h-3.5 w-3.5 mr-1" />Add slide
-        </Button>
+    <div className="space-y-6">
+      {/* Slides */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm font-semibold text-gray-700">Slides</p>
+          <Button size="sm" variant="outline" onClick={addSlide} className="text-xs h-8 flex-shrink-0">
+            <Plus className="h-3.5 w-3.5 mr-1" />Add slide
+          </Button>
+        </div>
+        <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1">
+          {local.slides.map((slide, i) => (
+            <div key={i} className="border border-gray-200 rounded-xl p-4 bg-gray-50 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Slide {i + 1}</span>
+                <Button size="icon" variant="ghost" onClick={() => removeSlide(i)} className="text-gray-400 hover:text-red-500 h-7 w-7">
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Headline (use \n for line break)</label>
+                <Textarea value={slide.headline} rows={2} onChange={e => updateSlide(i, "headline", e.target.value)} className="text-sm font-bold" placeholder="Premium Car\nValeting Service" />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Subtitle</label>
+                <Textarea value={slide.sub} rows={2} onChange={e => updateSlide(i, "sub", e.target.value)} className="text-sm" placeholder="Subtitle text…" />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Background image URL</label>
+                <Input value={slide.image} onChange={e => updateSlide(i, "image", e.target.value)} className="text-xs" placeholder="https://images.unsplash.com/…" />
+                {slide.image && <img src={slide.image} alt="" className="mt-2 h-20 w-full object-cover rounded-lg" onError={e => (e.currentTarget.style.display = "none")} />}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-      <div className="space-y-4 max-h-[480px] overflow-y-auto pr-1">
-        {local.slides.map((slide, i) => (
-          <div key={i} className="border border-gray-200 rounded-xl p-4 bg-gray-50 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Slide {i + 1}</span>
-              <Button size="icon" variant="ghost" onClick={() => removeSlide(i)} className="text-gray-400 hover:text-red-500 h-7 w-7">
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1">Headline (use \n for line break)</label>
-              <Textarea value={slide.headline} rows={2} onChange={e => updateSlide(i, "headline", e.target.value)} className="text-sm font-bold" placeholder="Premium Car\nValeting Service" />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1">Subtitle</label>
-              <Textarea value={slide.sub} rows={2} onChange={e => updateSlide(i, "sub", e.target.value)} className="text-sm" placeholder="Subtitle text…" />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1">Background image URL</label>
-              <Input value={slide.image} onChange={e => updateSlide(i, "image", e.target.value)} className="text-xs" placeholder="https://images.unsplash.com/…" />
-              {slide.image && <img src={slide.image} alt="" className="mt-2 h-20 w-full object-cover rounded-lg" onError={e => (e.currentTarget.style.display = "none")} />}
-            </div>
+
+      {/* Buttons */}
+      <div className="border border-gray-200 rounded-xl p-4 bg-blue-50/50 space-y-3">
+        <p className="text-sm font-semibold text-gray-700 mb-1">Carousel buttons</p>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">Button 1 — label</label>
+            <Input value={local.btn1Label ?? ""} onChange={e => mark({ ...local, btn1Label: e.target.value })} placeholder="Book Your Valet" />
           </div>
-        ))}
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">Button 1 — link</label>
+            <Input value={local.btn1Link ?? ""} onChange={e => mark({ ...local, btn1Link: e.target.value })} placeholder="/booking" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">Button 2 — label</label>
+            <Input value={local.btn2Label ?? ""} onChange={e => mark({ ...local, btn2Label: e.target.value })} placeholder="Get Free Quote" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">Button 2 — link</label>
+            <Input value={local.btn2Link ?? ""} onChange={e => mark({ ...local, btn2Link: e.target.value })} placeholder="/contact" />
+          </div>
+        </div>
       </div>
+
       <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
     </div>
   );

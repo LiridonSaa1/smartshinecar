@@ -17,29 +17,35 @@ import whyUsImg from "@assets/469415684_588164513901484_5794834001610611799_n_17
 
 import completeImg from "@assets/516887103_745437798174154_273580891758286555_n_1781127553222.jpg";
 
-const HERO_SLIDES_DEFAULT = [
-  {
-    id: 0,
-    image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=1600&q=85",
-    headline: "Premium Car\nValeting Service",
-    sub: "Professional valeting that restores your vehicle to showroom condition. Serving Guildford and surrounding areas.",
-    accent: "from-black/80 via-black/50 to-transparent",
-  },
-  {
-    id: 1,
-    image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=1600&q=85",
-    headline: "Showroom Finish,\nEvery Time",
-    sub: "Deep paint correction and interior detailing to restore your vehicle to pristine condition.",
-    accent: "from-black/80 via-black/50 to-transparent",
-  },
-  {
-    id: 2,
-    image: "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=1600&q=85",
-    headline: "Trusted by\nThousands of Drivers",
-    sub: "Over 25 years of experience. Over 5,000 happy customers. Experience the Smart Shine difference.",
-    accent: "from-black/80 via-black/50 to-transparent",
-  },
-];
+const HERO_SLIDES_DEFAULT = {
+  slides: [
+    {
+      id: 0,
+      image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=1600&q=85",
+      headline: "Premium Car\nValeting Service",
+      sub: "Professional valeting that restores your vehicle to showroom condition. Serving Guildford and surrounding areas.",
+      accent: "from-black/80 via-black/50 to-transparent",
+    },
+    {
+      id: 1,
+      image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=1600&q=85",
+      headline: "Showroom Finish,\nEvery Time",
+      sub: "Deep paint correction and interior detailing to restore your vehicle to pristine condition.",
+      accent: "from-black/80 via-black/50 to-transparent",
+    },
+    {
+      id: 2,
+      image: "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=1600&q=85",
+      headline: "Trusted by\nThousands of Drivers",
+      sub: "Over 25 years of experience. Over 5,000 happy customers. Experience the Smart Shine difference.",
+      accent: "from-black/80 via-black/50 to-transparent",
+    },
+  ],
+  btn1Label: "Book Your Valet",
+  btn1Link: "/booking",
+  btn2Label: "Get Free Quote",
+  btn2Link: "/contact",
+};
 
 const ABOUT_DEFAULT = {
   typewriter: "Car valeting in Guildford and surrounding area",
@@ -63,10 +69,14 @@ const COMPLETE_DEFAULT = {
   paragraph2: "Based in Guildford, we welcome both private and commercial clients from Godalming, Woking and the surrounding areas. We have a wide range of packages to choose from, at competitive prices to suit any budget. We also offer car scratch removal and machine polish.",
 };
 
-function HeroCarousel({ slides }: { slides: typeof HERO_SLIDES_DEFAULT }) {
+function HeroCarousel({ hero }: { hero: typeof HERO_SLIDES_DEFAULT }) {
   const [[index, dir], setSlide] = useState([0, 0]);
-  const safeSlides = slides.length ? slides : HERO_SLIDES_DEFAULT;
+  const safeSlides = hero?.slides?.length ? hero.slides : HERO_SLIDES_DEFAULT.slides;
   const slide = safeSlides[index] ?? safeSlides[0];
+  const btn1Label = hero?.btn1Label || HERO_SLIDES_DEFAULT.btn1Label;
+  const btn1Link  = hero?.btn1Link  || HERO_SLIDES_DEFAULT.btn1Link;
+  const btn2Label = hero?.btn2Label || HERO_SLIDES_DEFAULT.btn2Label;
+  const btn2Link  = hero?.btn2Link  || HERO_SLIDES_DEFAULT.btn2Link;
 
   const go = useCallback((nextIdx: number, direction: number) => {
     setSlide([nextIdx, direction]);
@@ -142,15 +152,15 @@ function HeroCarousel({ slides }: { slides: typeof HERO_SLIDES_DEFAULT }) {
                 transition={{ delay: 0.34 }}
                 className="flex flex-wrap gap-3"
               >
-                <Link href="/booking">
+                <Link href={btn1Link}>
                   <button className="inline-flex items-center gap-2 rounded-full bg-blue-600 hover:bg-blue-500 active:scale-95 px-8 py-3.5 text-[15px] font-black text-white transition-all duration-150 shadow-xl shadow-blue-600/40">
-                    Book Your Valet
+                    {btn1Label}
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </Link>
-                <Link href="/contact">
+                <Link href={btn2Link}>
                   <button className="inline-flex items-center gap-2 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 border border-white/35 px-8 py-3.5 text-[15px] font-bold text-white backdrop-blur-sm transition-all duration-150">
-                    Get Free Quote
+                    {btn2Label}
                   </button>
                 </Link>
               </motion.div>
@@ -445,7 +455,7 @@ export default function Home() {
   const carServicesContent = useContentSection("car_vehicle_services", CAR_SERVICES_DEFAULT);
   const getInTouchContent = useContentSection("get_in_touch", GET_IN_TOUCH_DEFAULT);
 
-  const heroSlides = (heroContent as { slides?: typeof HERO_SLIDES_DEFAULT } | null)?.slides ?? HERO_SLIDES_DEFAULT;
+  const heroData = (heroContent as typeof HERO_SLIDES_DEFAULT | null) ?? HERO_SLIDES_DEFAULT;
   const aboutData = (aboutContent as typeof ABOUT_DEFAULT | null) ?? ABOUT_DEFAULT;
   const statsData = (statsContent as typeof STATS_DEFAULT | null)?.items ?? STATS_DEFAULT.items;
   const completeData = (completeContent as typeof COMPLETE_DEFAULT | null) ?? COMPLETE_DEFAULT;
@@ -464,7 +474,7 @@ export default function Home() {
       <Navbar />
 
       {/* 1. CAROUSEL */}
-      <HeroCarousel slides={heroSlides} />
+      <HeroCarousel hero={heroData} />
 
       {/* 2. ABOUT US */}
       <section className="py-0">

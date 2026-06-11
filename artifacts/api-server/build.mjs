@@ -19,26 +19,41 @@ async function buildFrontend() {
     return;
   }
 
-  console.log("📦 Installing frontend dependencies...");
-  execSync("npm install --ignore-scripts", {
-    cwd: carWashDir,
-    stdio: "inherit",
-  });
+  // Detect pnpm workspace (local / Replit dev environment)
+  const workspaceRoot = path.resolve(artifactDir, "../..");
+  const isPnpmWorkspace = existsSync(path.join(workspaceRoot, "pnpm-workspace.yaml"));
+  const buildEnv = { ...process.env, BASE_PATH: "/" };
 
-  console.log("🏗️  Building frontend...");
-  execSync("npm run build", {
-    cwd: carWashDir,
-    stdio: "inherit",
-    env: { ...process.env, BASE_PATH: "/" },
-  });
+  if (isPnpmWorkspace) {
+    // Packages already managed by pnpm — just run the vite build directly
+    console.log("🏗️  Building frontend (pnpm workspace)...");
+    execSync("pnpm exec vite build --config vite.config.ts", {
+      cwd: carWashDir,
+      stdio: "inherit",
+      env: buildEnv,
+    });
+  } else {
+    // Clean npm environment (e.g. Render) — install then build
+    console.log("📦 Installing frontend dependencies...");
+    execSync("npm install --ignore-scripts", {
+      cwd: carWashDir,
+      stdio: "inherit",
+    });
+    console.log("🏗️  Building frontend...");
+    execSync("npm run build", {
+      cwd: carWashDir,
+      stdio: "inherit",
+      env: buildEnv,
+    });
+  }
 
   const frontendDist = path.resolve(carWashDir, "dist");
   const publicDir = path.resolve(artifactDir, "public");
 
-  console.log("📂 Copying frontend build to public/...");
+  console.log("📂 Copying frontend build → public/...");
   await rm(publicDir, { recursive: true, force: true });
   await cp(frontendDist, publicDir, { recursive: true });
-  console.log("✅ Frontend build copied.");
+  console.log("✅ Frontend ready.");
 }
 
 async function buildAll() {

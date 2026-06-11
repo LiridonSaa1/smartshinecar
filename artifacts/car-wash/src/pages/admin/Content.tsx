@@ -402,25 +402,201 @@ function WhyUsEditor() {
   );
 }
 
-// ─── REVIEWS HEADER ───────────────────────────────────────────────────────────
+// ─── REVIEWS HEADER + CARDS ───────────────────────────────────────────────────
 const DEFAULT_REVIEWS_HEADER = { title: "What our customers say?", subtitle: "Real reviews from real customers" };
 
+type Review = { id?: number; customerName: string; rating: number; comment: string; serviceName?: string };
+const EMPTY_REVIEW: Review = { customerName: "", rating: 5, comment: "", serviceName: "" };
+
 function ReviewsHeaderEditor() {
-  const { data, isLoading } = useSection("customers_say", DEFAULT_REVIEWS_HEADER);
-  const save = useSave("customers_say");
-  const [local, setLocal] = useState(DEFAULT_REVIEWS_HEADER);
-  const [dirty, setDirty] = useState(false);
-  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_REVIEWS_HEADER); setDirty(false); } }, [data]);
-  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
+  const qc = useQueryClient();
+
+  // Heading content
+  const { data: headingData, isLoading: headingLoading } = useSection("customers_say", DEFAULT_REVIEWS_HEADER);
+  const saveHeading = useSave("customers_say");
+  const [heading, setHeading] = useState(DEFAULT_REVIEWS_HEADER);
+  const [headingDirty, setHeadingDirty] = useState(false);
+  useEffect(() => { if (headingData) { setHeading(headingData as typeof DEFAULT_REVIEWS_HEADER); setHeadingDirty(false); } }, [headingData]);
+
+  // Reviews list
+  const { data: reviews, isLoading: reviewsLoading } = useQuery<Review[]>({
+    queryKey: ["admin-reviews"],
+    queryFn: () => fetch("/api/reviews").then(r => r.json()),
+  });
+
+  // Add new review state
+  const [adding, setAdding] = useState(false);
+  const [newReview, setNewReview] = useState<Review>(EMPTY_REVIEW);
+  const [saving, setSaving] = useState(false);
+
+  // Edit review state
+  const [editId, setEditId] = useState<number | null>(null);
+  const [editData, setEditData] = useState<Review>(EMPTY_REVIEW);
+  const [editSaving, setEditSaving] = useState(false);
+
+  const handleAdd = async () => {
+    if (!newReview.customerName.trim() || !newReview.comment.trim()) return;
+    setSaving(true);
+    await fetch("/api/reviews", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...newReview, rating: Number(newReview.rating) }),
+    });
+    setSaving(false);
+    setNewReview(EMPTY_REVIEW);
+    setAdding(false);
+    qc.invalidateQueries({ queryKey: ["admin-reviews"] });
+    qc.invalidateQueries({ queryKey: ["reviews"] });
+  };
+
+  const handleDelete = async (id: number) => {
+    await fetch(`/api/reviews/${id}`, { method: "DELETE" });
+    qc.invalidateQueries({ queryKey: ["admin-reviews"] });
+    qc.invalidateQueries({ queryKey: ["reviews"] });
+  };
+
+  const startEdit = (r: Review) => { setEditId(r.id!); setEditData({ ...r }); };
+  const cancelEdit = () => { setEditId(null); setEditData(EMPTY_REVIEW); };
+
+  const handleUpdate = async () => {
+    if (!editId || !editData.customerName.trim() || !editData.comment.trim()) return;
+    setEditSaving(true);
+    await fetch(`/api/reviews/${editId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...editData, rating: Number(editData.rating) }),
+    });
+    setEditSaving(false);
+    setEditId(null);
+    qc.invalidateQueries({ queryKey: ["admin-reviews"] });
+    qc.invalidateQueries({ queryKey: ["reviews"] });
+  };
+
+  const isLoading = headingLoading || reviewsLoading;
   if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+
   return (
-    <div>
-      <p className="text-sm text-blue-600 bg-blue-50 rounded-lg p-3 mb-5 font-medium">Individual reviews are managed in the <strong>Reviews</strong> section. Here you can edit the section heading text only.</p>
-      <div className="space-y-4">
-        <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Section title</label><Input value={local.title} onChange={e => mark({ ...local, title: e.target.value })} /></div>
-        <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Section subtitle</label><Input value={local.subtitle} onChange={e => mark({ ...local, subtitle: e.target.value })} /></div>
+    <div className="space-y-6">
+      {/* ── Heading text ── */}
+      <div className="border border-gray-100 rounded-xl p-4 bg-gray-50 space-y-3">
+        <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Section heading</p>
+        <div><label className="block text-xs font-semibold text-gray-600 mb-1">Title</label><Input value={heading.title} onChange={e => { setHeading(h => ({ ...h, title: e.target.value })); setHeadingDirty(true); }} /></div>
+        <div><label className="block text-xs font-semibold text-gray-600 mb-1">Subtitle</label><Input value={heading.subtitle} onChange={e => { setHeading(h => ({ ...h, subtitle: e.target.value })); setHeadingDirty(true); }} /></div>
+        <div className="flex justify-end pt-1">
+          <Button size="sm" onClick={() => saveHeading.mutate(heading, { onSuccess: () => setHeadingDirty(false) })} disabled={!headingDirty || saveHeading.isPending} className="bg-blue-600 hover:bg-blue-700 text-white h-8 text-xs min-w-[90px]">
+            {saveHeading.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <><Check className="h-3.5 w-3.5 mr-1" />Save heading</>}
+          </Button>
+        </div>
       </div>
-      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+
+      {/* ── Review cards ── */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm font-bold text-gray-700">Review cards ({reviews?.length ?? 0})</p>
+          <Button size="sm" variant="outline" onClick={() => { setAdding(a => !a); setNewReview(EMPTY_REVIEW); }} className="text-xs h-8">
+            <Plus className="h-3.5 w-3.5 mr-1" />{adding ? "Cancel" : "Add review"}
+          </Button>
+        </div>
+
+        {/* Add form */}
+        {adding && (
+          <div className="border border-blue-200 bg-blue-50/60 rounded-xl p-4 mb-3 space-y-2">
+            <p className="text-xs font-bold text-blue-700 uppercase tracking-wider mb-2">New review</p>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Customer name</label>
+                <Input value={newReview.customerName} onChange={e => setNewReview(r => ({ ...r, customerName: e.target.value }))} placeholder="John Smith" className="text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Service (optional)</label>
+                <Input value={newReview.serviceName ?? ""} onChange={e => setNewReview(r => ({ ...r, serviceName: e.target.value }))} placeholder="Full Valet" className="text-sm" />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">Rating (1–5)</label>
+              <div className="flex gap-1">
+                {[1,2,3,4,5].map(s => (
+                  <button key={s} type="button" onClick={() => setNewReview(r => ({ ...r, rating: s }))}
+                    className={`h-8 w-8 rounded-lg text-sm font-bold transition-colors ${s <= newReview.rating ? "bg-yellow-400 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">Review text</label>
+              <Textarea value={newReview.comment} onChange={e => setNewReview(r => ({ ...r, comment: e.target.value }))} rows={3} placeholder="Customer review…" className="text-sm" />
+            </div>
+            <div className="flex justify-end gap-2 pt-1">
+              <Button size="sm" variant="ghost" onClick={() => setAdding(false)} className="text-xs h-8">Cancel</Button>
+              <Button size="sm" onClick={handleAdd} disabled={saving || !newReview.customerName.trim() || !newReview.comment.trim()} className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-8 min-w-[80px]">
+                {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <><Plus className="h-3.5 w-3.5 mr-1" />Add</>}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Review list */}
+        <div className="space-y-2 max-h-[460px] overflow-y-auto pr-1">
+          {(!reviews || reviews.length === 0) && (
+            <div className="text-sm text-gray-400 text-center py-8 border border-dashed border-gray-200 rounded-xl">No reviews yet. Add one above.</div>
+          )}
+          {reviews?.map((r) => (
+            <div key={r.id} className="border border-gray-100 rounded-xl bg-white overflow-hidden">
+              {editId === r.id ? (
+                /* Edit mode */
+                <div className="p-4 space-y-2 bg-amber-50/60 border-amber-200">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div><label className="block text-xs font-semibold text-gray-600 mb-1">Customer name</label><Input value={editData.customerName} onChange={e => setEditData(d => ({ ...d, customerName: e.target.value }))} className="text-sm" /></div>
+                    <div><label className="block text-xs font-semibold text-gray-600 mb-1">Service (optional)</label><Input value={editData.serviceName ?? ""} onChange={e => setEditData(d => ({ ...d, serviceName: e.target.value }))} className="text-sm" /></div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 mb-1">Rating</label>
+                    <div className="flex gap-1">
+                      {[1,2,3,4,5].map(s => (
+                        <button key={s} type="button" onClick={() => setEditData(d => ({ ...d, rating: s }))}
+                          className={`h-8 w-8 rounded-lg text-sm font-bold transition-colors ${s <= editData.rating ? "bg-yellow-400 text-white" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div><label className="block text-xs font-semibold text-gray-600 mb-1">Review text</label><Textarea value={editData.comment} onChange={e => setEditData(d => ({ ...d, comment: e.target.value }))} rows={3} className="text-sm" /></div>
+                  <div className="flex justify-end gap-2 pt-1">
+                    <Button size="sm" variant="ghost" onClick={cancelEdit} className="text-xs h-8">Cancel</Button>
+                    <Button size="sm" onClick={handleUpdate} disabled={editSaving} className="bg-amber-500 hover:bg-amber-600 text-white text-xs h-8 min-w-[80px]">
+                      {editSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <><Check className="h-3.5 w-3.5 mr-1" />Save</>}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                /* View mode */
+                <div className="flex items-start gap-3 p-3">
+                  <div className="h-9 w-9 rounded-full bg-[#0a0f2e] flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-black text-sm">{r.customerName[0]}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-bold text-gray-900">{r.customerName}</span>
+                      {r.serviceName && <span className="text-xs text-blue-600 font-medium">{r.serviceName}</span>}
+                      <span className="text-xs text-yellow-500 font-semibold">{"★".repeat(r.rating)}</span>
+                    </div>
+                    <p className="text-xs text-gray-500 line-clamp-2 mt-0.5">"{r.comment}"</p>
+                  </div>
+                  <div className="flex gap-1 flex-shrink-0">
+                    <button onClick={() => startEdit(r)} className="h-7 w-7 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 flex items-center justify-center transition-colors" title="Edit">
+                      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                    </button>
+                    <button onClick={() => r.id && handleDelete(r.id)} className="h-7 w-7 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition-colors" title="Delete">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

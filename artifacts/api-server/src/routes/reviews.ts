@@ -37,6 +37,22 @@ router.post("/reviews", async (req, res) => {
   }
 });
 
+router.put("/reviews/:id", async (req, res) => {
+  try {
+    const { customerName, rating, comment, serviceName } = req.body;
+    const [data] = await db
+      .update(reviewsTable)
+      .set({ customerName, rating, comment, serviceName: serviceName ?? null })
+      .where(eq(reviewsTable.id, parseInt(req.params.id)))
+      .returning();
+    if (!data) return res.status(404).json({ error: "Not found" });
+    return res.json(data);
+  } catch (err) {
+    logger.error({ err }, "Update review error");
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 router.delete("/reviews/:id", async (req, res) => {
   try {
     await db.delete(reviewsTable).where(eq(reviewsTable.id, parseInt(req.params.id)));

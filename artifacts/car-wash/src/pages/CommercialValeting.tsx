@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useContentSection } from "@/lib/useContent";
 import logoSrc from "@assets/Professional_Car_Valeting_Logo_in_Navy_and_Silver_1781123501610.png";
 import vanImg from "@assets/IMG_1997-1920w_1781130022961.webp";
 import kenworthImg from "@assets/IMG_0022-8ade3f8e-1920w_1781130012426.webp";
@@ -91,18 +92,18 @@ function FadeIn({
   );
 }
 
-function HeroCarousel() {
+function HeroCarousel({ slides }: { slides: typeof HERO_SLIDES }) {
   const [[index, dir], setSlide] = useState([0, 0]);
-  const slide = HERO_SLIDES[index];
+  const slide = slides[index] ?? slides[0];
   const go = useCallback(
     (nextIdx: number, direction: number) => setSlide([nextIdx, direction]),
     [],
   );
   const prev = () =>
-    go((index - 1 + HERO_SLIDES.length) % HERO_SLIDES.length, -1);
+    go((index - 1 + slides.length) % slides.length, -1);
   const next = useCallback(
-    () => go((index + 1) % HERO_SLIDES.length, 1),
-    [index, go],
+    () => go((index + 1) % slides.length, 1),
+    [index, go, slides.length],
   );
   useEffect(() => {
     const t = setTimeout(next, 6000);
@@ -188,9 +189,9 @@ function HeroCarousel() {
 
       {/* Dots */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5">
-        {HERO_SLIDES.map((s, i) => (
+        {slides.map((s, i) => (
           <button
-            key={s.id}
+            key={i}
             onClick={() => go(i, i > index ? 1 : -1)}
             className={`transition-all duration-300 rounded-full ${i === index ? "bg-white w-7 h-2" : "bg-white/40 w-2 h-2 hover:bg-white/70"}`}
           />
@@ -519,13 +520,27 @@ function ContactForm() {
   );
 }
 
+const CV_HERO_DEFAULT = { slides: HERO_SLIDES };
+const CV_INTRO_DEFAULT = { heading: "Top-class commercial vehicle valeting service in Guildford", paragraph: "Commercial vehicles see much more wear and tear than private cars due to the amount of usage, and therefore need regular valeting. Count on Smart Shine Car Valeting Centre to clean your car or van and bring its shine back. We offer full valet and part valet services at competitive prices. Whether you need interior valeting or exterior valeting, you can rely on us." };
+const CV_BODY_DEFAULT = { heading: "Commercial valeting", paragraph1: "Do you run a business which utilises a fleet of commercial vehicles, or provides transportation services? We understand that cleaning the vehicles could be a difficult task.", paragraph2: "Leave the job to our experienced and detail-oriented car valeting experts at Smart Shine Car Valeting Centre for a cost-effective solution to keep all your commercial vehicles looking their best. Whether you have bought a used vehicle or you want to sell one of your vehicles, rely on our specialists to give it the best look and increase its value.", paragraph3: "We offer car scratch removal, dent removal and machine polish at affordable prices. Based in Guildford, we welcome customers from Godalming, Woking and the surrounding areas. Get in touch with us and let us know your requirements." };
+const CV_SERVICES_DEFAULT = { items: SERVICES };
+
 export default function CommercialValeting() {
+  const heroContent = useContentSection("cv_hero", CV_HERO_DEFAULT);
+  const introContent = useContentSection("cv_intro", CV_INTRO_DEFAULT);
+  const bodyContent = useContentSection("cv_body", CV_BODY_DEFAULT);
+  const servicesContent = useContentSection("cv_services", CV_SERVICES_DEFAULT);
+  const slides = (heroContent as typeof CV_HERO_DEFAULT).slides ?? HERO_SLIDES;
+  const intro = introContent as typeof CV_INTRO_DEFAULT;
+  const body = bodyContent as typeof CV_BODY_DEFAULT;
+  const serviceItems = (servicesContent as typeof CV_SERVICES_DEFAULT).items ?? SERVICES;
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
 
       {/* 1. HERO CAROUSEL */}
-      <HeroCarousel />
+      <HeroCarousel slides={slides} />
 
       {/* ABOUT US */}
       <section className="py-16 bg-white border-b border-gray-100">
@@ -536,15 +551,10 @@ export default function CommercialValeting() {
               About Us
             </div>
             <h2 className="text-3xl md:text-4xl font-black text-[#0a0f2e] mb-5 leading-tight">
-              Top-class commercial vehicle valeting service in Guildford
+              {intro.heading}
             </h2>
             <p className="text-gray-600 text-[16px] leading-relaxed max-w-3xl mx-auto">
-              Commercial vehicles see much more wear and tear than private cars
-              due to the amount of usage, and therefore need regular valeting.
-              Count on Smart Shine Car Valeting Centre to clean your car or van
-              and bring its shine back. We offer full valet and part valet
-              services at competitive prices. Whether you need interior valeting
-              or exterior valeting, you can rely on us.
+              {intro.paragraph}
             </p>
           </FadeIn>
         </div>
@@ -562,26 +572,16 @@ export default function CommercialValeting() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <FadeIn direction="left">
               <h2 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight">
-                Commercial valeting
+                {body.heading}
               </h2>
               <p className="text-white/80 text-[15px] leading-relaxed mb-4">
-                Do you run a business which utilises a fleet of commercial
-                vehicles, or provides transportation services? We understand
-                that cleaning the vehicles could be a difficult task.
+                {body.paragraph1}
               </p>
               <p className="text-white/80 text-[15px] leading-relaxed mb-4">
-                Leave the job to our experienced and detail-oriented car
-                valeting experts at Smart Shine Car Valeting Centre for a
-                cost-effective solution to keep all your commercial vehicles
-                looking their best. Whether you have bought a used vehicle or
-                you want to sell one of your vehicles, rely on our specialists
-                to give it the best look and increase its value.
+                {body.paragraph2}
               </p>
               <p className="text-white/80 text-[15px] leading-relaxed mb-8">
-                We offer car scratch removal, dent removal and machine polish at
-                affordable prices. Based in Guildford, we welcome customers from
-                Godalming, Woking and the surrounding areas. Get in touch with
-                us and let us know your requirements.
+                {body.paragraph3}
               </p>
               <div className="flex flex-wrap gap-3">
                 <a href="#contact">
@@ -646,9 +646,9 @@ export default function CommercialValeting() {
             </FadeIn>
             <FadeIn direction="right" delay={0.15}>
               <ul className="space-y-3 mb-8">
-                {SERVICES.map((s, i) => (
+                {serviceItems.map((s, i) => (
                   <motion.li
-                    key={s}
+                    key={i}
                     initial={{ opacity: 0, x: 20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}

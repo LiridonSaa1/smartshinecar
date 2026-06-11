@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useContentSection } from "@/lib/useContent";
 import logoSrc from "@assets/Professional_Car_Valeting_Logo_in_Navy_and_Silver_1781123501610.png";
 import shineImg from "@assets/469570167_588163753901560_1761922679835222318_n_1781128330046.jpg";
 
@@ -51,12 +52,12 @@ function FadeIn({ children, className, delay = 0, direction = "up" }: {
   );
 }
 
-function HeroCarousel() {
+function HeroCarousel({ slides }: { slides: typeof HERO_SLIDES }) {
   const [[index, dir], setSlide] = useState([0, 0]);
-  const slide = HERO_SLIDES[index];
+  const slide = slides[index] ?? slides[0];
   const go = useCallback((nextIdx: number, direction: number) => setSlide([nextIdx, direction]), []);
-  const prev = () => go((index - 1 + HERO_SLIDES.length) % HERO_SLIDES.length, -1);
-  const next = useCallback(() => go((index + 1) % HERO_SLIDES.length, 1), [index, go]);
+  const prev = () => go((index - 1 + slides.length) % slides.length, -1);
+  const next = useCallback(() => go((index + 1) % slides.length, 1), [index, go, slides.length]);
   useEffect(() => { const t = setTimeout(next, 6000); return () => clearTimeout(t); }, [next]);
 
   return (
@@ -144,9 +145,9 @@ function HeroCarousel() {
       </button>
 
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5">
-        {HERO_SLIDES.map((s, i) => (
+        {slides.map((s, i) => (
           <button
-            key={s.id}
+            key={i}
             onClick={() => go(i, i > index ? 1 : -1)}
             className={`transition-all duration-300 rounded-full ${i === index ? "bg-white w-7 h-2" : "bg-white/40 w-2 h-2 hover:bg-white/70"}`}
           />
@@ -340,13 +341,24 @@ function ContactForm() {
   );
 }
 
+const CD_HERO_DEFAULT = { slides: HERO_SLIDES };
+const CD_INTRO_DEFAULT = { heading: "Are you in need of a car detailing service in Guildford?", paragraph: "Smart Shine Car Valeting Centre has an extensive range of products designed to rejuvenate your car. We use premium products allowing us to make your car look as new. We offer high-quality car detailing services in Guildford, Godalming, Woking and the surrounding areas." };
+const CD_BODY_DEFAULT = { heading1: "We can make your car shine", paragraph1: "We can offer a detailing service to all makes of car. Whatever car you have, regardless of make and model, our service includes paintwork correction to help bring it back to a showroom standard whether your car is new or old. Whether it is car scratch removal, dent removal, or machine polish, you can count on us.", heading2: "We can make your car shine", paragraph2: "Our car detailing service removes the defects such as scratches, 3d holograms and swirls by removing a thin layer of clear coat which reveals the defect free surface. We also provide interior valeting and exterior valeting. For your convenience, we offer full valet and part valet services." };
+
 export default function CarDetailing() {
+  const heroContent = useContentSection("cd_hero", CD_HERO_DEFAULT);
+  const introContent = useContentSection("cd_intro", CD_INTRO_DEFAULT);
+  const bodyContent = useContentSection("cd_body", CD_BODY_DEFAULT);
+  const slides = (heroContent as typeof CD_HERO_DEFAULT).slides ?? HERO_SLIDES;
+  const intro = introContent as typeof CD_INTRO_DEFAULT;
+  const body = bodyContent as typeof CD_BODY_DEFAULT;
+
   return (
     <div className="min-h-screen flex flex-col bg-white font-[Montserrat,sans-serif]">
       <Navbar />
 
       {/* 1. HERO CAROUSEL */}
-      <HeroCarousel />
+      <HeroCarousel slides={slides} />
 
       {/* 2. ABOUT */}
       <section id="about" className="bg-gray-100 py-20">
@@ -357,12 +369,10 @@ export default function CarDetailing() {
               Car Detailing Guildford
             </div>
             <h2 className="text-3xl md:text-4xl font-black text-[#0a0f2e] mb-6 leading-tight">
-              Are you in need of a car detailing service in Guildford?
+              {intro.heading}
             </h2>
             <p className="text-gray-600 leading-loose text-[16px] max-w-3xl mx-auto">
-              Smart Shine Car Valeting Centre has an extensive range of products designed to rejuvenate your car.
-              We use premium products allowing us to make your car look as new. We offer high-quality car detailing
-              services in Guildford, Godalming, Woking and the surrounding areas.
+              {intro.paragraph}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
               <a href="#contact">
@@ -398,22 +408,16 @@ export default function CarDetailing() {
           <FadeIn direction="left" className="flex items-start px-10 md:px-16 py-16 order-2 md:order-1">
             <div>
               <h2 className="text-3xl md:text-4xl font-black text-white mb-5 leading-tight">
-                We can make your car shine
+                {body.heading1}
               </h2>
               <p className="text-white/75 leading-relaxed text-[15px] mb-6">
-                We can offer a detailing service to all makes of car. Whatever car you have, regardless of make
-                and model, our service includes paintwork correction to help bring it back to a showroom standard
-                whether your car is new or old. Whether it is car scratch removal, dent removal, or machine polish,
-                you can count on us.
+                {body.paragraph1}
               </p>
               <h2 className="text-3xl md:text-4xl font-black text-white mb-5 leading-tight">
-                We can make your car shine
+                {body.heading2}
               </h2>
               <p className="text-white/75 leading-relaxed text-[15px] mb-8">
-                Our car detailing service removes the defects such as scratches, 3d holograms and swirls by
-                removing a thin layer of clear coat which reveals the defect free surface. We also provide
-                interior valeting and exterior valeting. For your convenience, we offer full valet and part
-                valet services.
+                {body.paragraph2}
               </p>
               <a href="tel:07717310046" className="inline-flex items-center gap-2 rounded-full bg-blue-500 hover:bg-blue-400 px-7 py-3 text-[14px] font-bold text-white transition-all duration-150">
                 <Phone className="h-4 w-4" />

@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useContentSection } from "@/lib/useContent";
 import logoSrc from "@assets/Professional_Car_Valeting_Logo_in_Navy_and_Silver_1781123501610.png";
 import defenderImg from "@assets/469415684_588164513901484_5794834001610611799_n_1781125792210.jpg";
 import shineImg from "@assets/482083268_650585217659413_5986183003189104178_n_1781125795445.jpg";
@@ -63,12 +64,12 @@ function FadeIn({ children, className, delay = 0, direction = "up" }: {
   );
 }
 
-function HeroCarousel() {
+function HeroCarousel({ slides }: { slides: typeof HERO_SLIDES }) {
   const [[index, dir], setSlide] = useState([0, 0]);
-  const slide = HERO_SLIDES[index];
+  const slide = slides[index] ?? slides[0];
   const go = useCallback((nextIdx: number, direction: number) => setSlide([nextIdx, direction]), []);
-  const prev = () => go((index - 1 + HERO_SLIDES.length) % HERO_SLIDES.length, -1);
-  const next = useCallback(() => go((index + 1) % HERO_SLIDES.length, 1), [index, go]);
+  const prev = () => go((index - 1 + slides.length) % slides.length, -1);
+  const next = useCallback(() => go((index + 1) % slides.length, 1), [index, go, slides.length]);
   useEffect(() => { const t = setTimeout(next, 6000); return () => clearTimeout(t); }, [next]);
 
   return (
@@ -156,9 +157,9 @@ function HeroCarousel() {
       </button>
 
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5">
-        {HERO_SLIDES.map((s, i) => (
+        {slides.map((s, i) => (
           <button
-            key={s.id}
+            key={i}
             onClick={() => go(i, i > index ? 1 : -1)}
             className={`transition-all duration-300 rounded-full ${i === index ? "bg-white w-7 h-2" : "bg-white/40 w-2 h-2 hover:bg-white/70"}`}
           />
@@ -410,34 +411,54 @@ function ContactForm() {
   );
 }
 
+const PV_HERO_DEFAULT = { slides: HERO_SLIDES };
+const PV_INTRO_DEFAULT = { heading: "Excellent private vehicle valeting service in Guildford.", paragraph: "At Smart Shine Car Valeting Centre, we provide a wide variety of individually tailored valeting packages to suit all your requirements in the Guildford area. We also welcome customers from Godalming and Woking." };
+const PV_PACKAGES_DEFAULT = { items: PACKAGES.map(p => ({ name: p.name, desc: p.desc, price: p.price })) };
+const PV_BODY_DEFAULT = { heading: "We can make your car shine", paragraph: "We understand that every car is different, which is why we offer car valeting packages tailored to your specific needs. We also offer a range of specialised services such as dent removal and paintwork restoration to ensure we bring your car back to its best. Whether it is the interior valeting or the exterior valeting of your car that needs attention, we can provide a thorough valet service — so why not give us a call today to find out more? We offer both full valet and part valet services. In addition to valeting, we also offer machine polish and car scratch removal." };
+
 export default function PrivateValeting() {
+  const heroContent = useContentSection("pv_hero", PV_HERO_DEFAULT);
+  const introContent = useContentSection("pv_intro", PV_INTRO_DEFAULT);
+  const packagesContent = useContentSection("pv_packages", PV_PACKAGES_DEFAULT);
+  const bodyContent = useContentSection("pv_body", PV_BODY_DEFAULT);
+  const slides = (heroContent as typeof PV_HERO_DEFAULT).slides ?? HERO_SLIDES;
+  const pkgItems = (packagesContent as typeof PV_PACKAGES_DEFAULT).items ?? PV_PACKAGES_DEFAULT.items;
+
+  const PACKAGE_META = [
+    { icon: Droplets, color: "bg-blue-50 text-blue-600" },
+    { icon: Car, color: "bg-indigo-50 text-indigo-600" },
+    { icon: Crown, color: "bg-amber-50 text-amber-600" },
+    { icon: Layers, color: "bg-purple-50 text-purple-600" },
+    { icon: Paintbrush, color: "bg-green-50 text-green-600" },
+    { icon: Truck, color: "bg-slate-100 text-slate-600" },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col bg-white font-[Montserrat,sans-serif]">
       <Navbar />
 
       {/* 1. HERO CAROUSEL */}
-      <HeroCarousel />
+      <HeroCarousel slides={slides} />
 
       {/* 1b. ABOUT / INTRO + PACKAGES CARDS */}
       <section className="bg-gray-100 py-16 pb-20">
         <div className="mx-auto max-w-6xl px-6">
           <FadeIn className="text-center mb-12">
             <h3 className="text-2xl font-black text-[#0a0f2e] mb-6">
-              Excellent private vehicle valeting service in Guildford.
+              {(introContent as typeof PV_INTRO_DEFAULT).heading}
             </h3>
             <p className="text-gray-600 leading-loose text-[15px] max-w-3xl mx-auto">
-              At Smart Shine Car Valeting Centre, we provide a wide variety of individually tailored valeting
-              packages to suit all your requirements in the Guildford area. We also welcome customers from
-              Godalming and Woking.
+              {(introContent as typeof PV_INTRO_DEFAULT).paragraph}
             </p>
           </FadeIn>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {PACKAGES.map((pkg, i) => {
-              const Icon = pkg.icon;
+            {pkgItems.map((pkg, i) => {
+              const meta = PACKAGE_META[i] ?? PACKAGE_META[PACKAGE_META.length - 1];
+              const Icon = meta.icon;
               return (
                 <motion.div
-                  key={pkg.name}
+                  key={i}
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -445,12 +466,11 @@ export default function PrivateValeting() {
                   whileHover={{ y: -4, boxShadow: "0 12px 32px rgba(10,15,46,0.10)" }}
                   className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col gap-4 cursor-default"
                 >
-                  {/* Icon + price row */}
                   <div className="flex items-center justify-between">
                     <motion.div
                       whileHover={{ rotate: [0, -10, 10, -6, 0] }}
                       transition={{ duration: 0.5 }}
-                      className={`h-11 w-11 rounded-xl flex items-center justify-center flex-shrink-0 ${pkg.color}`}
+                      className={`h-11 w-11 rounded-xl flex items-center justify-center flex-shrink-0 ${meta.color}`}
                     >
                       <Icon className="h-5 w-5" />
                     </motion.div>
@@ -458,18 +478,11 @@ export default function PrivateValeting() {
                       {pkg.price}
                     </span>
                   </div>
-
-                  {/* Name + desc */}
                   <div>
                     <h4 className="font-black text-[#0a0f2e] text-[15px] mb-1">{pkg.name}</h4>
                     <p className="text-gray-500 text-[13px] leading-relaxed">{pkg.desc}</p>
                   </div>
-
-                  {/* CTA */}
-                  <a
-                    href="#contact"
-                    className="mt-auto inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 text-[13px] font-bold transition-colors group"
-                  >
+                  <a href="#contact" className="mt-auto inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 text-[13px] font-bold transition-colors group">
                     Get Free Quote
                     <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
                   </a>
@@ -491,15 +504,10 @@ export default function PrivateValeting() {
           <FadeIn direction="left" className="flex items-center px-10 md:px-16 py-16 order-2 md:order-1">
             <div>
               <h2 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight">
-                We can make your car shine
+                {(bodyContent as typeof PV_BODY_DEFAULT).heading}
               </h2>
               <p className="text-white/75 leading-relaxed text-[15px]">
-                We understand that every car is different, which is why we offer car valeting packages tailored to your
-                specific needs. We also offer a range of specialised services such as dent removal and paintwork
-                restoration to ensure we bring your car back to its best. Whether it is the interior valeting or the
-                exterior valeting of your car that needs attention, we can provide a thorough valet service — so why
-                not give us a call today to find out more? We offer both full valet and part valet services. In addition
-                to valeting, we also offer machine polish and car scratch removal.
+                {(bodyContent as typeof PV_BODY_DEFAULT).paragraph}
               </p>
               <a href="tel:07717310046" className="inline-flex items-center gap-2 mt-7 rounded-full bg-blue-500 hover:bg-blue-400 px-7 py-3 text-[14px] font-bold text-white transition-all duration-150">
                 <Phone className="h-4 w-4" />

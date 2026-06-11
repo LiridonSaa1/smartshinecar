@@ -756,6 +756,255 @@ function AboutFeaturesEditor() {
   );
 }
 
+// ─── GENERIC HERO SLIDES EDITOR FACTORY ───────────────────────────────────────
+type HeroSlide = { image: string; headline: string; sub: string };
+type HeroData = { slides: HeroSlide[] };
+
+function makeHeroEditor(key: string, fallback: HeroData) {
+  return function HeroEditor() {
+    const { data, isLoading } = useSection(key, fallback);
+    const save = useSave(key);
+    const [local, setLocal] = useState(fallback);
+    const [dirty, setDirty] = useState(false);
+    useEffect(() => { if (data) { setLocal(data as HeroData); setDirty(false); } }, [data]);
+    const mark = (v: HeroData) => { setLocal(v); setDirty(true); };
+    const updateSlide = (i: number, field: keyof HeroSlide, val: string) =>
+      mark({ ...local, slides: local.slides.map((s, idx) => idx === i ? { ...s, [field]: val } : s) });
+    if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+    return (
+      <div>
+        <div className="space-y-6">
+          {local.slides.map((slide, i) => (
+            <div key={i} className="border border-gray-100 rounded-2xl p-5 bg-gray-50/50 space-y-3">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="h-6 w-6 rounded-full bg-blue-100 text-blue-700 text-xs font-black flex items-center justify-center">{i + 1}</div>
+                <span className="text-sm font-semibold text-gray-700">Slide {i + 1}</span>
+              </div>
+              <div><label className="block text-xs font-semibold text-gray-600 mb-1">Headline</label>
+                <Textarea value={slide.headline} rows={2} onChange={e => updateSlide(i, "headline", e.target.value)} className="text-sm" /></div>
+              <div><label className="block text-xs font-semibold text-gray-600 mb-1">Subtitle</label>
+                <Textarea value={slide.sub} rows={3} onChange={e => updateSlide(i, "sub", e.target.value)} className="text-sm" /></div>
+              <div><label className="block text-xs font-semibold text-gray-600 mb-1">Background image</label>
+                <ImageUpload value={slide.image} onChange={val => updateSlide(i, "image", val)} /></div>
+            </div>
+          ))}
+        </div>
+        <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+      </div>
+    );
+  };
+}
+
+// ─── PRIVATE VALETING ─────────────────────────────────────────────────────────
+const DEFAULT_PV_HERO: HeroData = { slides: [
+  { image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=1600&q=85", headline: "Excellent Private Vehicle\nValeting Service in Guildford", sub: "At Smart Shine Car Valeting Centre, we provide a wide variety of individually tailored valeting packages to suit all your requirements in the Guildford area. We also welcome customers from Godalming and Woking." },
+  { image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=1600&q=85", headline: "Professional Valeting\nFor Every Vehicle", sub: "From a quick mini valet to a full premier package — we restore your vehicle to showroom condition. Fully insured, friendly and thorough service every time." },
+  { image: "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=1600&q=85", headline: "Interior & Exterior\nValeting Specialists", sub: "Whether it's an interior deep clean or a full exterior polish — Smart Shine delivers showroom results every time. We also offer dent removal and machine polish." },
+]};
+const PvHeroEditor = makeHeroEditor("pv_hero", DEFAULT_PV_HERO);
+
+const DEFAULT_PV_INTRO = { heading: "Excellent private vehicle valeting service in Guildford.", paragraph: "At Smart Shine Car Valeting Centre, we provide a wide variety of individually tailored valeting packages to suit all your requirements in the Guildford area. We also welcome customers from Godalming and Woking." };
+function PvIntroEditor() {
+  const { data, isLoading } = useSection("pv_intro", DEFAULT_PV_INTRO);
+  const save = useSave("pv_intro");
+  const [local, setLocal] = useState(DEFAULT_PV_INTRO);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_PV_INTRO); setDirty(false); } }, [data]);
+  const mark = (v: typeof DEFAULT_PV_INTRO) => { setLocal(v); setDirty(true); };
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div className="space-y-5">
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Section heading</label>
+        <Input value={local.heading} onChange={e => mark({ ...local, heading: e.target.value })} /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Paragraph</label>
+        <Textarea value={local.paragraph} rows={4} onChange={e => mark({ ...local, paragraph: e.target.value })} className="text-sm" /></div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+const DEFAULT_PV_PACKAGES = { items: [
+  { name: "Mini Valet", desc: "Exterior wash, leather dry, vacuum, window polish", price: "from £45.00" },
+  { name: "Economy Valet", desc: "For new and well maintained cars", price: "from £120.00" },
+  { name: "Premier Valet", desc: "To make your car look as good as new", price: "from £169.00" },
+  { name: "Interior Valet", desc: "Full interior deep clean and treatment", price: "from £120.00" },
+  { name: "Exterior Valet", desc: "Full exterior wash, polish and finish", price: "from £139.00" },
+  { name: "Commercial Vehicle", desc: "Valeting service for commercial vehicles in Guildford", price: "Call for quote" },
+]};
+function PvPackagesEditor() {
+  const { data, isLoading } = useSection("pv_packages", DEFAULT_PV_PACKAGES);
+  const save = useSave("pv_packages");
+  const [local, setLocal] = useState(DEFAULT_PV_PACKAGES);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_PV_PACKAGES); setDirty(false); } }, [data]);
+  const mark = (v: typeof DEFAULT_PV_PACKAGES) => { setLocal(v); setDirty(true); };
+  const update = (i: number, field: string, val: string) => mark({ ...local, items: local.items.map((it, idx) => idx === i ? { ...it, [field]: val } : it) });
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div>
+      <p className="text-xs text-gray-500 mb-4">Edit the name, description and price for each package card.</p>
+      <div className="space-y-3">
+        {local.items.map((item, i) => (
+          <div key={i} className="border border-gray-100 rounded-xl p-4 bg-gray-50 space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div><label className="block text-xs font-semibold text-gray-500 mb-1">Name</label>
+                <Input value={item.name} onChange={e => update(i, "name", e.target.value)} className="text-sm" /></div>
+              <div><label className="block text-xs font-semibold text-gray-500 mb-1">Price</label>
+                <Input value={item.price} onChange={e => update(i, "price", e.target.value)} className="text-sm" /></div>
+            </div>
+            <div><label className="block text-xs font-semibold text-gray-500 mb-1">Description</label>
+              <Input value={item.desc} onChange={e => update(i, "desc", e.target.value)} className="text-sm" /></div>
+          </div>
+        ))}
+      </div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+const DEFAULT_PV_BODY = { heading: "We can make your car shine", paragraph: "We understand that every car is different, which is why we offer car valeting packages tailored to your specific needs. We also offer a range of specialised services such as dent removal and paintwork restoration to ensure we bring your car back to its best. Whether it is the interior valeting or the exterior valeting of your car that needs attention, we can provide a thorough valet service — so why not give us a call today to find out more? We offer both full valet and part valet services. In addition to valeting, we also offer machine polish and car scratch removal." };
+function PvBodyEditor() {
+  const { data, isLoading } = useSection("pv_body", DEFAULT_PV_BODY);
+  const save = useSave("pv_body");
+  const [local, setLocal] = useState(DEFAULT_PV_BODY);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_PV_BODY); setDirty(false); } }, [data]);
+  const mark = (v: typeof DEFAULT_PV_BODY) => { setLocal(v); setDirty(true); };
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div className="space-y-5">
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Heading</label>
+        <Input value={local.heading} onChange={e => mark({ ...local, heading: e.target.value })} /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Paragraph</label>
+        <Textarea value={local.paragraph} rows={6} onChange={e => mark({ ...local, paragraph: e.target.value })} className="text-sm" /></div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+// ─── CAR DETAILING ────────────────────────────────────────────────────────────
+const DEFAULT_CD_HERO: HeroData = { slides: [
+  { image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=1600&q=85", headline: "Car Detailing Service\nin Guildford", sub: "Smart Shine Car Valeting Centre uses premium products to rejuvenate your car to showroom condition. Serving Guildford, Godalming, Woking and surrounding areas." },
+  { image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=1600&q=85", headline: "Premium Products.\nShowroom Results.", sub: "From paintwork correction to scratch and dent removal — our car detailing service brings your vehicle back to its best, regardless of make or model." },
+  { image: "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=1600&q=85", headline: "Interior & Exterior\nDetailing Specialists", sub: "Machine polish, clear coat correction, 3D hologram removal — we remove defects and reveal a flawless, defect-free surface every time." },
+]};
+const CdHeroEditor = makeHeroEditor("cd_hero", DEFAULT_CD_HERO);
+
+const DEFAULT_CD_INTRO = { heading: "Are you in need of a car detailing service in Guildford?", paragraph: "Smart Shine Car Valeting Centre has an extensive range of products designed to rejuvenate your car. We use premium products allowing us to make your car look as new. We offer high-quality car detailing services in Guildford, Godalming, Woking and the surrounding areas." };
+function CdIntroEditor() {
+  const { data, isLoading } = useSection("cd_intro", DEFAULT_CD_INTRO);
+  const save = useSave("cd_intro");
+  const [local, setLocal] = useState(DEFAULT_CD_INTRO);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_CD_INTRO); setDirty(false); } }, [data]);
+  const mark = (v: typeof DEFAULT_CD_INTRO) => { setLocal(v); setDirty(true); };
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div className="space-y-5">
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Section heading</label>
+        <Input value={local.heading} onChange={e => mark({ ...local, heading: e.target.value })} /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Paragraph</label>
+        <Textarea value={local.paragraph} rows={4} onChange={e => mark({ ...local, paragraph: e.target.value })} className="text-sm" /></div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+const DEFAULT_CD_BODY = { heading1: "We can make your car shine", paragraph1: "We can offer a detailing service to all makes of car. Whatever car you have, regardless of make and model, our service includes paintwork correction to help bring it back to a showroom standard whether your car is new or old. Whether it is car scratch removal, dent removal, or machine polish, you can count on us.", heading2: "We can make your car shine", paragraph2: "Our car detailing service removes the defects such as scratches, 3d holograms and swirls by removing a thin layer of clear coat which reveals the defect free surface. We also provide interior valeting and exterior valeting. For your convenience, we offer full valet and part valet services." };
+function CdBodyEditor() {
+  const { data, isLoading } = useSection("cd_body", DEFAULT_CD_BODY);
+  const save = useSave("cd_body");
+  const [local, setLocal] = useState(DEFAULT_CD_BODY);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_CD_BODY); setDirty(false); } }, [data]);
+  const mark = (v: typeof DEFAULT_CD_BODY) => { setLocal(v); setDirty(true); };
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div className="space-y-5">
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">First heading</label><Input value={local.heading1} onChange={e => mark({ ...local, heading1: e.target.value })} /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">First paragraph</label><Textarea value={local.paragraph1} rows={4} onChange={e => mark({ ...local, paragraph1: e.target.value })} className="text-sm" /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Second heading</label><Input value={local.heading2} onChange={e => mark({ ...local, heading2: e.target.value })} /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Second paragraph</label><Textarea value={local.paragraph2} rows={4} onChange={e => mark({ ...local, paragraph2: e.target.value })} className="text-sm" /></div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+// ─── COMMERCIAL VALETING ──────────────────────────────────────────────────────
+const DEFAULT_CV_HERO: HeroData = { slides: [
+  { image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=85", headline: "Top-Class Commercial Vehicle\nValeting Service in Guildford", sub: "Commercial vehicles see much more wear and tear than private cars due to the amount of usage, and therefore need regular valeting. Count on Smart Shine Car Valeting Centre to clean your car or van and bring its shine back." },
+  { image: "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=1600&q=85", headline: "Full & Part Valet Services\nAt Competitive Prices", sub: "We offer full valet and part valet services at competitive prices. Whether you need interior valeting or exterior valeting, you can rely on us." },
+  { image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1600&q=85", headline: "Serving Guildford,\nGodalming & Woking", sub: "Based in Guildford, we welcome customers from Godalming, Woking and the surrounding areas. Get in touch with us and let us know your requirements." },
+]};
+const CvHeroEditor = makeHeroEditor("cv_hero", DEFAULT_CV_HERO);
+
+const DEFAULT_CV_INTRO = { heading: "Top-class commercial vehicle valeting service in Guildford", paragraph: "Commercial vehicles see much more wear and tear than private cars due to the amount of usage, and therefore need regular valeting. Count on Smart Shine Car Valeting Centre to clean your car or van and bring its shine back. We offer full valet and part valet services at competitive prices. Whether you need interior valeting or exterior valeting, you can rely on us." };
+function CvIntroEditor() {
+  const { data, isLoading } = useSection("cv_intro", DEFAULT_CV_INTRO);
+  const save = useSave("cv_intro");
+  const [local, setLocal] = useState(DEFAULT_CV_INTRO);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_CV_INTRO); setDirty(false); } }, [data]);
+  const mark = (v: typeof DEFAULT_CV_INTRO) => { setLocal(v); setDirty(true); };
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div className="space-y-5">
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Section heading</label><Input value={local.heading} onChange={e => mark({ ...local, heading: e.target.value })} /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Paragraph</label><Textarea value={local.paragraph} rows={5} onChange={e => mark({ ...local, paragraph: e.target.value })} className="text-sm" /></div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+const DEFAULT_CV_BODY = { heading: "Commercial valeting", paragraph1: "Do you run a business which utilises a fleet of commercial vehicles, or provides transportation services? We understand that cleaning the vehicles could be a difficult task.", paragraph2: "Leave the job to our experienced and detail-oriented car valeting experts at Smart Shine Car Valeting Centre for a cost-effective solution to keep all your commercial vehicles looking their best. Whether you have bought a used vehicle or you want to sell one of your vehicles, rely on our specialists to give it the best look and increase its value.", paragraph3: "We offer car scratch removal, dent removal and machine polish at affordable prices. Based in Guildford, we welcome customers from Godalming, Woking and the surrounding areas. Get in touch with us and let us know your requirements." };
+function CvBodyEditor() {
+  const { data, isLoading } = useSection("cv_body", DEFAULT_CV_BODY);
+  const save = useSave("cv_body");
+  const [local, setLocal] = useState(DEFAULT_CV_BODY);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_CV_BODY); setDirty(false); } }, [data]);
+  const mark = (v: typeof DEFAULT_CV_BODY) => { setLocal(v); setDirty(true); };
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div className="space-y-5">
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Heading</label><Input value={local.heading} onChange={e => mark({ ...local, heading: e.target.value })} /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">First paragraph</label><Textarea value={local.paragraph1} rows={3} onChange={e => mark({ ...local, paragraph1: e.target.value })} className="text-sm" /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Second paragraph</label><Textarea value={local.paragraph2} rows={4} onChange={e => mark({ ...local, paragraph2: e.target.value })} className="text-sm" /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Third paragraph</label><Textarea value={local.paragraph3} rows={3} onChange={e => mark({ ...local, paragraph3: e.target.value })} className="text-sm" /></div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+const DEFAULT_CV_SERVICES = { items: ["Dent and scratch removal", "Machine polishing", "Paint restoration", "Vomit removal", "Pet hair removal", "Tree sap removal", "Liquids (e.g. milk, wine) removal", "Headlight Restoration Treatment"] };
+function CvServicesEditor() {
+  const { data, isLoading } = useSection("cv_services", DEFAULT_CV_SERVICES);
+  const save = useSave("cv_services");
+  const [local, setLocal] = useState(DEFAULT_CV_SERVICES);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_CV_SERVICES); setDirty(false); } }, [data]);
+  const mark = (v: typeof DEFAULT_CV_SERVICES) => { setLocal(v); setDirty(true); };
+  const update = (i: number, val: string) => mark({ ...local, items: local.items.map((it, idx) => idx === i ? val : it) });
+  const remove = (i: number) => mark({ ...local, items: local.items.filter((_, idx) => idx !== i) });
+  const add = () => mark({ ...local, items: [...local.items, "New service"] });
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div>
+      <p className="text-xs text-gray-500 mb-4">Edit the list of services shown on the Commercial Valeting page.</p>
+      <div className="space-y-2 mb-4">
+        {local.items.map((item, i) => (
+          <div key={i} className="flex gap-2 items-center">
+            <Input value={item} onChange={e => update(i, e.target.value)} className="text-sm flex-1" />
+            <Button size="icon" variant="ghost" onClick={() => remove(i)} className="text-gray-400 hover:text-red-500 h-8 w-8 flex-shrink-0"><Trash2 className="h-4 w-4" /></Button>
+          </div>
+        ))}
+      </div>
+      <Button size="sm" variant="outline" onClick={add} className="text-xs h-8 mb-4"><Plus className="h-3.5 w-3.5 mr-1" />Add service</Button>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
 // ─── PAGE GROUPS ──────────────────────────────────────────────────────────────
 type SectionDef = {
   key: string;
@@ -799,9 +1048,41 @@ const PAGE_GROUPS: PageGroup[] = [
     ],
   },
   {
+    page: "Private Valeting",
+    icon: Car,
+    color: "violet",
+    sections: [
+      { key: "pv_hero", label: "Hero Carousel", description: "Slides, headlines and images for the hero banner", icon: GalleryHorizontal, editor: PvHeroEditor },
+      { key: "pv_intro", label: "Intro Section", description: "Heading and paragraph in the packages area", icon: Info, editor: PvIntroEditor },
+      { key: "pv_packages", label: "Packages", description: "Package cards — name, description and price", icon: ListChecks, editor: PvPackagesEditor },
+      { key: "pv_body", label: "Body Section", description: "Dark 'we can make your car shine' section", icon: Layers, editor: PvBodyEditor },
+    ],
+  },
+  {
+    page: "Car Detailing",
+    icon: Sparkles,
+    color: "emerald",
+    sections: [
+      { key: "cd_hero", label: "Hero Carousel", description: "Slides, headlines and images for the hero banner", icon: GalleryHorizontal, editor: CdHeroEditor },
+      { key: "cd_intro", label: "About Section", description: "Heading and paragraph in the about section", icon: Info, editor: CdIntroEditor },
+      { key: "cd_body", label: "Body Section", description: "Dark 'we can make your car shine' section", icon: Layers, editor: CdBodyEditor },
+    ],
+  },
+  {
+    page: "Commercial Valeting",
+    icon: Wrench,
+    color: "orange",
+    sections: [
+      { key: "cv_hero", label: "Hero Carousel", description: "Slides, headlines and images for the hero banner", icon: GalleryHorizontal, editor: CvHeroEditor },
+      { key: "cv_intro", label: "About Section", description: "Heading and paragraph in the about section", icon: Info, editor: CvIntroEditor },
+      { key: "cv_body", label: "Body Section", description: "Dark section with heading and paragraphs", icon: Layers, editor: CvBodyEditor },
+      { key: "cv_services", label: "Services List", description: "The checklist of services offered", icon: ListChecks, editor: CvServicesEditor },
+    ],
+  },
+  {
     page: "Gallery",
     icon: Image,
-    color: "emerald",
+    color: "rose",
     sections: [
       { key: "gallery_brands", label: "Gallery Header", description: "Gallery page title and instruction text", icon: GalleryHorizontal, editor: GalleryBrandsEditor },
     ],
@@ -809,7 +1090,7 @@ const PAGE_GROUPS: PageGroup[] = [
   {
     page: "Contact",
     icon: Contact,
-    color: "orange",
+    color: "blue",
     sections: [
       { key: "contact_us", label: "Contact Details", description: "Address, email, phone and hours", icon: MapPin, editor: ContactUsEditor },
     ],
@@ -817,7 +1098,7 @@ const PAGE_GROUPS: PageGroup[] = [
   {
     page: "About",
     icon: Shield,
-    color: "rose",
+    color: "violet",
     sections: [
       { key: "about_features", label: "Why Choose Us Cards", description: "Feature cards on the About page", icon: Info, editor: AboutFeaturesEditor },
     ],

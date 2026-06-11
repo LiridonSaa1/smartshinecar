@@ -82,14 +82,23 @@ export default function Contact() {
     "Other / Not sure",
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSending(true);
-    setTimeout(() => {
-      setSending(false);
+    try {
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, source: "contact" }),
+      });
+      if (!res.ok) throw new Error("Failed");
       setSent(true);
       toast.success("Message sent! We'll get back to you soon.");
-    }, 1200);
+    } catch {
+      alert("Sorry, there was a problem sending your message. Please call us directly.");
+    } finally {
+      setSending(false);
+    }
   };
 
   const infoCards = [

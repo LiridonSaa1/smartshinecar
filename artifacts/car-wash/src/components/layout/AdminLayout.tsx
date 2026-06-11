@@ -11,6 +11,7 @@ import {
   Car,
   Menu,
   FileText,
+  MessageSquare,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ const navItems = [
   { href: "/admin/services", label: "Services", icon: Car },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart },
   { href: "/admin/content", label: "Content", icon: FileText },
+  { href: "/admin/messages", label: "Messages", icon: MessageSquare },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 

@@ -174,10 +174,22 @@ function ContactForm() {
     "Other / Not sure",
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSending(true);
-    setTimeout(() => { setSending(false); setSent(true); }, 1200);
+    try {
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, source: "car-detailing" }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      setSent(true);
+    } catch {
+      alert("Sorry, there was a problem sending your message. Please call us directly.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -342,8 +354,8 @@ function ContactForm() {
 }
 
 const CD_HERO_DEFAULT = { slides: HERO_SLIDES };
-const CD_INTRO_DEFAULT = { heading: "Are you in need of a car detailing service in Guildford?", paragraph: "Smart Shine Car Valeting Centre has an extensive range of products designed to rejuvenate your car. We use premium products allowing us to make your car look as new. We offer high-quality car detailing services in Guildford, Godalming, Woking and the surrounding areas." };
-const CD_BODY_DEFAULT = { heading1: "We can make your car shine", paragraph1: "We can offer a detailing service to all makes of car. Whatever car you have, regardless of make and model, our service includes paintwork correction to help bring it back to a showroom standard whether your car is new or old. Whether it is car scratch removal, dent removal, or machine polish, you can count on us.", heading2: "We can make your car shine", paragraph2: "Our car detailing service removes the defects such as scratches, 3d holograms and swirls by removing a thin layer of clear coat which reveals the defect free surface. We also provide interior valeting and exterior valeting. For your convenience, we offer full valet and part valet services." };
+const CD_INTRO_DEFAULT = { heading: "Are you in need of a car detailing service in Guildford?", paragraph: "Smart Shine Car Valeting Centre has an extensive range of products designed to rejuvenate your car. We use premium products allowing us to make your car look as new. We offer high-quality car detailing services in Guildford, Godalming, Woking and the surrounding areas.", btn1Label: "Get Free Quote", btn1Link: "#contact", btn2Label: "Call Us", btn2Link: "tel:07717310046" };
+const CD_BODY_DEFAULT = { heading1: "We can make your car shine", paragraph1: "We can offer a detailing service to all makes of car. Whatever car you have, regardless of make and model, our service includes paintwork correction to help bring it back to a showroom standard whether your car is new or old. Whether it is car scratch removal, dent removal, or machine polish, you can count on us.", heading2: "We can make your car shine", paragraph2: "Our car detailing service removes the defects such as scratches, 3d holograms and swirls by removing a thin layer of clear coat which reveals the defect free surface. We also provide interior valeting and exterior valeting. For your convenience, we offer full valet and part valet services.", image: "" };
 
 export default function CarDetailing() {
   const heroContent = useContentSection("cd_hero", CD_HERO_DEFAULT);
@@ -374,26 +386,32 @@ export default function CarDetailing() {
             <p className="text-gray-600 leading-loose text-[16px] max-w-3xl mx-auto">
               {intro.paragraph}
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
-              <a href="#contact">
-                <motion.button
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="inline-flex items-center gap-2 rounded-full bg-[#0a0f2e] hover:bg-blue-900 px-7 py-3 text-[14px] font-black text-white transition-all"
-                >
-                  Get Free Quote <ArrowRight className="h-4 w-4" />
-                </motion.button>
-              </a>
-              <a href="tel:07717310046">
-                <motion.button
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="inline-flex items-center gap-2 rounded-full border-2 border-[#0a0f2e] text-[#0a0f2e] hover:bg-[#0a0f2e] hover:text-white px-7 py-3 text-[14px] font-black transition-all"
-                >
-                  <Phone className="h-4 w-4" /> 07717 310 046
-                </motion.button>
-              </a>
-            </div>
+            {(intro.btn1Label || intro.btn2Label) && (
+              <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
+                {intro.btn1Label && (
+                  <a href={intro.btn1Link || "#contact"}>
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="inline-flex items-center gap-2 rounded-full bg-[#0a0f2e] hover:bg-blue-900 px-7 py-3 text-[14px] font-black text-white transition-all"
+                    >
+                      {intro.btn1Label} <ArrowRight className="h-4 w-4" />
+                    </motion.button>
+                  </a>
+                )}
+                {intro.btn2Label && (
+                  <a href={intro.btn2Link || "tel:07717310046"}>
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="inline-flex items-center gap-2 rounded-full border-2 border-[#0a0f2e] text-[#0a0f2e] hover:bg-[#0a0f2e] hover:text-white px-7 py-3 text-[14px] font-black transition-all"
+                    >
+                      <Phone className="h-4 w-4" /> {intro.btn2Label}
+                    </motion.button>
+                  </a>
+                )}
+              </div>
+            )}
           </FadeIn>
         </div>
       </section>
@@ -427,7 +445,7 @@ export default function CarDetailing() {
           </FadeIn>
           <FadeIn direction="right" delay={0.1} className="overflow-hidden min-h-[480px] order-1 md:order-2">
             <img
-              src={shineImg}
+              src={(body as typeof CD_BODY_DEFAULT).image || shineImg}
               alt="Car Detailing Service"
               className="w-full h-full object-cover object-center min-h-[480px]"
             />

@@ -185,10 +185,22 @@ function ContactForm() {
     "Other / Not sure",
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSending(true);
-    setTimeout(() => { setSending(false); setSent(true); }, 1200);
+    try {
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, source: "private-valeting" }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      setSent(true);
+    } catch {
+      alert("Sorry, there was a problem sending your message. Please call us directly.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -414,7 +426,7 @@ function ContactForm() {
 const PV_HERO_DEFAULT = { slides: HERO_SLIDES };
 const PV_INTRO_DEFAULT = { heading: "Excellent private vehicle valeting service in Guildford.", paragraph: "At Smart Shine Car Valeting Centre, we provide a wide variety of individually tailored valeting packages to suit all your requirements in the Guildford area. We also welcome customers from Godalming and Woking." };
 const PV_PACKAGES_DEFAULT = { items: PACKAGES.map(p => ({ name: p.name, desc: p.desc, price: p.price })) };
-const PV_BODY_DEFAULT = { heading: "We can make your car shine", paragraph: "We understand that every car is different, which is why we offer car valeting packages tailored to your specific needs. We also offer a range of specialised services such as dent removal and paintwork restoration to ensure we bring your car back to its best. Whether it is the interior valeting or the exterior valeting of your car that needs attention, we can provide a thorough valet service — so why not give us a call today to find out more? We offer both full valet and part valet services. In addition to valeting, we also offer machine polish and car scratch removal." };
+const PV_BODY_DEFAULT = { heading: "We can make your car shine", paragraph: "We understand that every car is different, which is why we offer car valeting packages tailored to your specific needs. We also offer a range of specialised services such as dent removal and paintwork restoration to ensure we bring your car back to its best. Whether it is the interior valeting or the exterior valeting of your car that needs attention, we can provide a thorough valet service — so why not give us a call today to find out more? We offer both full valet and part valet services. In addition to valeting, we also offer machine polish and car scratch removal.", image: "" };
 
 export default function PrivateValeting() {
   const heroContent = useContentSection("pv_hero", PV_HERO_DEFAULT);
@@ -517,7 +529,7 @@ export default function PrivateValeting() {
           </FadeIn>
           <FadeIn direction="right" delay={0.1} className="overflow-hidden min-h-[420px] order-1 md:order-2">
             <img
-              src={shineImg}
+              src={(bodyContent as typeof PV_BODY_DEFAULT).image || shineImg}
               alt="Professional Car Valeting"
               className="w-full h-full object-cover object-center min-h-[420px]"
             />

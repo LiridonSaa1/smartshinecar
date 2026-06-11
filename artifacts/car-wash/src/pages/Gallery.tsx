@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useContentSection } from "@/lib/useContent";
 import logoSrc from "@assets/Professional_Car_Valeting_Logo_in_Navy_and_Silver_1781123501610.png";
 
 /* ── FadeIn helper ────────────────────────────────────────────────── */
@@ -52,12 +53,12 @@ const HERO_SLIDES = [
   },
 ];
 
-function HeroCarousel() {
+function HeroCarousel({ slides = HERO_SLIDES }: { slides?: typeof HERO_SLIDES }) {
   const [[index, dir], setSlide] = useState([0, 0]);
-  const slide = HERO_SLIDES[index];
+  const slide = slides[index] ?? slides[0];
   const go = useCallback((nextIdx: number, direction: number) => setSlide([nextIdx, direction]), []);
-  const prev = () => go((index - 1 + HERO_SLIDES.length) % HERO_SLIDES.length, -1);
-  const next = useCallback(() => go((index + 1) % HERO_SLIDES.length, 1), [index, go]);
+  const prev = () => go((index - 1 + slides.length) % slides.length, -1);
+  const next = useCallback(() => go((index + 1) % slides.length, 1), [index, go, slides.length]);
   useEffect(() => { const t = setTimeout(next, 6000); return () => clearTimeout(t); }, [next]);
 
   return (
@@ -122,9 +123,9 @@ function HeroCarousel() {
         <ChevronRight className="h-5 w-5" />
       </button>
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5">
-        {HERO_SLIDES.map((s, i) => (
+        {slides.map((s, i) => (
           <button
-            key={s.id}
+            key={i}
             onClick={() => go(i, i > index ? 1 : -1)}
             className={`transition-all duration-300 rounded-full ${i === index ? "bg-white w-7 h-2" : "bg-white/40 w-2 h-2 hover:bg-white/70"}`}
           />
@@ -286,10 +287,22 @@ function ContactForm() {
     "Paint Correction", "Engine Bay Clean", "Headlight Restoration", "Other / Not sure",
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSending(true);
-    setTimeout(() => { setSending(false); setSent(true); }, 1200);
+    try {
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, source: "gallery" }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      setSent(true);
+    } catch {
+      alert("Sorry, there was a problem sending your message. Please call us directly.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -429,16 +442,32 @@ function ContactForm() {
   );
 }
 
+/* ── Default CMS values ────────────────────────────────────────────── */
+const DEFAULT_GALLERY_HERO = HERO_SLIDES;
+const DEFAULT_GALLERY_BELOW_HERO = {
+  heading: "Paint restoration specialists in Guildford",
+  text: "Take a look at some exceptional works done by the experts at Smart Shine Car Valeting Centre. From car scratch removals to paint restoration, we can do it all. Get in touch with us to book an appointment for car valeting in Guildford. We offer both interior and exterior valeting. You can choose between full valet and part valet. Customers from across Guildford, Godalming and Woking are welcomed to our car valeting centre.",
+};
+const DEFAULT_GALLERY_BRANDS_V2 = { brands: BRANDS };
+
 /* ── Page ─────────────────────────────────────────────────────────── */
 export default function Gallery() {
-  const [activeBrand, setActiveBrand] = useState(BRANDS[0]);
+  const heroData = useContentSection("gallery_hero", DEFAULT_GALLERY_HERO) as typeof HERO_SLIDES;
+  const belowHero = useContentSection("gallery_below_hero", DEFAULT_GALLERY_BELOW_HERO) as typeof DEFAULT_GALLERY_BELOW_HERO;
+  const brandsData = useContentSection("gallery_brands_v2", DEFAULT_GALLERY_BRANDS_V2) as typeof DEFAULT_GALLERY_BRANDS_V2;
+
+  const brands = (brandsData?.brands?.length ? brandsData.brands : BRANDS) as typeof BRANDS;
+  const slides = (Array.isArray(heroData) && heroData.length ? heroData : DEFAULT_GALLERY_HERO) as typeof HERO_SLIDES;
+
+  const [activeBrand, setActiveBrand] = useState<typeof BRANDS[0] | null>(null);
+  const currentBrand = activeBrand ?? brands[0];
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
 
       {/* 1. HERO CAROUSEL */}
-      <HeroCarousel />
+      <HeroCarousel slides={slides} />
 
       {/* 2. ABOUT TEXT */}
       <section className="py-16 bg-white border-b border-gray-100">
@@ -449,10 +478,10 @@ export default function Gallery() {
               Our Work
             </div>
             <h2 className="text-3xl md:text-4xl font-black text-[#0a0f2e] mb-5 leading-tight">
-              Paint restoration specialists in Guildford
+              {belowHero.heading}
             </h2>
             <p className="text-gray-600 text-[16px] leading-relaxed max-w-3xl mx-auto">
-              Take a look at some exceptional works done by the experts at Smart Shine Car Valeting Centre. From car scratch removals to paint restoration, we can do it all. Get in touch with us to book an appointment for car valeting in Guildford. We offer both interior and exterior valeting. You can choose between full valet and part valet. Customers from across Guildford, Godalming and Woking are welcomed to our car valeting centre.
+              {belowHero.text}
             </p>
           </FadeIn>
         </div>
@@ -472,14 +501,14 @@ export default function Gallery() {
 
           {/* Brand selector cards */}
           <div className="flex flex-wrap justify-center gap-3 mb-10">
-            {BRANDS.map(brand => (
+            {brands.map(brand => (
               <motion.button
                 key={brand.id}
                 onClick={() => setActiveBrand(brand)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.97 }}
                 className={`flex items-center gap-2.5 px-5 py-2.5 rounded-2xl border-2 text-sm font-black transition-all duration-200 ${
-                  activeBrand.id === brand.id
+                  currentBrand.id === brand.id
                     ? "bg-[#0a0f2e] border-[#0a0f2e] text-white shadow-lg shadow-[#0a0f2e]/20"
                     : "bg-white border-gray-200 text-gray-700 hover:border-blue-400 hover:text-blue-700"
                 }`}
@@ -493,13 +522,13 @@ export default function Gallery() {
           {/* Image slider */}
           <FadeIn>
             <AnimatePresence mode="wait">
-              <BrandSlider key={activeBrand.id} brand={activeBrand} />
+              <BrandSlider key={currentBrand.id} brand={currentBrand} />
             </AnimatePresence>
           </FadeIn>
 
           {/* Thumbnail strip */}
           <div className="flex gap-3 mt-4 justify-center">
-            {activeBrand.images.map((img, i) => (
+            {currentBrand.images.map((img, i) => (
               <motion.div
                 key={img.url}
                 initial={{ opacity: 0, y: 10 }}

@@ -596,27 +596,6 @@ function GetInTouchEditor() {
   );
 }
 
-// ─── GALLERY ──────────────────────────────────────────────────────────────────
-const DEFAULT_GALLERY = { title: "Our Work", subtitle: "Select a brand to see our work on that vehicle type" };
-
-function GalleryBrandsEditor() {
-  const { data, isLoading } = useSection("gallery_brands", DEFAULT_GALLERY);
-  const save = useSave("gallery_brands");
-  const [local, setLocal] = useState(DEFAULT_GALLERY);
-  const [dirty, setDirty] = useState(false);
-  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_GALLERY); setDirty(false); } }, [data]);
-  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
-  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-gray-500 bg-gray-50 rounded-lg p-3">Controls the heading shown on the Gallery page above the brand selector.</p>
-      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Page title</label><Input value={local.title} onChange={e => mark({ ...local, title: e.target.value })} placeholder="Our Work" /></div>
-      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Subtitle / instruction text</label><Input value={local.subtitle} onChange={e => mark({ ...local, subtitle: e.target.value })} placeholder="Select a brand to see our work" /></div>
-      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
-    </div>
-  );
-}
-
 // ─── CONTACT US ───────────────────────────────────────────────────────────────
 const DEFAULT_CONTACT = {
   address: "Guildford, Surrey",
@@ -798,7 +777,7 @@ function PvPackagesEditor() {
   );
 }
 
-const DEFAULT_PV_BODY = { heading: "We can make your car shine", paragraph: "We understand that every car is different, which is why we offer car valeting packages tailored to your specific needs. We also offer a range of specialised services such as dent removal and paintwork restoration to ensure we bring your car back to its best. Whether it is the interior valeting or the exterior valeting of your car that needs attention, we can provide a thorough valet service — so why not give us a call today to find out more? We offer both full valet and part valet services. In addition to valeting, we also offer machine polish and car scratch removal." };
+const DEFAULT_PV_BODY = { heading: "We can make your car shine", paragraph: "We understand that every car is different, which is why we offer car valeting packages tailored to your specific needs. We also offer a range of specialised services such as dent removal and paintwork restoration to ensure we bring your car back to its best. Whether it is the interior valeting or the exterior valeting of your car that needs attention, we can provide a thorough valet service — so why not give us a call today to find out more? We offer both full valet and part valet services. In addition to valeting, we also offer machine polish and car scratch removal.", image: "" };
 function PvBodyEditor() {
   const { data, isLoading } = useSection("pv_body", DEFAULT_PV_BODY);
   const save = useSave("pv_body");
@@ -813,6 +792,8 @@ function PvBodyEditor() {
         <Input value={local.heading} onChange={e => mark({ ...local, heading: e.target.value })} /></div>
       <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Paragraph</label>
         <Textarea value={local.paragraph} rows={6} onChange={e => mark({ ...local, paragraph: e.target.value })} className="text-sm" /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Section Image</label>
+        <ImageUpload value={local.image ?? ""} onChange={url => mark({ ...local, image: url })} label="Upload section image" /></div>
       <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
     </div>
   );
@@ -826,7 +807,7 @@ const DEFAULT_CD_HERO: HeroData = { slides: [
 ]};
 const CdHeroEditor = makeHeroEditor("cd_hero", DEFAULT_CD_HERO);
 
-const DEFAULT_CD_INTRO = { heading: "Are you in need of a car detailing service in Guildford?", paragraph: "Smart Shine Car Valeting Centre has an extensive range of products designed to rejuvenate your car. We use premium products allowing us to make your car look as new. We offer high-quality car detailing services in Guildford, Godalming, Woking and the surrounding areas." };
+const DEFAULT_CD_INTRO = { heading: "Are you in need of a car detailing service in Guildford?", paragraph: "Smart Shine Car Valeting Centre has an extensive range of products designed to rejuvenate your car. We use premium products allowing us to make your car look as new. We offer high-quality car detailing services in Guildford, Godalming, Woking and the surrounding areas.", btn1Label: "Get Free Quote", btn1Link: "/contact", btn2Label: "Call Us", btn2Link: "tel:07717310046" };
 function CdIntroEditor() {
   const { data, isLoading } = useSection("cd_intro", DEFAULT_CD_INTRO);
   const save = useSave("cd_intro");
@@ -841,12 +822,23 @@ function CdIntroEditor() {
         <Input value={local.heading} onChange={e => mark({ ...local, heading: e.target.value })} /></div>
       <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Paragraph</label>
         <Textarea value={local.paragraph} rows={4} onChange={e => mark({ ...local, paragraph: e.target.value })} className="text-sm" /></div>
+      <p className="text-xs font-bold text-gray-500 uppercase tracking-widest pt-2">Action Buttons</p>
+      <div className="grid grid-cols-2 gap-3">
+        <div><label className="block text-xs font-semibold text-gray-700 mb-1">Button 1 — Label</label>
+          <Input value={local.btn1Label ?? ""} onChange={e => mark({ ...local, btn1Label: e.target.value })} className="text-sm" /></div>
+        <div><label className="block text-xs font-semibold text-gray-700 mb-1">Button 1 — Link</label>
+          <Input value={local.btn1Link ?? ""} onChange={e => mark({ ...local, btn1Link: e.target.value })} className="text-sm" placeholder="/contact" /></div>
+        <div><label className="block text-xs font-semibold text-gray-700 mb-1">Button 2 — Label</label>
+          <Input value={local.btn2Label ?? ""} onChange={e => mark({ ...local, btn2Label: e.target.value })} className="text-sm" /></div>
+        <div><label className="block text-xs font-semibold text-gray-700 mb-1">Button 2 — Link</label>
+          <Input value={local.btn2Link ?? ""} onChange={e => mark({ ...local, btn2Link: e.target.value })} className="text-sm" placeholder="tel:07717310046" /></div>
+      </div>
       <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
     </div>
   );
 }
 
-const DEFAULT_CD_BODY = { heading1: "We can make your car shine", paragraph1: "We can offer a detailing service to all makes of car. Whatever car you have, regardless of make and model, our service includes paintwork correction to help bring it back to a showroom standard whether your car is new or old. Whether it is car scratch removal, dent removal, or machine polish, you can count on us.", heading2: "We can make your car shine", paragraph2: "Our car detailing service removes the defects such as scratches, 3d holograms and swirls by removing a thin layer of clear coat which reveals the defect free surface. We also provide interior valeting and exterior valeting. For your convenience, we offer full valet and part valet services." };
+const DEFAULT_CD_BODY = { heading1: "We can make your car shine", paragraph1: "We can offer a detailing service to all makes of car. Whatever car you have, regardless of make and model, our service includes paintwork correction to help bring it back to a showroom standard whether your car is new or old. Whether it is car scratch removal, dent removal, or machine polish, you can count on us.", heading2: "We can make your car shine", paragraph2: "Our car detailing service removes the defects such as scratches, 3d holograms and swirls by removing a thin layer of clear coat which reveals the defect free surface. We also provide interior valeting and exterior valeting. For your convenience, we offer full valet and part valet services.", image: "" };
 function CdBodyEditor() {
   const { data, isLoading } = useSection("cd_body", DEFAULT_CD_BODY);
   const save = useSave("cd_body");
@@ -861,6 +853,8 @@ function CdBodyEditor() {
       <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">First paragraph</label><Textarea value={local.paragraph1} rows={4} onChange={e => mark({ ...local, paragraph1: e.target.value })} className="text-sm" /></div>
       <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Second heading</label><Input value={local.heading2} onChange={e => mark({ ...local, heading2: e.target.value })} /></div>
       <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Second paragraph</label><Textarea value={local.paragraph2} rows={4} onChange={e => mark({ ...local, paragraph2: e.target.value })} className="text-sm" /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Section Image</label>
+        <ImageUpload value={local.image ?? ""} onChange={url => mark({ ...local, image: url })} label="Upload section image" /></div>
       <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
     </div>
   );
@@ -892,7 +886,7 @@ function CvIntroEditor() {
   );
 }
 
-const DEFAULT_CV_BODY = { heading: "Commercial valeting", paragraph1: "Do you run a business which utilises a fleet of commercial vehicles, or provides transportation services? We understand that cleaning the vehicles could be a difficult task.", paragraph2: "Leave the job to our experienced and detail-oriented car valeting experts at Smart Shine Car Valeting Centre for a cost-effective solution to keep all your commercial vehicles looking their best. Whether you have bought a used vehicle or you want to sell one of your vehicles, rely on our specialists to give it the best look and increase its value.", paragraph3: "We offer car scratch removal, dent removal and machine polish at affordable prices. Based in Guildford, we welcome customers from Godalming, Woking and the surrounding areas. Get in touch with us and let us know your requirements." };
+const DEFAULT_CV_BODY = { heading: "Commercial valeting", paragraph1: "Do you run a business which utilises a fleet of commercial vehicles, or provides transportation services? We understand that cleaning the vehicles could be a difficult task.", paragraph2: "Leave the job to our experienced and detail-oriented car valeting experts at Smart Shine Car Valeting Centre for a cost-effective solution to keep all your commercial vehicles looking their best. Whether you have bought a used vehicle or you want to sell one of your vehicles, rely on our specialists to give it the best look and increase its value.", paragraph3: "We offer car scratch removal, dent removal and machine polish at affordable prices. Based in Guildford, we welcome customers from Godalming, Woking and the surrounding areas. Get in touch with us and let us know your requirements.", image: "" };
 function CvBodyEditor() {
   const { data, isLoading } = useSection("cv_body", DEFAULT_CV_BODY);
   const save = useSave("cv_body");
@@ -907,35 +901,217 @@ function CvBodyEditor() {
       <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">First paragraph</label><Textarea value={local.paragraph1} rows={3} onChange={e => mark({ ...local, paragraph1: e.target.value })} className="text-sm" /></div>
       <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Second paragraph</label><Textarea value={local.paragraph2} rows={4} onChange={e => mark({ ...local, paragraph2: e.target.value })} className="text-sm" /></div>
       <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Third paragraph</label><Textarea value={local.paragraph3} rows={3} onChange={e => mark({ ...local, paragraph3: e.target.value })} className="text-sm" /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Section Image</label>
+        <ImageUpload value={local.image ?? ""} onChange={url => mark({ ...local, image: url })} label="Upload section image" /></div>
       <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
     </div>
   );
 }
 
-const DEFAULT_CV_SERVICES = { items: ["Dent and scratch removal", "Machine polishing", "Paint restoration", "Vomit removal", "Pet hair removal", "Tree sap removal", "Liquids (e.g. milk, wine) removal", "Headlight Restoration Treatment"] };
+type CvServiceItem = { label: string; image?: string };
+const DEFAULT_CV_SERVICES = { items: [
+  { label: "Dent and scratch removal", image: "" },
+  { label: "Machine polishing", image: "" },
+  { label: "Paint restoration", image: "" },
+  { label: "Vomit removal", image: "" },
+  { label: "Pet hair removal", image: "" },
+  { label: "Tree sap removal", image: "" },
+  { label: "Liquids (e.g. milk, wine) removal", image: "" },
+  { label: "Headlight Restoration Treatment", image: "" },
+] as CvServiceItem[] };
 function CvServicesEditor() {
   const { data, isLoading } = useSection("cv_services", DEFAULT_CV_SERVICES);
   const save = useSave("cv_services");
   const [local, setLocal] = useState(DEFAULT_CV_SERVICES);
   const [dirty, setDirty] = useState(false);
-  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_CV_SERVICES); setDirty(false); } }, [data]);
+  useEffect(() => {
+    if (data) {
+      const d = data as { items: (string | CvServiceItem)[] };
+      const items = (d.items ?? []).map(it => typeof it === "string" ? { label: it, image: "" } : it);
+      setLocal({ items }); setDirty(false);
+    }
+  }, [data]);
   const mark = (v: typeof DEFAULT_CV_SERVICES) => { setLocal(v); setDirty(true); };
-  const update = (i: number, val: string) => mark({ ...local, items: local.items.map((it, idx) => idx === i ? val : it) });
+  const update = (i: number, field: keyof CvServiceItem, val: string) => mark({ ...local, items: local.items.map((it, idx) => idx === i ? { ...it, [field]: val } : it) });
   const remove = (i: number) => mark({ ...local, items: local.items.filter((_, idx) => idx !== i) });
-  const add = () => mark({ ...local, items: [...local.items, "New service"] });
+  const add = () => mark({ ...local, items: [...local.items, { label: "New service", image: "" }] });
   if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
   return (
     <div>
-      <p className="text-xs text-gray-500 mb-4">Edit the list of services shown on the Commercial Valeting page.</p>
-      <div className="space-y-2 mb-4">
+      <p className="text-xs text-gray-500 mb-4">Edit the services list. You can optionally add an image to each service.</p>
+      <div className="space-y-3 mb-4">
         {local.items.map((item, i) => (
-          <div key={i} className="flex gap-2 items-center">
-            <Input value={item} onChange={e => update(i, e.target.value)} className="text-sm flex-1" />
-            <Button size="icon" variant="ghost" onClick={() => remove(i)} className="text-gray-400 hover:text-red-500 h-8 w-8 flex-shrink-0"><Trash2 className="h-4 w-4" /></Button>
+          <div key={i} className="border border-gray-100 rounded-xl p-3 bg-gray-50 space-y-2">
+            <div className="flex gap-2 items-center">
+              <Input value={item.label} onChange={e => update(i, "label", e.target.value)} className="text-sm flex-1" placeholder="Service name" />
+              <Button size="icon" variant="ghost" onClick={() => remove(i)} className="text-gray-400 hover:text-red-500 h-8 w-8 flex-shrink-0"><Trash2 className="h-4 w-4" /></Button>
+            </div>
+            <ImageUpload value={item.image ?? ""} onChange={url => update(i, "image", url)} label="Add image (optional)" compact />
           </div>
         ))}
       </div>
       <Button size="sm" variant="outline" onClick={add} className="text-xs h-8 mb-4"><Plus className="h-3.5 w-3.5 mr-1" />Add service</Button>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+// ─── GALLERY HERO ─────────────────────────────────────────────────────────────
+const DEFAULT_GALLERY_HERO = { slides: [
+  { id: 0, image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=1600&q=85", headline: "Paint Restoration\nSpecialists in Guildford", sub: "From scratch removal to full paint correction — see our exceptional work in our gallery below." },
+  { id: 1, image: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=1600&q=85", headline: "Interior & Exterior\nValeting Gallery", sub: "Explore our before-and-after transformations across all vehicle types and valeting services." },
+  { id: 2, image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1600&q=85", headline: "Serving Guildford,\nGodalming & Woking", sub: "Customers from across Surrey trust Smart Shine to restore and protect their vehicles." },
+]};
+const GalleryHeroEditor = makeHeroEditor("gallery_hero", DEFAULT_GALLERY_HERO);
+
+// ─── GALLERY BELOW-HERO ────────────────────────────────────────────────────────
+const DEFAULT_GALLERY_BELOW_HERO = { heading: "Browse By Vehicle", subtitle: "Select your vehicle make to explore our gallery of professional valets, from showroom polish to deep interior cleans." };
+function GalleryBelowHeroEditor() {
+  const { data, isLoading } = useSection("gallery_below_hero", DEFAULT_GALLERY_BELOW_HERO);
+  const save = useSave("gallery_below_hero");
+  const [local, setLocal] = useState(DEFAULT_GALLERY_BELOW_HERO);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_GALLERY_BELOW_HERO); setDirty(false); } }, [data]);
+  const mark = (v: typeof DEFAULT_GALLERY_BELOW_HERO) => { setLocal(v); setDirty(true); };
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div className="space-y-5">
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Section heading</label>
+        <Input value={local.heading} onChange={e => mark({ ...local, heading: e.target.value })} /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Subtitle</label>
+        <Textarea value={local.subtitle} rows={2} onChange={e => mark({ ...local, subtitle: e.target.value })} className="text-sm" /></div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+// ─── GALLERY VEHICLE TAGS ─────────────────────────────────────────────────────
+type GalleryImage = { url: string; caption: string };
+type GalleryBrand = { id: string; name: string; emoji: string; images: GalleryImage[] };
+const DEFAULT_GALLERY_BRANDS_FULL = { brands: [
+  { id: "bmw", name: "BMW", emoji: "🇩🇪", images: [
+    { url: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=900&q=85", caption: "BMW M3 — Full Exterior Detail" },
+    { url: "https://images.unsplash.com/photo-1580274455191-1c62238fa333?w=900&q=85", caption: "BMW 5 Series — Paint Correction" },
+  ]},
+  { id: "mercedes", name: "Mercedes", emoji: "⭐", images: [
+    { url: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=900&q=85", caption: "Mercedes C-Class — Executive Valet" },
+  ]},
+] as GalleryBrand[] };
+function GalleryBrandsEditor() {
+  const { data, isLoading } = useSection("gallery_brands_v2", DEFAULT_GALLERY_BRANDS_FULL);
+  const save = useSave("gallery_brands_v2");
+  const [local, setLocal] = useState(DEFAULT_GALLERY_BRANDS_FULL);
+  const [dirty, setDirty] = useState(false);
+  const [expandedBrand, setExpandedBrand] = useState<string | null>(null);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_GALLERY_BRANDS_FULL); setDirty(false); } }, [data]);
+  const mark = (v: typeof DEFAULT_GALLERY_BRANDS_FULL) => { setLocal(v); setDirty(true); };
+  const updateBrand = (i: number, field: keyof GalleryBrand, val: string) =>
+    mark({ ...local, brands: local.brands.map((b, idx) => idx === i ? { ...b, [field]: val } : b) });
+  const removeBrand = (i: number) => mark({ ...local, brands: local.brands.filter((_, idx) => idx !== i) });
+  const addBrand = () => {
+    const id = `brand_${Date.now()}`;
+    mark({ ...local, brands: [...local.brands, { id, name: "New Brand", emoji: "🚗", images: [] }] });
+    setExpandedBrand(id);
+  };
+  const addImage = (bi: number) => mark({ ...local, brands: local.brands.map((b, idx) => idx === bi ? { ...b, images: [...b.images, { url: "", caption: "" }] } : b) });
+  const updateImage = (bi: number, ii: number, field: keyof GalleryImage, val: string) =>
+    mark({ ...local, brands: local.brands.map((b, idx) => idx === bi ? { ...b, images: b.images.map((img, jdx) => jdx === ii ? { ...img, [field]: val } : img) } : b) });
+  const removeImage = (bi: number, ii: number) =>
+    mark({ ...local, brands: local.brands.map((b, idx) => idx === bi ? { ...b, images: b.images.filter((_, jdx) => jdx !== ii) } : b) });
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div>
+      <p className="text-xs text-gray-500 mb-4">Create vehicle tags and add images to each. These appear in the "Browse by Vehicle" section.</p>
+      <div className="space-y-2 mb-4">
+        {local.brands.map((brand, bi) => (
+          <div key={brand.id} className="border border-gray-200 rounded-xl overflow-hidden">
+            <div
+              className="flex items-center gap-3 p-3 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
+              onClick={() => setExpandedBrand(expandedBrand === brand.id ? null : brand.id)}
+            >
+              <span className="text-lg">{brand.emoji || "🚗"}</span>
+              <span className="font-semibold text-sm text-gray-800 flex-1">{brand.name || "Unnamed Brand"}</span>
+              <span className="text-xs text-gray-400">{brand.images.length} image{brand.images.length !== 1 ? "s" : ""}</span>
+              <Button size="icon" variant="ghost" onClick={e => { e.stopPropagation(); removeBrand(bi); }} className="text-gray-400 hover:text-red-500 h-7 w-7"><Trash2 className="h-3.5 w-3.5" /></Button>
+            </div>
+            {expandedBrand === brand.id && (
+              <div className="p-4 space-y-4 border-t border-gray-100">
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="col-span-2"><label className="block text-xs font-semibold text-gray-600 mb-1">Vehicle / Brand Name</label>
+                    <Input value={brand.name} onChange={e => updateBrand(bi, "name", e.target.value)} className="text-sm" /></div>
+                  <div><label className="block text-xs font-semibold text-gray-600 mb-1">Emoji</label>
+                    <Input value={brand.emoji} onChange={e => updateBrand(bi, "emoji", e.target.value)} className="text-sm" maxLength={4} /></div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-xs font-semibold text-gray-600">Images</label>
+                    <Button size="sm" variant="outline" onClick={() => addImage(bi)} className="text-xs h-7"><Plus className="h-3 w-3 mr-1" />Add image</Button>
+                  </div>
+                  <div className="space-y-3">
+                    {brand.images.map((img, ii) => (
+                      <div key={ii} className="border border-gray-100 rounded-lg p-3 bg-white space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-semibold text-gray-500">Image {ii + 1}</span>
+                          <Button size="icon" variant="ghost" onClick={() => removeImage(bi, ii)} className="text-gray-400 hover:text-red-500 h-6 w-6"><Trash2 className="h-3 w-3" /></Button>
+                        </div>
+                        <ImageUpload value={img.url} onChange={url => updateImage(bi, ii, "url", url)} label="Upload image" compact />
+                        <Input value={img.caption} onChange={e => updateImage(bi, ii, "caption", e.target.value)} placeholder="Caption (e.g. BMW M3 — Full Detail)" className="text-xs" />
+                      </div>
+                    ))}
+                    {brand.images.length === 0 && <p className="text-xs text-gray-400 text-center py-3">No images yet. Click "Add image" to add one.</p>}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      <Button size="sm" variant="outline" onClick={addBrand} className="text-xs h-8 mb-4"><Plus className="h-3.5 w-3.5 mr-1" />Add vehicle tag</Button>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+// ─── TESTIMONIALS ─────────────────────────────────────────────────────────────
+const DEFAULT_PV_TESTIMONIAL = { quote: "Smart Shine did an amazing job on my car. The team was professional, thorough and the result was absolutely stunning. I'll definitely be back!", author: "Sarah Mitchell", role: "Verified Customer" };
+function PvTestimonialEditor() {
+  const { data, isLoading } = useSection("pv_testimonial", DEFAULT_PV_TESTIMONIAL);
+  const save = useSave("pv_testimonial");
+  const [local, setLocal] = useState(DEFAULT_PV_TESTIMONIAL);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_PV_TESTIMONIAL); setDirty(false); } }, [data]);
+  const mark = (v: typeof DEFAULT_PV_TESTIMONIAL) => { setLocal(v); setDirty(true); };
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div className="space-y-5">
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Customer Quote</label>
+        <Textarea value={local.quote} rows={3} onChange={e => mark({ ...local, quote: e.target.value })} className="text-sm" /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Customer Name</label>
+        <Input value={local.author} onChange={e => mark({ ...local, author: e.target.value })} /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Role / Label (e.g. Verified Customer)</label>
+        <Input value={local.role} onChange={e => mark({ ...local, role: e.target.value })} /></div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+const DEFAULT_CD_TESTIMONIAL = { quote: "Excellent car detailing service. My vehicle looks brand new! The paint correction is flawless and the interior deep clean was exceptional.", author: "James Hartley", role: "Verified Customer" };
+function CdTestimonialEditor() {
+  const { data, isLoading } = useSection("cd_testimonial", DEFAULT_CD_TESTIMONIAL);
+  const save = useSave("cd_testimonial");
+  const [local, setLocal] = useState(DEFAULT_CD_TESTIMONIAL);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_CD_TESTIMONIAL); setDirty(false); } }, [data]);
+  const mark = (v: typeof DEFAULT_CD_TESTIMONIAL) => { setLocal(v); setDirty(true); };
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div className="space-y-5">
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Customer Quote</label>
+        <Textarea value={local.quote} rows={3} onChange={e => mark({ ...local, quote: e.target.value })} className="text-sm" /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Customer Name</label>
+        <Input value={local.author} onChange={e => mark({ ...local, author: e.target.value })} /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Role / Label (e.g. Verified Customer)</label>
+        <Input value={local.role} onChange={e => mark({ ...local, role: e.target.value })} /></div>
       <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
     </div>
   );
@@ -981,7 +1157,8 @@ const PAGE_GROUPS: PageGroup[] = [
       { key: "pv_hero", label: "Hero Carousel", description: "Slides, headlines and images for the hero banner", icon: GalleryHorizontal, editor: PvHeroEditor },
       { key: "pv_intro", label: "Intro Section", description: "Heading and paragraph in the packages area", icon: Info, editor: PvIntroEditor },
       { key: "pv_packages", label: "Packages", description: "Package cards — name, description and price", icon: ListChecks, editor: PvPackagesEditor },
-      { key: "pv_body", label: "Body Section", description: "Dark 'we can make your car shine' section", icon: Layers, editor: PvBodyEditor },
+      { key: "pv_body", label: "Body Section", description: "Dark section — heading, paragraph and image", icon: Layers, editor: PvBodyEditor },
+      { key: "pv_testimonial", label: "Customer Comment", description: "Quote shown in the Our Customers section", icon: Star, editor: PvTestimonialEditor },
     ],
   },
   {
@@ -990,8 +1167,9 @@ const PAGE_GROUPS: PageGroup[] = [
     color: "emerald",
     sections: [
       { key: "cd_hero", label: "Hero Carousel", description: "Slides, headlines and images for the hero banner", icon: GalleryHorizontal, editor: CdHeroEditor },
-      { key: "cd_intro", label: "About Section", description: "Heading and paragraph in the about section", icon: Info, editor: CdIntroEditor },
-      { key: "cd_body", label: "Body Section", description: "Dark 'we can make your car shine' section", icon: Layers, editor: CdBodyEditor },
+      { key: "cd_intro", label: "About Section", description: "Heading, paragraph and 2 action buttons", icon: Info, editor: CdIntroEditor },
+      { key: "cd_body", label: "Body Section", description: "Dark section — headings, paragraphs and image", icon: Layers, editor: CdBodyEditor },
+      { key: "cd_testimonial", label: "Customer Comment", description: "Quote shown in the Our Customers section", icon: Star, editor: CdTestimonialEditor },
     ],
   },
   {
@@ -1001,8 +1179,8 @@ const PAGE_GROUPS: PageGroup[] = [
     sections: [
       { key: "cv_hero", label: "Hero Carousel", description: "Slides, headlines and images for the hero banner", icon: GalleryHorizontal, editor: CvHeroEditor },
       { key: "cv_intro", label: "About Section", description: "Heading and paragraph in the about section", icon: Info, editor: CvIntroEditor },
-      { key: "cv_body", label: "Body Section", description: "Dark section with heading and paragraphs", icon: Layers, editor: CvBodyEditor },
-      { key: "cv_services", label: "Services List", description: "The checklist of services offered", icon: ListChecks, editor: CvServicesEditor },
+      { key: "cv_body", label: "Body Section", description: "Dark section — heading, paragraphs and image", icon: Layers, editor: CvBodyEditor },
+      { key: "cv_services", label: "Services List", description: "The checklist of services with optional images", icon: ListChecks, editor: CvServicesEditor },
     ],
   },
   {
@@ -1010,7 +1188,9 @@ const PAGE_GROUPS: PageGroup[] = [
     icon: Image,
     color: "rose",
     sections: [
-      { key: "gallery_brands", label: "Gallery Header", description: "Gallery page title and instruction text", icon: GalleryHorizontal, editor: GalleryBrandsEditor },
+      { key: "gallery_hero", label: "Hero Carousel", description: "Gallery page hero slides — images and headlines", icon: GalleryHorizontal, editor: GalleryHeroEditor },
+      { key: "gallery_below_hero", label: "Gallery Section Heading", description: "Heading and subtitle below the hero carousel", icon: Info, editor: GalleryBelowHeroEditor },
+      { key: "gallery_brands_v2", label: "Vehicle Tags & Images", description: "Browse-by-vehicle tags with images per brand", icon: Car, editor: GalleryBrandsEditor },
     ],
   },
   {

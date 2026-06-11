@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { supabase } from "../lib/supabase";
 import { logger } from "../lib/logger";
+import { sendEmail, newBookingAdminEmail, bookingConfirmedCustomerEmail, bookingReadyCustomerEmail } from "../lib/email";
 
 const router = Router();
 
@@ -19,6 +20,12 @@ function mapBooking(row: Record<string, unknown>) {
     notes: row.notes,
     createdAt: row.created_at,
   };
+}
+
+async function getAdminNotificationEmail(): Promise<string | null> {
+  const { data } = await supabase.from("settings").select("notification_email, email").limit(1);
+  const row = data?.[0] as Record<string, unknown> | undefined;
+  return (row?.notification_email as string) || (row?.email as string) || null;
 }
 
 router.get("/bookings", async (req, res) => {
@@ -98,6 +105,26 @@ router.post("/bookings", async (req, res) => {
       notes: notes ?? null,
     }).select().single();
     if (error) throw error;
+
+    const adminEmail = await getAdminNotificationEmail();
+    if (adminEmail) {
+      sendEmail({
+        to: [{ email: adminEmail }],
+        subject: `New booking — ${customerName} on ${date}`,
+        htmlContent: newBookingAdminEmail({
+          customerName,
+          customerEmail: customerEmail ?? undefined,
+          customerPhone,
+          serviceName: service.name,
+          servicePrice: service.price,
+          date,
+          time,
+          notes: notes ?? undefined,
+        }),
+        ...(customerEmail ? { replyTo: { email: customerEmail, name: customerName } } : {}),
+      }).catch(err => logger.error({ err }, "New booking admin email failed"));
+    }
+
     return res.status(201).json(mapBooking(data));
   } catch (err) {
     logger.error({ err }, "Create booking error");
@@ -134,9 +161,47 @@ router.put("/bookings/:id", async (req, res) => {
       if (svc) { updates.service_name = svc.name; updates.service_price = svc.price; }
     }
 
+    const { data: existingRow } = await supabase.from("bookings").select("*").eq("id", parseInt(req.params.id)).single();
+
     const { data, error } = await supabase.from("bookings").update(updates).eq("id", parseInt(req.params.id)).select().single();
     if (error || !data) return res.status(404).json({ error: "Not found" });
-    return res.json(mapBooking(data));
+
+    const booking = mapBooking(data);
+    const prevStatus = existingRow?.status;
+    const newStatus = status ?? prevStatus;
+    const custEmail = booking.customerEmail as string | null;
+
+    if (custEmail && prevStatus !== newStatus) {
+      const { data: settingsRows } = await supabase.from("settings").select("phone").limit(1);
+      const businessPhone = settingsRows?.[0]?.phone ?? "07717 310 046";
+
+      if (newStatus === "confirmed") {
+        sendEmail({
+          to: [{ email: custEmail, name: booking.customerName as string }],
+          subject: "Your booking is confirmed — Smart Shine Car Valeting",
+          htmlContent: bookingConfirmedCustomerEmail({
+            customerName: booking.customerName as string,
+            serviceName: booking.serviceName as string,
+            date: booking.date as string,
+            time: booking.time as string,
+            businessPhone,
+          }),
+        }).catch(err => logger.error({ err }, "Booking confirmed email failed"));
+      } else if (newStatus === "done") {
+        sendEmail({
+          to: [{ email: custEmail, name: booking.customerName as string }],
+          subject: "Your car is ready! — Smart Shine Car Valeting",
+          htmlContent: bookingReadyCustomerEmail({
+            customerName: booking.customerName as string,
+            serviceName: booking.serviceName as string,
+            date: booking.date as string,
+            businessPhone,
+          }),
+        }).catch(err => logger.error({ err }, "Booking done email failed"));
+      }
+    }
+
+    return res.json(booking);
   } catch (err) {
     logger.error({ err }, "Update booking error");
     return res.status(500).json({ error: "Internal server error" });

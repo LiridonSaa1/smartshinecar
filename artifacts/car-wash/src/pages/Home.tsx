@@ -320,10 +320,22 @@ function HomeContactForm() {
     "Other / Not sure",
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSending(true);
-    setTimeout(() => { setSending(false); setSent(true); }, 1200);
+    try {
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, source: "home" }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      setSent(true);
+    } catch {
+      alert("Sorry, there was a problem sending your message. Please call us directly.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (

@@ -8,6 +8,7 @@ import analyticsRouter from "./analytics";
 import settingsRouter from "./settings";
 import contentRouter from "./content";
 import storageRouter from "./storage";
+import messagesRouter from "./messages";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(analyticsRouter);
 router.use(settingsRouter);
 router.use(contentRouter);
 router.use(storageRouter);
+router.use(messagesRouter);
 
 export default router;

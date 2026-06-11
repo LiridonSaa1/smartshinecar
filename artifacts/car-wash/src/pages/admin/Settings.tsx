@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 import { toast } from "sonner";
 
 const ALL_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -22,20 +23,27 @@ export default function AdminSettings() {
     openTime: "08:00",
     closeTime: "19:00",
     slotDuration: 30,
-    workingDays: ALL_DAYS,
+    workingDays: ALL_DAYS as string[],
+    notificationEmail: "",
+    logoUrl: "",
+    faviconUrl: "",
   });
 
   useEffect(() => {
     if (settings) {
+      const s = settings as Record<string, unknown>;
       setForm({
-        businessName: settings.businessName,
-        address: settings.address,
-        phone: settings.phone,
-        email: settings.email,
-        openTime: settings.openTime,
-        closeTime: settings.closeTime,
-        slotDuration: settings.slotDuration,
-        workingDays: settings.workingDays,
+        businessName: settings.businessName as string ?? "",
+        address: settings.address as string ?? "",
+        phone: settings.phone as string ?? "",
+        email: settings.email as string ?? "",
+        openTime: settings.openTime as string ?? "08:00",
+        closeTime: settings.closeTime as string ?? "19:00",
+        slotDuration: settings.slotDuration as number ?? 30,
+        workingDays: (settings.workingDays as string[]) ?? ALL_DAYS,
+        notificationEmail: (s.notificationEmail as string) ?? "",
+        logoUrl: (s.logoUrl as string) ?? "",
+        faviconUrl: (s.faviconUrl as string) ?? "",
       });
     }
   }, [settings]);
@@ -51,7 +59,7 @@ export default function AdminSettings() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    updateSettings.mutate({ data: form }, {
+    updateSettings.mutate({ data: form as Record<string, unknown> }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetSettingsQueryKey() });
         toast.success("Settings saved.");
@@ -74,6 +82,32 @@ export default function AdminSettings() {
           </div>
         ) : (
           <form onSubmit={handleSave} className="space-y-6">
+            {/* Branding */}
+            <div className="bg-card border border-border rounded-2xl p-6 space-y-5">
+              <h2 className="font-semibold text-card-foreground">Branding</h2>
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Logo</label>
+                  <ImageUpload
+                    value={form.logoUrl}
+                    onChange={url => setForm(f => ({ ...f, logoUrl: url }))}
+                    label="Upload Logo"
+                    previewClassName="h-20 object-contain"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Favicon</label>
+                  <ImageUpload
+                    value={form.faviconUrl}
+                    onChange={url => setForm(f => ({ ...f, faviconUrl: url }))}
+                    label="Upload Favicon"
+                    previewClassName="h-12 w-12 object-contain"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1.5">Recommended: 32×32 or 64×64 PNG/ICO</p>
+                </div>
+              </div>
+            </div>
+
             {/* Business Info */}
             <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
               <h2 className="font-semibold text-card-foreground">Business Information</h2>
@@ -91,9 +125,19 @@ export default function AdminSettings() {
                   <Input data-testid="input-business-phone" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1.5 block">Email</label>
+                  <label className="text-sm font-medium mb-1.5 block">Contact Email</label>
                   <Input data-testid="input-business-email" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
                 </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Notification Email</label>
+                <Input
+                  type="email"
+                  placeholder="admin@yourbusiness.com"
+                  value={form.notificationEmail}
+                  onChange={e => setForm(f => ({ ...f, notificationEmail: e.target.value }))}
+                />
+                <p className="text-xs text-muted-foreground mt-1.5">New bookings and contact messages will be emailed here.</p>
               </div>
             </div>
 

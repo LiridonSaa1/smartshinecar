@@ -22,6 +22,7 @@ import AdminServices from "@/pages/admin/Services";
 import AdminAnalytics from "@/pages/admin/Analytics";
 import AdminSettings from "@/pages/admin/Settings";
 import AdminContent from "@/pages/admin/Content";
+import AdminMessages from "@/pages/admin/Messages";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -50,6 +51,7 @@ function Router() {
       <Route path="/admin/analytics" component={AdminAnalytics} />
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/admin/content" component={AdminContent} />
+      <Route path="/admin/messages" component={AdminMessages} />
       <Route component={NotFound} />
     </Switch>
   );

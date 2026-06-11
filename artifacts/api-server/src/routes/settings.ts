@@ -33,6 +33,9 @@ function mapSettings(row: Record<string, unknown>) {
     closeTime: row.close_time,
     slotDuration: row.slot_duration,
     workingDays: days,
+    notificationEmail: row.notification_email ?? null,
+    logoUrl: row.logo_url ?? null,
+    faviconUrl: row.favicon_url ?? null,
   };
 }
 
@@ -51,7 +54,10 @@ router.put("/settings", async (req, res) => {
   try {
     const settings = await ensureSettings();
     if (!settings) return res.status(500).json({ error: "Could not load settings" });
-    const { businessName, address, phone, email, openTime, closeTime, slotDuration, workingDays } = req.body;
+    const {
+      businessName, address, phone, email, openTime, closeTime,
+      slotDuration, workingDays, notificationEmail, logoUrl, faviconUrl,
+    } = req.body;
     const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
     if (businessName !== undefined) updates.business_name = businessName;
     if (address !== undefined) updates.address = address;
@@ -61,6 +67,9 @@ router.put("/settings", async (req, res) => {
     if (closeTime !== undefined) updates.close_time = closeTime;
     if (slotDuration !== undefined) updates.slot_duration = slotDuration;
     if (workingDays !== undefined) updates.working_days = Array.isArray(workingDays) ? workingDays.join(",") : workingDays;
+    if (notificationEmail !== undefined) updates.notification_email = notificationEmail;
+    if (logoUrl !== undefined) updates.logo_url = logoUrl;
+    if (faviconUrl !== undefined) updates.favicon_url = faviconUrl;
 
     const { data, error } = await supabase.from("settings").update(updates).eq("id", settings.id).select().single();
     if (error || !data) return res.status(500).json({ error: "Update failed" });

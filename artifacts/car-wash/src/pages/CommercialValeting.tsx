@@ -223,13 +223,22 @@ function ContactForm() {
     "Other / Not sure",
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSending(true);
-    setTimeout(() => {
-      setSending(false);
+    try {
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, source: "commercial-valeting" }),
+      });
+      if (!res.ok) throw new Error("Failed");
       setSent(true);
-    }, 1200);
+    } catch {
+      alert("Sorry, there was a problem sending your message. Please call us directly.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -522,8 +531,8 @@ function ContactForm() {
 
 const CV_HERO_DEFAULT = { slides: HERO_SLIDES };
 const CV_INTRO_DEFAULT = { heading: "Top-class commercial vehicle valeting service in Guildford", paragraph: "Commercial vehicles see much more wear and tear than private cars due to the amount of usage, and therefore need regular valeting. Count on Smart Shine Car Valeting Centre to clean your car or van and bring its shine back. We offer full valet and part valet services at competitive prices. Whether you need interior valeting or exterior valeting, you can rely on us." };
-const CV_BODY_DEFAULT = { heading: "Commercial valeting", paragraph1: "Do you run a business which utilises a fleet of commercial vehicles, or provides transportation services? We understand that cleaning the vehicles could be a difficult task.", paragraph2: "Leave the job to our experienced and detail-oriented car valeting experts at Smart Shine Car Valeting Centre for a cost-effective solution to keep all your commercial vehicles looking their best. Whether you have bought a used vehicle or you want to sell one of your vehicles, rely on our specialists to give it the best look and increase its value.", paragraph3: "We offer car scratch removal, dent removal and machine polish at affordable prices. Based in Guildford, we welcome customers from Godalming, Woking and the surrounding areas. Get in touch with us and let us know your requirements." };
-const CV_SERVICES_DEFAULT = { items: SERVICES };
+const CV_BODY_DEFAULT = { heading: "Commercial valeting", paragraph1: "Do you run a business which utilises a fleet of commercial vehicles, or provides transportation services? We understand that cleaning the vehicles could be a difficult task.", paragraph2: "Leave the job to our experienced and detail-oriented car valeting experts at Smart Shine Car Valeting Centre for a cost-effective solution to keep all your commercial vehicles looking their best. Whether you have bought a used vehicle or you want to sell one of your vehicles, rely on our specialists to give it the best look and increase its value.", paragraph3: "We offer car scratch removal, dent removal and machine polish at affordable prices. Based in Guildford, we welcome customers from Godalming, Woking and the surrounding areas. Get in touch with us and let us know your requirements.", image: "" };
+const CV_SERVICES_DEFAULT = { items: SERVICES.map(s => ({ label: s, image: "" })) };
 
 export default function CommercialValeting() {
   const heroContent = useContentSection("cv_hero", CV_HERO_DEFAULT);
@@ -607,7 +616,7 @@ export default function CommercialValeting() {
             <FadeIn direction="right" delay={0.15}>
               <div className="rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
                 <img
-                  src={kenworthImg}
+                  src={(body as typeof CV_BODY_DEFAULT).image || kenworthImg}
                   alt="Commercial vehicle valeting truck"
                   className="w-full h-80 object-cover"
                 />
@@ -659,7 +668,7 @@ export default function CommercialValeting() {
                       <CheckCircle className="h-3.5 w-3.5 text-blue-600" />
                     </div>
                     <span className="text-gray-800 font-medium text-[15px]">
-                      {s}
+                      {typeof s === "string" ? s : (s as { label: string }).label}
                     </span>
                   </motion.li>
                 ))}

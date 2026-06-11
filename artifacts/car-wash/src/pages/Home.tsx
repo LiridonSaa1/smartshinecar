@@ -67,6 +67,7 @@ const COMPLETE_DEFAULT = {
   heading: "A complete valeting service",
   paragraph1: "At Smart Shine Car Valeting Centre we value our customers and we strive to satisfy your individual requirements. We are happy to spend as much time as necessary on your car to ensure that you receive the standard of service that you expect and deserve.",
   paragraph2: "Based in Guildford, we welcome both private and commercial clients from Godalming, Woking and the surrounding areas. We have a wide range of packages to choose from, at competitive prices to suit any budget. We also offer car scratch removal and machine polish.",
+  image: "",
 };
 
 function HeroCarousel({ hero }: { hero: typeof HERO_SLIDES_DEFAULT }) {
@@ -549,7 +550,7 @@ export default function Home() {
           {/* Image — full bleed */}
           <FadeIn direction="left" className="overflow-hidden min-h-[420px]">
             <img
-              src={completeImg}
+              src={completeData.image || completeImg}
               alt="Complete Valeting Service"
               className="w-full h-full object-cover object-center min-h-[420px]"
             />

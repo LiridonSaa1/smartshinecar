@@ -214,6 +214,7 @@ const DEFAULT_COMPLETE = {
   heading: "A complete valeting service",
   paragraph1: "At Smart Shine Car Valeting Centre we value our customers and we strive to satisfy your individual requirements. We are happy to spend as much time as necessary on your car to ensure that you receive the standard of service that you expect and deserve.",
   paragraph2: "Based in Guildford, we welcome both private and commercial clients from Godalming, Woking and the surrounding areas. We have a wide range of packages to choose from, at competitive prices to suit any budget. We also offer car scratch removal and machine polish.",
+  image: "",
 };
 
 function CompleteValetingEditor() {
@@ -230,6 +231,34 @@ function CompleteValetingEditor() {
       <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Section heading</label><Input value={local.heading} onChange={e => mark({ ...local, heading: e.target.value })} placeholder="A complete valeting service" /></div>
       <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">First paragraph</label><Textarea value={local.paragraph1} rows={4} onChange={e => mark({ ...local, paragraph1: e.target.value })} className="text-sm" /></div>
       <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Second paragraph</label><Textarea value={local.paragraph2} rows={4} onChange={e => mark({ ...local, paragraph2: e.target.value })} className="text-sm" /></div>
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Section photo (URL)</label>
+        <Input
+          value={local.image ?? ""}
+          onChange={e => mark({ ...local, image: e.target.value })}
+          placeholder="https://images.unsplash.com/… or leave blank for default"
+          className="text-xs"
+        />
+        {local.image ? (
+          <div className="mt-2 relative rounded-xl overflow-hidden border border-gray-200 h-40">
+            <img
+              src={local.image}
+              alt="Preview"
+              className="w-full h-full object-cover"
+              onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+            />
+            <button
+              onClick={() => mark({ ...local, image: "" })}
+              className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow transition-colors"
+              title="Remove image"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ) : (
+          <p className="text-xs text-gray-400 mt-1.5">Leave blank to use the default photo already on the website.</p>
+        )}
+      </div>
       <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
     </div>
   );

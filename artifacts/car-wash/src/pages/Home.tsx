@@ -17,7 +17,7 @@ import whyUsImg from "@assets/469415684_588164513901484_5794834001610611799_n_17
 
 import completeImg from "@assets/516887103_745437798174154_273580891758286555_n_1781127553222.jpg";
 
-const HERO_SLIDES = [
+const HERO_SLIDES_DEFAULT = [
   {
     id: 0,
     image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=1600&q=85",
@@ -41,15 +41,38 @@ const HERO_SLIDES = [
   },
 ];
 
-function HeroCarousel() {
+const ABOUT_DEFAULT = {
+  typewriter: "Car valeting in Guildford and surrounding area",
+  heading: "About us",
+  paragraph: "Smart Shine Car Valeting Centre is a well-established business with over 25 years of experience in the valeting industry. We pride ourselves on our commitment to provide professional and high-class services to each and every client. We provide an extensive range of valeting services, including a full interior and exterior valet. Smart Shine endeavours to place customer satisfaction at the centre of all work carried out. We offer both part valet and full valet services.",
+};
+
+const STATS_DEFAULT = {
+  items: [
+    { value: "25+",    label: "Years Experience", icon: "🏆" },
+    { value: "5,000+", label: "Happy Customers",  icon: "😊" },
+    { value: "100%",   label: "Fully Insured",    icon: "🛡️" },
+    { value: "5★",     label: "Rated Service",    icon: "⭐" },
+  ],
+};
+
+const COMPLETE_DEFAULT = {
+  badge: "Our Services",
+  heading: "A complete valeting service",
+  paragraph1: "At Smart Shine Car Valeting Centre we value our customers and we strive to satisfy your individual requirements. We are happy to spend as much time as necessary on your car to ensure that you receive the standard of service that you expect and deserve.",
+  paragraph2: "Based in Guildford, we welcome both private and commercial clients from Godalming, Woking and the surrounding areas. We have a wide range of packages to choose from, at competitive prices to suit any budget. We also offer car scratch removal and machine polish.",
+};
+
+function HeroCarousel({ slides }: { slides: typeof HERO_SLIDES_DEFAULT }) {
   const [[index, dir], setSlide] = useState([0, 0]);
-  const slide = HERO_SLIDES[index];
+  const safeSlides = slides.length ? slides : HERO_SLIDES_DEFAULT;
+  const slide = safeSlides[index] ?? safeSlides[0];
 
   const go = useCallback((nextIdx: number, direction: number) => {
     setSlide([nextIdx, direction]);
   }, []);
-  const prev = () => go((index - 1 + HERO_SLIDES.length) % HERO_SLIDES.length, -1);
-  const next = useCallback(() => go((index + 1) % HERO_SLIDES.length, 1), [index, go]);
+  const prev = () => go((index - 1 + safeSlides.length) % safeSlides.length, -1);
+  const next = useCallback(() => go((index + 1) % safeSlides.length, 1), [index, go, safeSlides.length]);
 
   useEffect(() => {
     const t = setTimeout(next, 5500);
@@ -144,9 +167,9 @@ function HeroCarousel() {
       </button>
 
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5">
-        {HERO_SLIDES.map((s, i) => (
+        {safeSlides.map((s, i) => (
           <button
-            key={s.id}
+            key={i}
             onClick={() => go(i, i > index ? 1 : -1)}
             className={`transition-all duration-300 rounded-full ${i === index ? "bg-white w-8 h-2" : "bg-white/40 w-2 h-2 hover:bg-white/70"}`}
           />
@@ -414,9 +437,18 @@ function HomeContactForm() {
 
 export default function Home() {
   const { data: reviews } = useListReviews();
+  const heroContent = useContentSection("hero_slides", { slides: HERO_SLIDES_DEFAULT });
+  const aboutContent = useContentSection("about_us", ABOUT_DEFAULT);
+  const statsContent = useContentSection("stats_cards", STATS_DEFAULT);
+  const completeContent = useContentSection("complete_valeting", COMPLETE_DEFAULT);
   const whyContent = useContentSection("why_choose_us", WHY_DEFAULT_CONTENT);
   const carServicesContent = useContentSection("car_vehicle_services", CAR_SERVICES_DEFAULT);
   const getInTouchContent = useContentSection("get_in_touch", GET_IN_TOUCH_DEFAULT);
+
+  const heroSlides = (heroContent as { slides?: typeof HERO_SLIDES_DEFAULT } | null)?.slides ?? HERO_SLIDES_DEFAULT;
+  const aboutData = (aboutContent as typeof ABOUT_DEFAULT | null) ?? ABOUT_DEFAULT;
+  const statsData = (statsContent as typeof STATS_DEFAULT | null)?.items ?? STATS_DEFAULT.items;
+  const completeData = (completeContent as typeof COMPLETE_DEFAULT | null) ?? COMPLETE_DEFAULT;
 
   const displayReviews = reviews?.slice(0, 3).length ? reviews.slice(0, 3) : REVIEWS;
   const whyCards = (whyContent as typeof WHY_DEFAULT_CONTENT).cards ?? WHY_CARDS_DEFAULT;
@@ -432,7 +464,7 @@ export default function Home() {
       <Navbar />
 
       {/* 1. CAROUSEL */}
-      <HeroCarousel />
+      <HeroCarousel slides={heroSlides} />
 
       {/* 2. ABOUT US */}
       <section className="py-0">
@@ -446,7 +478,7 @@ export default function Home() {
                 color: "transparent",
               }}
             >
-              <Typewriter text="Car valeting in Guildford and surrounding area" />
+              <Typewriter text={aboutData.typewriter ?? ABOUT_DEFAULT.typewriter} />
             </h2>
           </FadeIn>
         </div>
@@ -455,12 +487,9 @@ export default function Home() {
         <div className="bg-gray-100 pt-10 pb-16">
           <div className="mx-auto max-w-4xl px-6 text-center">
             <FadeIn>
-              <h3 className="text-2xl font-black text-[#0a0f2e] mb-6">About us</h3>
+              <h3 className="text-2xl font-black text-[#0a0f2e] mb-6">{aboutData.heading ?? ABOUT_DEFAULT.heading}</h3>
               <p className="text-gray-600 leading-loose text-[15px] max-w-3xl mx-auto">
-                Smart Shine Car Valeting Centre is a well-established business with over 25 years of experience in the valeting industry.
-                We pride ourselves on our commitment to provide professional and high-class services to each and every client. We
-                provide an extensive range of valeting services, including a full interior and exterior valet. Smart Shine endeavours to place
-                customer satisfaction at the centre of all work carried out. We offer both part valet and full valet services.
+                {aboutData.paragraph ?? ABOUT_DEFAULT.paragraph}
               </p>
             </FadeIn>
           </div>
@@ -470,12 +499,10 @@ export default function Home() {
         <div className="bg-gray-100 pb-10 px-6">
           <div className="mx-auto max-w-5xl">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { value: "25+", label: "Years Experience", icon: "🏆", color: "from-blue-600 to-blue-800" },
-                { value: "5,000+", label: "Happy Customers", icon: "😊", color: "from-indigo-600 to-indigo-800" },
-                { value: "100%", label: "Fully Insured", icon: "🛡️", color: "from-blue-700 to-[#0a0f2e]" },
-                { value: "5★", label: "Rated Service", icon: "⭐", color: "from-[#0a0f2e] to-blue-900" },
-              ].map(({ value, label, icon, color }, i) => (
+              {statsData.map(({ value, label, icon }, i) => {
+                const colors = ["from-blue-600 to-blue-800", "from-indigo-600 to-indigo-800", "from-blue-700 to-[#0a0f2e]", "from-[#0a0f2e] to-blue-900"];
+                const color = colors[i % colors.length];
+                return (
                 <motion.div
                   key={label}
                   initial={{ opacity: 0, y: 30 }}
@@ -495,7 +522,8 @@ export default function Home() {
                     <p className="text-blue-200 text-[12px] font-bold uppercase tracking-widest">{label}</p>
                   </div>
                 </motion.div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
@@ -520,19 +548,17 @@ export default function Home() {
           {/* Text */}
           <FadeIn direction="right" delay={0.15} className="flex items-center px-10 md:px-16 py-16">
             <div>
-              <span className="inline-block text-blue-400 text-xs font-bold tracking-widest uppercase mb-4">Our Services</span>
+              <span className="inline-block text-blue-400 text-xs font-bold tracking-widest uppercase mb-4">
+                {completeData.badge ?? COMPLETE_DEFAULT.badge}
+              </span>
               <h2 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight">
-                A complete valeting service
+                {completeData.heading ?? COMPLETE_DEFAULT.heading}
               </h2>
               <p className="text-white/75 leading-relaxed mb-5 text-[15px]">
-                At Smart Shine Car Valeting Centre we value our customers and we strive to satisfy your individual requirements.
-                We are happy to spend as much time as necessary on your car to ensure that you receive the standard of service
-                that you expect and deserve.
+                {completeData.paragraph1 ?? COMPLETE_DEFAULT.paragraph1}
               </p>
               <p className="text-white/75 leading-relaxed mb-8 text-[15px]">
-                Based in Guildford, we welcome both private and commercial clients from Godalming, Woking and the surrounding areas.
-                We have a wide range of packages to choose from, at competitive prices to suit any budget. We also offer car scratch
-                removal and machine polish.
+                {completeData.paragraph2 ?? COMPLETE_DEFAULT.paragraph2}
               </p>
               <div className="flex flex-wrap gap-3">
                 <Link href="/private-valeting">

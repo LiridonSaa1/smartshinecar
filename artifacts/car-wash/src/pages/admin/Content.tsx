@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Car, Sparkles, Star, Phone, MapPin, Wrench, ListChecks,
   Image, Check, Loader2, Plus, Trash2, ChevronRight,
+  GalleryHorizontal, Info, BarChart3, Layers,
 } from "lucide-react";
 
 const API = "/api/content";
@@ -465,7 +466,206 @@ function GalleryBrandsEditor() {
   );
 }
 
+const DEFAULT_HERO = {
+  slides: [
+    { headline: "Premium Car\nValeting Service", sub: "Professional valeting that restores your vehicle to showroom condition. Serving Guildford and surrounding areas.", image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=1600&q=85" },
+    { headline: "Showroom Finish,\nEvery Time", sub: "Deep paint correction and interior detailing to restore your vehicle to pristine condition.", image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=1600&q=85" },
+    { headline: "Trusted by\nThousands of Drivers", sub: "Over 25 years of experience. Over 5,000 happy customers. Experience the Smart Shine difference.", image: "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=1600&q=85" },
+  ],
+};
+
+function HeroSlidesEditor() {
+  const { data, isLoading } = useSection("hero_slides", DEFAULT_HERO);
+  const save = useSave("hero_slides");
+  const [local, setLocal] = useState(DEFAULT_HERO);
+  const [dirty, setDirty] = useState(false);
+
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_HERO); setDirty(false); } }, [data]);
+
+  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
+  const updateSlide = (i: number, field: "headline" | "sub" | "image", val: string) => {
+    const slides = [...local.slides];
+    slides[i] = { ...slides[i], [field]: val };
+    mark({ ...local, slides });
+  };
+  const addSlide = () => mark({ ...local, slides: [...local.slides, { headline: "", sub: "", image: "" }] });
+  const removeSlide = (i: number) => mark({ ...local, slides: local.slides.filter((_, j) => j !== i) });
+
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm text-gray-500">Edit the hero carousel slides shown at the top of the homepage.</p>
+        <Button size="sm" variant="outline" onClick={addSlide} className="text-xs h-8 flex-shrink-0">
+          <Plus className="h-3.5 w-3.5 mr-1" />Add slide
+        </Button>
+      </div>
+      <div className="space-y-4 max-h-[480px] overflow-y-auto pr-1">
+        {local.slides.map((slide, i) => (
+          <div key={i} className="border border-gray-200 rounded-xl p-4 bg-gray-50 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Slide {i + 1}</span>
+              <Button size="icon" variant="ghost" onClick={() => removeSlide(i)} className="text-gray-400 hover:text-red-500 h-7 w-7">
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">Headline (use \n for line break)</label>
+              <Textarea value={slide.headline} rows={2} onChange={e => updateSlide(i, "headline", e.target.value)} className="text-sm font-bold" placeholder="Premium Car\nValeting Service" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">Subtitle</label>
+              <Textarea value={slide.sub} rows={2} onChange={e => updateSlide(i, "sub", e.target.value)} className="text-sm" placeholder="Subtitle text…" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">Background image URL</label>
+              <Input value={slide.image} onChange={e => updateSlide(i, "image", e.target.value)} className="text-xs" placeholder="https://images.unsplash.com/…" />
+              {slide.image && <img src={slide.image} alt="" className="mt-2 h-20 w-full object-cover rounded-lg" onError={e => (e.currentTarget.style.display = "none")} />}
+            </div>
+          </div>
+        ))}
+      </div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+const DEFAULT_ABOUT = {
+  typewriter: "Car valeting in Guildford and surrounding area",
+  heading: "About us",
+  paragraph: "Smart Shine Car Valeting Centre is a well-established business with over 25 years of experience in the valeting industry. We pride ourselves on our commitment to provide professional and high-class services to each and every client. We provide an extensive range of valeting services, including a full interior and exterior valet. Smart Shine endeavours to place customer satisfaction at the centre of all work carried out. We offer both part valet and full valet services.",
+};
+
+function AboutUsEditor() {
+  const { data, isLoading } = useSection("about_us", DEFAULT_ABOUT);
+  const save = useSave("about_us");
+  const [local, setLocal] = useState(DEFAULT_ABOUT);
+  const [dirty, setDirty] = useState(false);
+
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_ABOUT); setDirty(false); } }, [data]);
+  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
+
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Typewriter animated text</label>
+        <Input value={local.typewriter} onChange={e => mark({ ...local, typewriter: e.target.value })} placeholder="Car valeting in Guildford and surrounding area" />
+        <p className="text-xs text-gray-400 mt-1">This text types itself out on the homepage banner.</p>
+      </div>
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Section heading</label>
+        <Input value={local.heading} onChange={e => mark({ ...local, heading: e.target.value })} placeholder="About us" />
+      </div>
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-1.5">About us paragraph</label>
+        <Textarea value={local.paragraph} rows={6} onChange={e => mark({ ...local, paragraph: e.target.value })} className="text-sm" />
+      </div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+const DEFAULT_STATS = {
+  items: [
+    { value: "25+",    label: "Years Experience", icon: "🏆" },
+    { value: "5,000+", label: "Happy Customers",  icon: "😊" },
+    { value: "100%",   label: "Fully Insured",    icon: "🛡️" },
+    { value: "5★",     label: "Rated Service",    icon: "⭐" },
+  ],
+};
+
+function StatsEditor() {
+  const { data, isLoading } = useSection("stats_cards", DEFAULT_STATS);
+  const save = useSave("stats_cards");
+  const [local, setLocal] = useState(DEFAULT_STATS);
+  const [dirty, setDirty] = useState(false);
+
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_STATS); setDirty(false); } }, [data]);
+  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
+  const updateItem = (i: number, field: "value" | "label" | "icon", val: string) => {
+    const items = [...local.items];
+    items[i] = { ...items[i], [field]: val };
+    mark({ ...local, items });
+  };
+  const addItem = () => mark({ ...local, items: [...local.items, { value: "", label: "", icon: "⭐" }] });
+  const removeItem = (i: number) => mark({ ...local, items: local.items.filter((_, j) => j !== i) });
+
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm text-gray-500">Stats cards shown below the About Us section.</p>
+        <Button size="sm" variant="outline" onClick={addItem} className="text-xs h-8 flex-shrink-0">
+          <Plus className="h-3.5 w-3.5 mr-1" />Add stat
+        </Button>
+      </div>
+      <div className="space-y-2">
+        {local.items.map((item, i) => (
+          <div key={i} className="flex gap-2 items-center border border-gray-100 rounded-xl p-3 bg-gray-50">
+            <Input value={item.icon} onChange={e => updateItem(i, "icon", e.target.value)} className="w-14 text-center text-lg flex-shrink-0" placeholder="🏆" />
+            <Input value={item.value} onChange={e => updateItem(i, "value", e.target.value)} className="w-24 text-sm font-bold flex-shrink-0" placeholder="25+" />
+            <Input value={item.label} onChange={e => updateItem(i, "label", e.target.value)} className="flex-1 text-sm" placeholder="Years Experience" />
+            <Button size="icon" variant="ghost" onClick={() => removeItem(i)} className="text-gray-400 hover:text-red-500 h-8 w-8 flex-shrink-0">
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        ))}
+      </div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+const DEFAULT_COMPLETE = {
+  badge: "Our Services",
+  heading: "A complete valeting service",
+  paragraph1: "At Smart Shine Car Valeting Centre we value our customers and we strive to satisfy your individual requirements. We are happy to spend as much time as necessary on your car to ensure that you receive the standard of service that you expect and deserve.",
+  paragraph2: "Based in Guildford, we welcome both private and commercial clients from Godalming, Woking and the surrounding areas. We have a wide range of packages to choose from, at competitive prices to suit any budget. We also offer car scratch removal and machine polish.",
+};
+
+function CompleteValetingEditor() {
+  const { data, isLoading } = useSection("complete_valeting", DEFAULT_COMPLETE);
+  const save = useSave("complete_valeting");
+  const [local, setLocal] = useState(DEFAULT_COMPLETE);
+  const [dirty, setDirty] = useState(false);
+
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_COMPLETE); setDirty(false); } }, [data]);
+  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
+
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Badge label (small uppercase text)</label>
+        <Input value={local.badge} onChange={e => mark({ ...local, badge: e.target.value })} placeholder="Our Services" />
+      </div>
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Section heading</label>
+        <Input value={local.heading} onChange={e => mark({ ...local, heading: e.target.value })} placeholder="A complete valeting service" />
+      </div>
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-1.5">First paragraph</label>
+        <Textarea value={local.paragraph1} rows={4} onChange={e => mark({ ...local, paragraph1: e.target.value })} className="text-sm" />
+      </div>
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Second paragraph</label>
+        <Textarea value={local.paragraph2} rows={4} onChange={e => mark({ ...local, paragraph2: e.target.value })} className="text-sm" />
+      </div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
 const SECTIONS = [
+  { key: "hero_slides", label: "Hero Carousel", icon: GalleryHorizontal, description: "Homepage hero slides — headlines, subtitles, images", editor: HeroSlidesEditor },
+  { key: "about_us", label: "About Us", icon: Info, description: "Typewriter text, heading and about paragraph", editor: AboutUsEditor },
+  { key: "stats_cards", label: "Stats (25+ years etc.)", icon: BarChart3, description: "The four stats cards below About Us", editor: StatsEditor },
+  { key: "complete_valeting", label: "A Complete Valeting Service", icon: Layers, description: "Dark section with badge, heading and two paragraphs", editor: CompleteValetingEditor },
   { key: "car_vehicle_services", label: "Car & Vehicle Services", icon: Car, description: "The services grid shown on the homepage", editor: CarServicesEditor },
   { key: "why_choose_us", label: "Why choose us?", icon: Sparkles, description: "Feature cards in the Why Choose Us section", editor: WhyUsEditor },
   { key: "customers_say", label: "What our customers say?", icon: Star, description: "Reviews section heading", editor: ReviewsHeaderEditor },

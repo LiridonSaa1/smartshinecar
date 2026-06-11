@@ -1,14 +1,14 @@
 import { Router } from "express";
-import { supabase } from "../lib/supabase";
+import { db, reviewsTable } from "@workspace/db";
+import { eq } from "drizzle-orm";
 import { logger } from "../lib/logger";
 
 const router = Router();
 
 router.get("/reviews", async (_req, res) => {
   try {
-    const { data, error } = await supabase.from("reviews").select("*").order("created_at");
-    if (error) throw error;
-    return res.json(data ?? []);
+    const data = await db.select().from(reviewsTable).orderBy(reviewsTable.createdAt);
+    return res.json(data);
   } catch (err) {
     logger.error({ err }, "List reviews error");
     return res.status(500).json({ error: "Internal server error" });
@@ -24,16 +24,25 @@ router.post("/reviews", async (req, res) => {
     if (rating < 1 || rating > 5) {
       return res.status(400).json({ error: "Rating must be between 1 and 5" });
     }
-    const { data, error } = await supabase.from("reviews").insert({
-      customer_name: customerName,
+    const [data] = await db.insert(reviewsTable).values({
+      customerName,
       rating,
       comment,
-      service_name: serviceName ?? null,
-    }).select().single();
-    if (error) throw error;
+      serviceName: serviceName ?? null,
+    }).returning();
     return res.status(201).json(data);
   } catch (err) {
     logger.error({ err }, "Create review error");
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.delete("/reviews/:id", async (req, res) => {
+  try {
+    await db.delete(reviewsTable).where(eq(reviewsTable.id, parseInt(req.params.id)));
+    return res.status(204).send();
+  } catch (err) {
+    logger.error({ err }, "Delete review error");
     return res.status(500).json({ error: "Internal server error" });
   }
 });

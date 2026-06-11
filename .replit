@@ -37,5 +37,3 @@ channel = "stable-25_05"
 [userenv]
 
 [userenv.shared]
-VITE_SUPABASE_URL = "https://rqtenyuyvelensqgvnxc.supabase.co"
-VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxdGVueXV5dmVsZW5zcWd2bnhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMjM2NjgsImV4cCI6MjA5NjY5OTY2OH0.dDtuRLNBZfLHxc2al0Y31t5w5dl3VfVZc-oSrJ2vSqU"

@@ -1,6 +1,5 @@
 import { Router } from "express";
-import { db, bookingsTable, reviewsTable } from "@workspace/db";
-import { sql, gte, and } from "drizzle-orm";
+import { supabase } from "../lib/supabase";
 import { logger } from "../lib/logger";
 
 const router = Router();
@@ -12,41 +11,27 @@ router.get("/analytics/dashboard", async (_req, res) => {
     startOfMonth.setDate(1);
     const monthStr = startOfMonth.toISOString().split("T")[0];
 
-    // Total bookings
-    const totalResult = await db.select({ count: sql<number>`count(*)` }).from(bookingsTable);
-    const totalBookings = Number(totalResult[0]?.count ?? 0);
+    const { data: allBookings } = await supabase.from("bookings").select("date, status, service_price");
+    const { data: allReviews } = await supabase.from("reviews").select("rating");
 
-    // Today's bookings
-    const todayResult = await db.select({ count: sql<number>`count(*)` })
-      .from(bookingsTable).where(sql`${bookingsTable.date} = ${today}`);
-    const todayBookings = Number(todayResult[0]?.count ?? 0);
+    const bookings = allBookings ?? [];
+    const reviews = allReviews ?? [];
 
-    // Month revenue
-    const revenueResult = await db.select({ sum: sql<number>`coalesce(sum(service_price::numeric), 0)` })
-      .from(bookingsTable).where(and(
-        sql`${bookingsTable.date} >= ${monthStr}`,
-        sql`${bookingsTable.status} in ('confirmed', 'in_progress', 'done')`
-      ));
-    const monthRevenue = Number(revenueResult[0]?.sum ?? 0);
-
-    // Status counts
-    const statusResult = await db.select({
-      status: bookingsTable.status,
-      count: sql<number>`count(*)`,
-    }).from(bookingsTable).groupBy(bookingsTable.status);
+    const totalBookings = bookings.length;
+    const todayBookings = bookings.filter(b => b.date === today).length;
+    const monthRevenue = bookings
+      .filter(b => b.date >= monthStr && ["confirmed", "in_progress", "done"].includes(b.status))
+      .reduce((sum, b) => sum + parseFloat(b.service_price ?? "0"), 0);
 
     const statusMap: Record<string, number> = {};
-    for (const row of statusResult) {
-      statusMap[row.status] = Number(row.count);
+    for (const b of bookings) {
+      statusMap[b.status] = (statusMap[b.status] ?? 0) + 1;
     }
 
-    // Reviews stats
-    const reviewsResult = await db.select({
-      count: sql<number>`count(*)`,
-      avg: sql<number>`coalesce(avg(rating)::numeric, 0)`,
-    }).from(reviewsTable);
-    const totalReviews = Number(reviewsResult[0]?.count ?? 0);
-    const averageRating = Number(Number(reviewsResult[0]?.avg ?? 0).toFixed(1));
+    const totalReviews = reviews.length;
+    const averageRating = totalReviews > 0
+      ? Number((reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews).toFixed(1))
+      : 0;
 
     return res.json({
       totalBookings,
@@ -71,20 +56,20 @@ router.get("/analytics/bookings-chart", async (req, res) => {
     since.setDate(since.getDate() - days);
     const sinceStr = since.toISOString().split("T")[0];
 
-    const rows = await db.select({
-      date: bookingsTable.date,
-      count: sql<number>`count(*)`,
-      revenue: sql<number>`coalesce(sum(service_price::numeric), 0)`,
-    }).from(bookingsTable)
-      .where(sql`${bookingsTable.date} >= ${sinceStr}`)
-      .groupBy(bookingsTable.date)
-      .orderBy(bookingsTable.date);
+    const { data: bookings } = await supabase.from("bookings").select("date, service_price").gte("date", sinceStr);
 
-    return res.json(rows.map(r => ({
-      date: r.date,
-      bookings: Number(r.count),
-      revenue: Number(r.revenue),
-    })));
+    const byDate: Record<string, { bookings: number; revenue: number }> = {};
+    for (const b of bookings ?? []) {
+      if (!byDate[b.date]) byDate[b.date] = { bookings: 0, revenue: 0 };
+      byDate[b.date].bookings++;
+      byDate[b.date].revenue += parseFloat(b.service_price ?? "0");
+    }
+
+    const result = Object.entries(byDate)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, v]) => ({ date, bookings: v.bookings, revenue: v.revenue }));
+
+    return res.json(result);
   } catch (err) {
     logger.error({ err }, "Bookings chart error");
     return res.status(500).json({ error: "Internal server error" });
@@ -93,22 +78,21 @@ router.get("/analytics/bookings-chart", async (req, res) => {
 
 router.get("/analytics/top-services", async (_req, res) => {
   try {
-    const rows = await db.select({
-      serviceId: bookingsTable.serviceId,
-      serviceName: bookingsTable.serviceName,
-      bookingCount: sql<number>`count(*)`,
-      totalRevenue: sql<number>`coalesce(sum(service_price::numeric), 0)`,
-    }).from(bookingsTable)
-      .groupBy(bookingsTable.serviceId, bookingsTable.serviceName)
-      .orderBy(sql`count(*) DESC`)
-      .limit(10);
+    const { data: bookings } = await supabase.from("bookings").select("service_id, service_name, service_price");
 
-    return res.json(rows.map(r => ({
-      serviceId: r.serviceId,
-      serviceName: r.serviceName,
-      bookingCount: Number(r.bookingCount),
-      totalRevenue: Number(r.totalRevenue),
-    })));
+    const byService: Record<string, { serviceId: number; serviceName: string; bookingCount: number; totalRevenue: number }> = {};
+    for (const b of bookings ?? []) {
+      const key = String(b.service_id);
+      if (!byService[key]) byService[key] = { serviceId: b.service_id, serviceName: b.service_name, bookingCount: 0, totalRevenue: 0 };
+      byService[key].bookingCount++;
+      byService[key].totalRevenue += parseFloat(b.service_price ?? "0");
+    }
+
+    const result = Object.values(byService)
+      .sort((a, b) => b.bookingCount - a.bookingCount)
+      .slice(0, 10);
+
+    return res.json(result);
   } catch (err) {
     logger.error({ err }, "Top services error");
     return res.status(500).json({ error: "Internal server error" });

@@ -1,67 +1,67 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { supabase } from "./supabase";
-import type { User, Session } from "@supabase/supabase-js";
+
+const TOKEN_KEY = "admin_token";
+const USER_KEY  = "admin_user";
+
+interface AdminUser {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+}
 
 interface AuthContextType {
   token: string | null;
-  user: User | null;
-  session: Session | null;
+  user: AdminUser | null;
   isAuthenticated: boolean;
-  login: (token: string) => void;
+  login: (token: string, user: AdminUser) => void;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   token: null,
   user: null,
-  session: null,
   isAuthenticated: false,
   login: () => {},
   logout: async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));
+  const [user, setUser]   = useState<AdminUser | null>(() => {
+    try { return JSON.parse(localStorage.getItem(USER_KEY) ?? "null"); } catch { return null; }
+  });
 
-  useEffect(() => {
-    if (!supabase) {
-      setLoading(false);
-      return;
-    }
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoading(false);
-    });
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, s) => {
-      setSession(s);
-    });
-    return () => listener.subscription.unsubscribe();
-  }, []);
-
-  const login = (token: string) => {
-    console.log("login called with token", token);
+  const login = (newToken: string, newUser: AdminUser) => {
+    localStorage.setItem(TOKEN_KEY, newToken);
+    localStorage.setItem(USER_KEY, JSON.stringify(newUser));
+    setToken(newToken);
+    setUser(newUser);
   };
 
   const logout = async () => {
-    if (supabase) await supabase.auth.signOut();
-    setSession(null);
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+    } catch { /* nuk ndal logout-in nëse API dështon */ }
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+    setToken(null);
+    setUser(null);
   };
 
-  if (loading) return null;
+  useEffect(() => {
+    if (!token) return;
+    fetch("/api/auth/me", { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => { if (!r.ok) { logout(); } })
+      .catch(() => logout());
+  }, []);
 
   return React.createElement(
     AuthContext.Provider,
-    {
-      value: {
-        token: session?.access_token ?? null,
-        user: session?.user ?? null,
-        session,
-        isAuthenticated: !!session,
-        login,
-        logout,
-      },
-    },
+    { value: { token, user, isAuthenticated: !!token, login, logout } },
     children
   );
 }

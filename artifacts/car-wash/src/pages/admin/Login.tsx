@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,20 +13,28 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [, setLocation] = useLocation();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!supabase) {
-      toast.error("Authentication is not configured. Please set Supabase credentials.");
-      return;
-    }
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) {
-      toast.error("Invalid credentials. Please try again.");
-    } else {
-      setLocation("/admin/dashboard");
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error("Kredencialet janë të gabuara. Provo përsëri.");
+      } else {
+        login(data.token, data.user);
+        setLocation("/admin/dashboard");
+      }
+    } catch {
+      toast.error("Gabim lidhjeje. Provo përsëri.");
+    } finally {
+      setLoading(false);
     }
   };
 

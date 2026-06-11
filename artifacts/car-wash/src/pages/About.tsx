@@ -1,14 +1,26 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { useGetSettings } from "@workspace/api-client-react";
+import { useContentSection } from "@/lib/useContent";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { MapPin, Phone, Mail, Clock, Shield, Star, Zap, Droplets } from "lucide-react";
+import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
+const DEFAULT_ABOUT_FEATURES = {
+  items: [
+    { icon: "🛡️", title: "Satisfaction Guaranteed", desc: "100% satisfaction or we redo it free" },
+    { icon: "⚡", title: "Fast & Efficient", desc: "Quick turnaround without cutting corners" },
+    { icon: "⭐", title: "Premium Products", desc: "We use only high-grade cleaning products" },
+    { icon: "💧", title: "Water Efficient", desc: "Eco-conscious water usage techniques" },
+  ],
+};
+
 export default function About() {
   const { data: settings } = useGetSettings();
+  const featuresContent = useContentSection("about_features", DEFAULT_ABOUT_FEATURES) as typeof DEFAULT_ABOUT_FEATURES;
+  const features = featuresContent?.items ?? DEFAULT_ABOUT_FEATURES.items;
 
   const days = settings?.workingDays ?? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -17,13 +29,6 @@ export default function About() {
     toast.success("Message sent! We'll get back to you soon.");
     (e.target as HTMLFormElement).reset();
   };
-
-  const features = [
-    { icon: Shield, title: "Satisfaction Guaranteed", desc: "100% satisfaction or we redo it free" },
-    { icon: Zap, title: "Fast & Efficient", desc: "Quick turnaround without cutting corners" },
-    { icon: Star, title: "Premium Products", desc: "We use only high-grade cleaning products" },
-    { icon: Droplets, title: "Water Efficient", desc: "Eco-conscious water usage techniques" },
-  ];
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -60,8 +65,8 @@ export default function About() {
                   transition={{ delay: i * 0.1 }}
                   className="bg-card border border-border rounded-2xl p-6 text-center hover:shadow-md transition-shadow"
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 mx-auto mb-4">
-                    <f.icon className="h-6 w-6 text-primary" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 mx-auto mb-4 text-2xl">
+                    {f.icon}
                   </div>
                   <h3 className="font-semibold text-card-foreground mb-2">{f.title}</h3>
                   <p className="text-sm text-muted-foreground">{f.desc}</p>

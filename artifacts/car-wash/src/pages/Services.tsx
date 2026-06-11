@@ -2,6 +2,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
 import { CookieBanner } from "@/components/ui/CookieBanner";
 import { useListServices } from "@workspace/api-client-react";
+import { useContentSection } from "@/lib/useContent";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,8 +17,14 @@ const serviceImages: Record<string, string> = {
   "Detailing": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80",
 };
 
+const DEFAULT_SERVICES_HERO = {
+  title: "Premium Car Care Services",
+  subtitle: "From a quick exterior rinse to a full premium detailing — we have the perfect service for your car.",
+};
+
 export default function Services() {
   const { data: services, isLoading } = useListServices();
+  const hero = useContentSection("services_hero", DEFAULT_SERVICES_HERO) as typeof DEFAULT_SERVICES_HERO;
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -32,10 +39,10 @@ export default function Services() {
                 Our Services
               </div>
               <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-                Premium Car Care Services
+                {hero.title}
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                From a quick exterior rinse to a full premium detailing — we have the perfect service for your car.
+                {hero.subtitle}
               </p>
             </motion.div>
           </div>

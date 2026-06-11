@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import {
   Car, Sparkles, Star, Phone, MapPin, Wrench, ListChecks,
   Image, Check, Loader2, Plus, Trash2, ChevronRight,
-  GalleryHorizontal, Info, BarChart3, Layers,
+  GalleryHorizontal, Info, BarChart3, Layers, Home,
+  Contact, Briefcase, Shield,
 } from "lucide-react";
 
 const API = "/api/content";
@@ -57,415 +58,7 @@ function SaveBar({ dirty, saving, onSave }: { dirty: boolean; saving: boolean; o
   );
 }
 
-const DEFAULT_CAR_SERVICES = {
-  subtitle: "From a quick hand wash to full paint correction — we cover everything your vehicle needs.",
-  items: [
-    { label: "Car & Vehicle Valeting", icon: "🚗" },
-    { label: "Car Buffing", icon: "✨" },
-    { label: "Car Detailing", icon: "🔍" },
-    { label: "Car Scratch Repairs", icon: "🛠️" },
-    { label: "Car Valeting", icon: "🧽" },
-    { label: "Car Wash", icon: "💧" },
-    { label: "Commercial Vehicle Valeting", icon: "🚐" },
-    { label: "Deep Cleaning", icon: "🧹" },
-    { label: "Dent Removal", icon: "🔧" },
-    { label: "Exterior Valet", icon: "🌟" },
-    { label: "Hand Car Wash", icon: "🤲" },
-    { label: "Interior Valet", icon: "💺" },
-    { label: "Machine Polish", icon: "⚙️" },
-    { label: "Mini Valets", icon: "⚡" },
-    { label: "Private Vehicle Valeting", icon: "🔑" },
-    { label: "Stain Removal Services", icon: "🪣" },
-    { label: "Wheel Cleaning", icon: "🔵" },
-  ],
-};
-
-function CarServicesEditor() {
-  const { data, isLoading } = useSection("car_vehicle_services", DEFAULT_CAR_SERVICES);
-  const save = useSave("car_vehicle_services");
-  const [local, setLocal] = useState(DEFAULT_CAR_SERVICES);
-  const [dirty, setDirty] = useState(false);
-
-  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_CAR_SERVICES); setDirty(false); } }, [data]);
-
-  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
-
-  const addItem = () => mark({ ...local, items: [...local.items, { label: "", icon: "🚗" }] });
-  const removeItem = (i: number) => mark({ ...local, items: local.items.filter((_, j) => j !== i) });
-  const updateItem = (i: number, field: "label" | "icon", val: string) => {
-    const items = [...local.items];
-    items[i] = { ...items[i], [field]: val };
-    mark({ ...local, items });
-  };
-
-  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
-
-  return (
-    <div>
-      <div className="mb-6">
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Section subtitle</label>
-        <Textarea
-          value={local.subtitle}
-          rows={2}
-          onChange={e => mark({ ...local, subtitle: e.target.value })}
-          className="text-sm"
-        />
-      </div>
-
-      <div className="mb-4">
-        <div className="flex items-center justify-between mb-3">
-          <label className="text-sm font-semibold text-gray-700">Services ({local.items.length})</label>
-          <Button size="sm" variant="outline" onClick={addItem} className="text-xs h-8">
-            <Plus className="h-3.5 w-3.5 mr-1" />Add service
-          </Button>
-        </div>
-        <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
-          {local.items.map((item, i) => (
-            <div key={i} className="flex gap-2 items-center">
-              <Input
-                value={item.icon}
-                onChange={e => updateItem(i, "icon", e.target.value)}
-                className="w-16 text-center text-lg"
-                placeholder="🚗"
-              />
-              <Input
-                value={item.label}
-                onChange={e => updateItem(i, "label", e.target.value)}
-                className="flex-1 text-sm"
-                placeholder="Service name"
-              />
-              <Button size="icon" variant="ghost" onClick={() => removeItem(i)} className="text-gray-400 hover:text-red-500 h-8 w-8 flex-shrink-0">
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
-    </div>
-  );
-}
-
-const DEFAULT_WHY = {
-  subtitle: "Over 25 years of experience, competitive prices, and results you can see.",
-  cards: [
-    { emoji: "🏆", title: "25 Years Experience", desc: "Over two decades of professional valeting expertise in Guildford" },
-    { emoji: "⭐", title: "5-Star Rated", desc: "Consistently top-rated by hundreds of happy customers" },
-    { emoji: "🛡️", title: "Fully Insured", desc: "All work fully insured for your complete peace of mind" },
-    { emoji: "✅", title: "Showroom Standards", desc: "Meticulous attention to detail on every single vehicle" },
-    { emoji: "💷", title: "Competitive Rates", desc: "Premium quality service at prices to suit any budget" },
-    { emoji: "🚐", title: "Private & Commercial", desc: "Cars, vans, and commercial vehicles all welcome" },
-    { emoji: "🔧", title: "Dent & Scratch Repair", desc: "We also handle dent removal and machine polish" },
-    { emoji: "🕐", title: "Mon – Sun 08–19", desc: "Open 7 days a week — book at a time that suits you" },
-  ],
-};
-
-function WhyUsEditor() {
-  const { data, isLoading } = useSection("why_choose_us", DEFAULT_WHY);
-  const save = useSave("why_choose_us");
-  const [local, setLocal] = useState(DEFAULT_WHY);
-  const [dirty, setDirty] = useState(false);
-
-  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_WHY); setDirty(false); } }, [data]);
-
-  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
-  const addCard = () => mark({ ...local, cards: [...local.cards, { emoji: "⭐", title: "", desc: "" }] });
-  const removeCard = (i: number) => mark({ ...local, cards: local.cards.filter((_, j) => j !== i) });
-  const updateCard = (i: number, field: "emoji" | "title" | "desc", val: string) => {
-    const cards = [...local.cards];
-    cards[i] = { ...cards[i], [field]: val };
-    mark({ ...local, cards });
-  };
-
-  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
-
-  return (
-    <div>
-      <div className="mb-6">
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Section subtitle</label>
-        <Textarea value={local.subtitle} rows={2} onChange={e => mark({ ...local, subtitle: e.target.value })} className="text-sm" />
-      </div>
-
-      <div className="mb-4">
-        <div className="flex items-center justify-between mb-3">
-          <label className="text-sm font-semibold text-gray-700">Cards ({local.cards.length})</label>
-          <Button size="sm" variant="outline" onClick={addCard} className="text-xs h-8">
-            <Plus className="h-3.5 w-3.5 mr-1" />Add card
-          </Button>
-        </div>
-        <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
-          {local.cards.map((card, i) => (
-            <div key={i} className="flex gap-2 items-start border border-gray-100 rounded-xl p-3 bg-gray-50">
-              <Input
-                value={card.emoji}
-                onChange={e => updateCard(i, "emoji", e.target.value)}
-                className="w-14 text-center text-lg"
-                placeholder="⭐"
-              />
-              <div className="flex-1 space-y-1.5">
-                <Input value={card.title} onChange={e => updateCard(i, "title", e.target.value)} className="text-sm font-semibold" placeholder="Card title" />
-                <Input value={card.desc} onChange={e => updateCard(i, "desc", e.target.value)} className="text-sm" placeholder="Short description" />
-              </div>
-              <Button size="icon" variant="ghost" onClick={() => removeCard(i)} className="text-gray-400 hover:text-red-500 h-8 w-8">
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
-    </div>
-  );
-}
-
-const DEFAULT_REVIEWS_HEADER = {
-  title: "What our customers say?",
-  subtitle: "Real reviews from real customers",
-};
-
-function ReviewsHeaderEditor() {
-  const { data, isLoading } = useSection("customers_say", DEFAULT_REVIEWS_HEADER);
-  const save = useSave("customers_say");
-  const [local, setLocal] = useState(DEFAULT_REVIEWS_HEADER);
-  const [dirty, setDirty] = useState(false);
-
-  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_REVIEWS_HEADER); setDirty(false); } }, [data]);
-
-  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
-
-  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
-
-  return (
-    <div>
-      <p className="text-sm text-blue-600 bg-blue-50 rounded-lg p-3 mb-5 font-medium">
-        Individual reviews are managed in the <strong>Reviews</strong> section of this admin panel.
-        Here you can edit the section heading text only.
-      </p>
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Section title</label>
-          <Input value={local.title} onChange={e => mark({ ...local, title: e.target.value })} />
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Section subtitle</label>
-          <Input value={local.subtitle} onChange={e => mark({ ...local, subtitle: e.target.value })} />
-        </div>
-      </div>
-      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
-    </div>
-  );
-}
-
-const DEFAULT_GET_IN_TOUCH = {
-  description: "Call Smart Shine Car Valeting Centre for a car valeting or detailing in Guildford",
-  phones: [
-    { number: "07717 310 046" },
-    { number: "01483 236 060" },
-  ],
-  hours: "Mon – Sun · 08:00 – 19:00",
-};
-
-function GetInTouchEditor() {
-  const { data, isLoading } = useSection("get_in_touch", DEFAULT_GET_IN_TOUCH);
-  const save = useSave("get_in_touch");
-  const [local, setLocal] = useState(DEFAULT_GET_IN_TOUCH);
-  const [dirty, setDirty] = useState(false);
-
-  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_GET_IN_TOUCH); setDirty(false); } }, [data]);
-
-  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
-  const updatePhone = (i: number, val: string) => {
-    const phones = [...local.phones];
-    phones[i] = { number: val };
-    mark({ ...local, phones });
-  };
-  const addPhone = () => mark({ ...local, phones: [...local.phones, { number: "" }] });
-  const removePhone = (i: number) => mark({ ...local, phones: local.phones.filter((_, j) => j !== i) });
-
-  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
-
-  return (
-    <div className="space-y-5">
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Call-to-action description</label>
-        <Textarea value={local.description} rows={2} onChange={e => mark({ ...local, description: e.target.value })} className="text-sm" />
-      </div>
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <label className="text-sm font-semibold text-gray-700">Phone numbers</label>
-          <Button size="sm" variant="outline" onClick={addPhone} className="text-xs h-8">
-            <Plus className="h-3.5 w-3.5 mr-1" />Add
-          </Button>
-        </div>
-        <div className="space-y-2">
-          {local.phones.map((p, i) => (
-            <div key={i} className="flex gap-2">
-              <Input value={p.number} onChange={e => updatePhone(i, e.target.value)} placeholder="07717 310 046" className="text-sm" />
-              <Button size="icon" variant="ghost" onClick={() => removePhone(i)} className="text-gray-400 hover:text-red-500 h-9 w-9">
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Opening hours text</label>
-        <Input value={local.hours} onChange={e => mark({ ...local, hours: e.target.value })} placeholder="Mon – Sun · 08:00 – 19:00" className="text-sm" />
-      </div>
-      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
-    </div>
-  );
-}
-
-const DEFAULT_CONTACT = {
-  address: "Guildford, Surrey",
-  phone: "07717 310 046 / 01483 236 060",
-  email: "nazsalihi@me.com",
-  hours: "Mon–Sun: 08:00 – 19:00",
-};
-
-function ContactUsEditor() {
-  const { data, isLoading } = useSection("contact_us", DEFAULT_CONTACT);
-  const save = useSave("contact_us");
-  const [local, setLocal] = useState(DEFAULT_CONTACT);
-  const [dirty, setDirty] = useState(false);
-
-  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_CONTACT); setDirty(false); } }, [data]);
-
-  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
-
-  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
-
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-blue-600 bg-blue-50 rounded-lg p-3 font-medium">
-        These details appear in the footer and contact sections of the website.
-      </p>
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Address</label>
-        <Input value={local.address} onChange={e => mark({ ...local, address: e.target.value })} placeholder="Guildford, Surrey" />
-      </div>
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Phone(s) — shown in footer</label>
-        <Input value={local.phone} onChange={e => mark({ ...local, phone: e.target.value })} placeholder="07717 310 046 / 01483 236 060" />
-      </div>
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email address</label>
-        <Input value={local.email} onChange={e => mark({ ...local, email: e.target.value })} placeholder="info@smartshine.co.uk" />
-      </div>
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Opening hours</label>
-        <Input value={local.hours} onChange={e => mark({ ...local, hours: e.target.value })} placeholder="Mon–Sun: 08:00 – 19:00" />
-      </div>
-      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
-    </div>
-  );
-}
-
-const DEFAULT_PRICING = {
-  note: "Prices vary on the size of the car",
-  subtitle: "All prices include materials and labour. Free quotes available on request.",
-};
-
-function PricingNoteEditor() {
-  const { data, isLoading } = useSection("pricing_note", DEFAULT_PRICING);
-  const save = useSave("pricing_note");
-  const [local, setLocal] = useState(DEFAULT_PRICING);
-  const [dirty, setDirty] = useState(false);
-
-  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_PRICING); setDirty(false); } }, [data]);
-
-  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
-
-  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
-
-  return (
-    <div className="space-y-4">
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Pricing note (shown above services grid)</label>
-        <Input value={local.note} onChange={e => mark({ ...local, note: e.target.value })} placeholder="Prices vary on the size of the car" />
-      </div>
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Pricing subtitle</label>
-        <Textarea value={local.subtitle} rows={2} onChange={e => mark({ ...local, subtitle: e.target.value })} className="text-sm" />
-      </div>
-      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
-    </div>
-  );
-}
-
-const DEFAULT_OUR_SERVICES = {
-  title: "Our services include",
-  subtitle: "A complete range of professional valeting and detailing services.",
-};
-
-function OurServicesEditor() {
-  const { data, isLoading } = useSection("our_services_include", DEFAULT_OUR_SERVICES);
-  const save = useSave("our_services_include");
-  const [local, setLocal] = useState(DEFAULT_OUR_SERVICES);
-  const [dirty, setDirty] = useState(false);
-
-  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_OUR_SERVICES); setDirty(false); } }, [data]);
-
-  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
-
-  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
-
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-gray-500 bg-gray-50 rounded-lg p-3">
-        This section appears on the individual service pages (Private Valeting, Commercial Valeting, etc.) listing what's included.
-      </p>
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Section heading</label>
-        <Input value={local.title} onChange={e => mark({ ...local, title: e.target.value })} placeholder="Our services include" />
-      </div>
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Section subtitle</label>
-        <Textarea value={local.subtitle} rows={2} onChange={e => mark({ ...local, subtitle: e.target.value })} className="text-sm" />
-      </div>
-      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
-    </div>
-  );
-}
-
-const DEFAULT_GALLERY = {
-  title: "Our Work",
-  subtitle: "Select a brand to see our work on that vehicle type",
-};
-
-function GalleryBrandsEditor() {
-  const { data, isLoading } = useSection("gallery_brands", DEFAULT_GALLERY);
-  const save = useSave("gallery_brands");
-  const [local, setLocal] = useState(DEFAULT_GALLERY);
-  const [dirty, setDirty] = useState(false);
-
-  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_GALLERY); setDirty(false); } }, [data]);
-
-  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
-
-  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
-
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-gray-500 bg-gray-50 rounded-lg p-3">
-        This controls the heading shown on the Gallery page above the brand selector.
-      </p>
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Page title</label>
-        <Input value={local.title} onChange={e => mark({ ...local, title: e.target.value })} placeholder="Our Work" />
-      </div>
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Subtitle / instruction text</label>
-        <Input value={local.subtitle} onChange={e => mark({ ...local, subtitle: e.target.value })} placeholder="Select a brand to see our work" />
-      </div>
-      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
-    </div>
-  );
-}
-
+// ─── HERO SLIDES ──────────────────────────────────────────────────────────────
 const DEFAULT_HERO = {
   slides: [
     { headline: "Premium Car\nValeting Service", sub: "Professional valeting that restores your vehicle to showroom condition. Serving Guildford and surrounding areas.", image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=1600&q=85" },
@@ -483,38 +76,27 @@ function HeroSlidesEditor() {
   const save = useSave("hero_slides");
   const [local, setLocal] = useState(DEFAULT_HERO);
   const [dirty, setDirty] = useState(false);
-
   useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_HERO); setDirty(false); } }, [data]);
-
   const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
   const updateSlide = (i: number, field: "headline" | "sub" | "image", val: string) => {
-    const slides = [...local.slides];
-    slides[i] = { ...slides[i], [field]: val };
-    mark({ ...local, slides });
+    const slides = [...local.slides]; slides[i] = { ...slides[i], [field]: val }; mark({ ...local, slides });
   };
   const addSlide = () => mark({ ...local, slides: [...local.slides, { headline: "", sub: "", image: "" }] });
   const removeSlide = (i: number) => mark({ ...local, slides: local.slides.filter((_, j) => j !== i) });
-
   if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
-
   return (
     <div className="space-y-6">
-      {/* Slides */}
       <div>
         <div className="flex items-center justify-between mb-3">
           <p className="text-sm font-semibold text-gray-700">Slides</p>
-          <Button size="sm" variant="outline" onClick={addSlide} className="text-xs h-8 flex-shrink-0">
-            <Plus className="h-3.5 w-3.5 mr-1" />Add slide
-          </Button>
+          <Button size="sm" variant="outline" onClick={addSlide} className="text-xs h-8 flex-shrink-0"><Plus className="h-3.5 w-3.5 mr-1" />Add slide</Button>
         </div>
         <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1">
           {local.slides.map((slide, i) => (
             <div key={i} className="border border-gray-200 rounded-xl p-4 bg-gray-50 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Slide {i + 1}</span>
-                <Button size="icon" variant="ghost" onClick={() => removeSlide(i)} className="text-gray-400 hover:text-red-500 h-7 w-7">
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
+                <Button size="icon" variant="ghost" onClick={() => removeSlide(i)} className="text-gray-400 hover:text-red-500 h-7 w-7"><Trash2 className="h-3.5 w-3.5" /></Button>
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-600 mb-1">Headline (use \n for line break)</label>
@@ -533,35 +115,21 @@ function HeroSlidesEditor() {
           ))}
         </div>
       </div>
-
-      {/* Buttons */}
       <div className="border border-gray-200 rounded-xl p-4 bg-blue-50/50 space-y-3">
         <p className="text-sm font-semibold text-gray-700 mb-1">Carousel buttons</p>
         <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Button 1 — label</label>
-            <Input value={local.btn1Label ?? ""} onChange={e => mark({ ...local, btn1Label: e.target.value })} placeholder="Book Your Valet" />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Button 1 — link</label>
-            <Input value={local.btn1Link ?? ""} onChange={e => mark({ ...local, btn1Link: e.target.value })} placeholder="/booking" />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Button 2 — label</label>
-            <Input value={local.btn2Label ?? ""} onChange={e => mark({ ...local, btn2Label: e.target.value })} placeholder="Get Free Quote" />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Button 2 — link</label>
-            <Input value={local.btn2Link ?? ""} onChange={e => mark({ ...local, btn2Link: e.target.value })} placeholder="/contact" />
-          </div>
+          <div><label className="block text-xs font-semibold text-gray-600 mb-1">Button 1 — label</label><Input value={local.btn1Label ?? ""} onChange={e => mark({ ...local, btn1Label: e.target.value })} placeholder="Book Your Valet" /></div>
+          <div><label className="block text-xs font-semibold text-gray-600 mb-1">Button 1 — link</label><Input value={local.btn1Link ?? ""} onChange={e => mark({ ...local, btn1Link: e.target.value })} placeholder="/booking" /></div>
+          <div><label className="block text-xs font-semibold text-gray-600 mb-1">Button 2 — label</label><Input value={local.btn2Label ?? ""} onChange={e => mark({ ...local, btn2Label: e.target.value })} placeholder="Get Free Quote" /></div>
+          <div><label className="block text-xs font-semibold text-gray-600 mb-1">Button 2 — link</label><Input value={local.btn2Link ?? ""} onChange={e => mark({ ...local, btn2Link: e.target.value })} placeholder="/contact" /></div>
         </div>
       </div>
-
       <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
     </div>
   );
 }
 
+// ─── ABOUT US ─────────────────────────────────────────────────────────────────
 const DEFAULT_ABOUT = {
   typewriter: "Car valeting in Guildford and surrounding area",
   heading: "About us",
@@ -573,12 +141,9 @@ function AboutUsEditor() {
   const save = useSave("about_us");
   const [local, setLocal] = useState(DEFAULT_ABOUT);
   const [dirty, setDirty] = useState(false);
-
   useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_ABOUT); setDirty(false); } }, [data]);
   const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
-
   if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
-
   return (
     <div className="space-y-4">
       <div>
@@ -599,12 +164,13 @@ function AboutUsEditor() {
   );
 }
 
+// ─── STATS ────────────────────────────────────────────────────────────────────
 const DEFAULT_STATS = {
   items: [
-    { value: "25+",    label: "Years Experience", icon: "🏆" },
-    { value: "5,000+", label: "Happy Customers",  icon: "😊" },
-    { value: "100%",   label: "Fully Insured",    icon: "🛡️" },
-    { value: "5★",     label: "Rated Service",    icon: "⭐" },
+    { value: "25+", label: "Years Experience", icon: "🏆" },
+    { value: "5,000+", label: "Happy Customers", icon: "😊" },
+    { value: "100%", label: "Fully Insured", icon: "🛡️" },
+    { value: "5★", label: "Rated Service", icon: "⭐" },
   ],
 };
 
@@ -613,26 +179,19 @@ function StatsEditor() {
   const save = useSave("stats_cards");
   const [local, setLocal] = useState(DEFAULT_STATS);
   const [dirty, setDirty] = useState(false);
-
   useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_STATS); setDirty(false); } }, [data]);
   const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
   const updateItem = (i: number, field: "value" | "label" | "icon", val: string) => {
-    const items = [...local.items];
-    items[i] = { ...items[i], [field]: val };
-    mark({ ...local, items });
+    const items = [...local.items]; items[i] = { ...items[i], [field]: val }; mark({ ...local, items });
   };
   const addItem = () => mark({ ...local, items: [...local.items, { value: "", label: "", icon: "⭐" }] });
   const removeItem = (i: number) => mark({ ...local, items: local.items.filter((_, j) => j !== i) });
-
   if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
-
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <p className="text-sm text-gray-500">Stats cards shown below the About Us section.</p>
-        <Button size="sm" variant="outline" onClick={addItem} className="text-xs h-8 flex-shrink-0">
-          <Plus className="h-3.5 w-3.5 mr-1" />Add stat
-        </Button>
+        <Button size="sm" variant="outline" onClick={addItem} className="text-xs h-8 flex-shrink-0"><Plus className="h-3.5 w-3.5 mr-1" />Add stat</Button>
       </div>
       <div className="space-y-2">
         {local.items.map((item, i) => (
@@ -640,9 +199,7 @@ function StatsEditor() {
             <Input value={item.icon} onChange={e => updateItem(i, "icon", e.target.value)} className="w-14 text-center text-lg flex-shrink-0" placeholder="🏆" />
             <Input value={item.value} onChange={e => updateItem(i, "value", e.target.value)} className="w-24 text-sm font-bold flex-shrink-0" placeholder="25+" />
             <Input value={item.label} onChange={e => updateItem(i, "label", e.target.value)} className="flex-1 text-sm" placeholder="Years Experience" />
-            <Button size="icon" variant="ghost" onClick={() => removeItem(i)} className="text-gray-400 hover:text-red-500 h-8 w-8 flex-shrink-0">
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            <Button size="icon" variant="ghost" onClick={() => removeItem(i)} className="text-gray-400 hover:text-red-500 h-8 w-8 flex-shrink-0"><Trash2 className="h-4 w-4" /></Button>
           </div>
         ))}
       </div>
@@ -651,6 +208,7 @@ function StatsEditor() {
   );
 }
 
+// ─── COMPLETE VALETING ────────────────────────────────────────────────────────
 const DEFAULT_COMPLETE = {
   badge: "Our Services",
   heading: "A complete valeting service",
@@ -663,96 +221,494 @@ function CompleteValetingEditor() {
   const save = useSave("complete_valeting");
   const [local, setLocal] = useState(DEFAULT_COMPLETE);
   const [dirty, setDirty] = useState(false);
-
   useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_COMPLETE); setDirty(false); } }, [data]);
   const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
-
   if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
-
   return (
     <div className="space-y-4">
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Badge label (small uppercase text)</label>
-        <Input value={local.badge} onChange={e => mark({ ...local, badge: e.target.value })} placeholder="Our Services" />
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Badge label</label><Input value={local.badge} onChange={e => mark({ ...local, badge: e.target.value })} placeholder="Our Services" /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Section heading</label><Input value={local.heading} onChange={e => mark({ ...local, heading: e.target.value })} placeholder="A complete valeting service" /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">First paragraph</label><Textarea value={local.paragraph1} rows={4} onChange={e => mark({ ...local, paragraph1: e.target.value })} className="text-sm" /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Second paragraph</label><Textarea value={local.paragraph2} rows={4} onChange={e => mark({ ...local, paragraph2: e.target.value })} className="text-sm" /></div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+// ─── CAR SERVICES ─────────────────────────────────────────────────────────────
+const DEFAULT_CAR_SERVICES = {
+  subtitle: "From a quick hand wash to full paint correction — we cover everything your vehicle needs.",
+  items: [
+    { label: "Car & Vehicle Valeting", icon: "🚗" }, { label: "Car Buffing", icon: "✨" },
+    { label: "Car Detailing", icon: "🔍" }, { label: "Car Scratch Repairs", icon: "🛠️" },
+    { label: "Car Valeting", icon: "🧽" }, { label: "Car Wash", icon: "💧" },
+    { label: "Commercial Vehicle Valeting", icon: "🚐" }, { label: "Deep Cleaning", icon: "🧹" },
+    { label: "Dent Removal", icon: "🔧" }, { label: "Exterior Valet", icon: "🌟" },
+    { label: "Hand Car Wash", icon: "🤲" }, { label: "Interior Valet", icon: "💺" },
+    { label: "Machine Polish", icon: "⚙️" }, { label: "Mini Valets", icon: "⚡" },
+    { label: "Private Vehicle Valeting", icon: "🔑" }, { label: "Stain Removal Services", icon: "🪣" },
+    { label: "Wheel Cleaning", icon: "🔵" },
+  ],
+};
+
+function CarServicesEditor() {
+  const { data, isLoading } = useSection("car_vehicle_services", DEFAULT_CAR_SERVICES);
+  const save = useSave("car_vehicle_services");
+  const [local, setLocal] = useState(DEFAULT_CAR_SERVICES);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_CAR_SERVICES); setDirty(false); } }, [data]);
+  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
+  const addItem = () => mark({ ...local, items: [...local.items, { label: "", icon: "🚗" }] });
+  const removeItem = (i: number) => mark({ ...local, items: local.items.filter((_, j) => j !== i) });
+  const updateItem = (i: number, field: "label" | "icon", val: string) => {
+    const items = [...local.items]; items[i] = { ...items[i], [field]: val }; mark({ ...local, items });
+  };
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div>
+      <div className="mb-6">
+        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Section subtitle</label>
+        <Textarea value={local.subtitle} rows={2} onChange={e => mark({ ...local, subtitle: e.target.value })} className="text-sm" />
       </div>
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Section heading</label>
-        <Input value={local.heading} onChange={e => mark({ ...local, heading: e.target.value })} placeholder="A complete valeting service" />
-      </div>
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">First paragraph</label>
-        <Textarea value={local.paragraph1} rows={4} onChange={e => mark({ ...local, paragraph1: e.target.value })} className="text-sm" />
-      </div>
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Second paragraph</label>
-        <Textarea value={local.paragraph2} rows={4} onChange={e => mark({ ...local, paragraph2: e.target.value })} className="text-sm" />
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-3">
+          <label className="text-sm font-semibold text-gray-700">Services ({local.items.length})</label>
+          <Button size="sm" variant="outline" onClick={addItem} className="text-xs h-8"><Plus className="h-3.5 w-3.5 mr-1" />Add service</Button>
+        </div>
+        <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+          {local.items.map((item, i) => (
+            <div key={i} className="flex gap-2 items-center">
+              <Input value={item.icon} onChange={e => updateItem(i, "icon", e.target.value)} className="w-16 text-center text-lg" placeholder="🚗" />
+              <Input value={item.label} onChange={e => updateItem(i, "label", e.target.value)} className="flex-1 text-sm" placeholder="Service name" />
+              <Button size="icon" variant="ghost" onClick={() => removeItem(i)} className="text-gray-400 hover:text-red-500 h-8 w-8 flex-shrink-0"><Trash2 className="h-4 w-4" /></Button>
+            </div>
+          ))}
+        </div>
       </div>
       <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
     </div>
   );
 }
 
-const SECTIONS = [
-  { key: "hero_slides", label: "Hero Carousel", icon: GalleryHorizontal, description: "Homepage hero slides — headlines, subtitles, images", editor: HeroSlidesEditor },
-  { key: "about_us", label: "About Us", icon: Info, description: "Typewriter text, heading and about paragraph", editor: AboutUsEditor },
-  { key: "stats_cards", label: "Stats (25+ years etc.)", icon: BarChart3, description: "The four stats cards below About Us", editor: StatsEditor },
-  { key: "complete_valeting", label: "A Complete Valeting Service", icon: Layers, description: "Dark section with badge, heading and two paragraphs", editor: CompleteValetingEditor },
-  { key: "car_vehicle_services", label: "Car & Vehicle Services", icon: Car, description: "The services grid shown on the homepage", editor: CarServicesEditor },
-  { key: "why_choose_us", label: "Why choose us?", icon: Sparkles, description: "Feature cards in the Why Choose Us section", editor: WhyUsEditor },
-  { key: "customers_say", label: "What our customers say?", icon: Star, description: "Reviews section heading", editor: ReviewsHeaderEditor },
-  { key: "get_in_touch", label: "Get in touch today", icon: Phone, description: "Phone numbers, call-to-action text, hours", editor: GetInTouchEditor },
-  { key: "contact_us", label: "Contact Us", icon: MapPin, description: "Address, email, phone and hours in footer", editor: ContactUsEditor },
-  { key: "pricing_note", label: "Prices vary on size of car", icon: ListChecks, description: "Pricing note and subtitle text", editor: PricingNoteEditor },
-  { key: "our_services_include", label: "Our services include", icon: Wrench, description: "Section heading on service pages", editor: OurServicesEditor },
-  { key: "gallery_brands", label: "Select a brand — Gallery", icon: Image, description: "Gallery page heading and instruction text", editor: GalleryBrandsEditor },
+// ─── WHY CHOOSE US ────────────────────────────────────────────────────────────
+const DEFAULT_WHY = {
+  subtitle: "Over 25 years of experience, competitive prices, and results you can see.",
+  cards: [
+    { emoji: "🏆", title: "25 Years Experience", desc: "Over two decades of professional valeting expertise in Guildford" },
+    { emoji: "⭐", title: "5-Star Rated", desc: "Consistently top-rated by hundreds of happy customers" },
+    { emoji: "🛡️", title: "Fully Insured", desc: "All work fully insured for your complete peace of mind" },
+    { emoji: "✅", title: "Showroom Standards", desc: "Meticulous attention to detail on every single vehicle" },
+    { emoji: "💷", title: "Competitive Rates", desc: "Premium quality service at prices to suit any budget" },
+    { emoji: "🚐", title: "Private & Commercial", desc: "Cars, vans, and commercial vehicles all welcome" },
+    { emoji: "🔧", title: "Dent & Scratch Repair", desc: "We also handle dent removal and machine polish" },
+    { emoji: "🕐", title: "Mon – Sun 08–19", desc: "Open 7 days a week — book at a time that suits you" },
+  ],
+};
+
+function WhyUsEditor() {
+  const { data, isLoading } = useSection("why_choose_us", DEFAULT_WHY);
+  const save = useSave("why_choose_us");
+  const [local, setLocal] = useState(DEFAULT_WHY);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_WHY); setDirty(false); } }, [data]);
+  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
+  const addCard = () => mark({ ...local, cards: [...local.cards, { emoji: "⭐", title: "", desc: "" }] });
+  const removeCard = (i: number) => mark({ ...local, cards: local.cards.filter((_, j) => j !== i) });
+  const updateCard = (i: number, field: "emoji" | "title" | "desc", val: string) => {
+    const cards = [...local.cards]; cards[i] = { ...cards[i], [field]: val }; mark({ ...local, cards });
+  };
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div>
+      <div className="mb-6"><label className="block text-sm font-semibold text-gray-700 mb-1.5">Section subtitle</label><Textarea value={local.subtitle} rows={2} onChange={e => mark({ ...local, subtitle: e.target.value })} className="text-sm" /></div>
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-3">
+          <label className="text-sm font-semibold text-gray-700">Cards ({local.cards.length})</label>
+          <Button size="sm" variant="outline" onClick={addCard} className="text-xs h-8"><Plus className="h-3.5 w-3.5 mr-1" />Add card</Button>
+        </div>
+        <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+          {local.cards.map((card, i) => (
+            <div key={i} className="flex gap-2 items-start border border-gray-100 rounded-xl p-3 bg-gray-50">
+              <Input value={card.emoji} onChange={e => updateCard(i, "emoji", e.target.value)} className="w-14 text-center text-lg" placeholder="⭐" />
+              <div className="flex-1 space-y-1.5">
+                <Input value={card.title} onChange={e => updateCard(i, "title", e.target.value)} className="text-sm font-semibold" placeholder="Card title" />
+                <Input value={card.desc} onChange={e => updateCard(i, "desc", e.target.value)} className="text-sm" placeholder="Short description" />
+              </div>
+              <Button size="icon" variant="ghost" onClick={() => removeCard(i)} className="text-gray-400 hover:text-red-500 h-8 w-8"><Trash2 className="h-4 w-4" /></Button>
+            </div>
+          ))}
+        </div>
+      </div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+// ─── REVIEWS HEADER ───────────────────────────────────────────────────────────
+const DEFAULT_REVIEWS_HEADER = { title: "What our customers say?", subtitle: "Real reviews from real customers" };
+
+function ReviewsHeaderEditor() {
+  const { data, isLoading } = useSection("customers_say", DEFAULT_REVIEWS_HEADER);
+  const save = useSave("customers_say");
+  const [local, setLocal] = useState(DEFAULT_REVIEWS_HEADER);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_REVIEWS_HEADER); setDirty(false); } }, [data]);
+  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div>
+      <p className="text-sm text-blue-600 bg-blue-50 rounded-lg p-3 mb-5 font-medium">Individual reviews are managed in the <strong>Reviews</strong> section. Here you can edit the section heading text only.</p>
+      <div className="space-y-4">
+        <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Section title</label><Input value={local.title} onChange={e => mark({ ...local, title: e.target.value })} /></div>
+        <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Section subtitle</label><Input value={local.subtitle} onChange={e => mark({ ...local, subtitle: e.target.value })} /></div>
+      </div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+// ─── GET IN TOUCH ─────────────────────────────────────────────────────────────
+const DEFAULT_GET_IN_TOUCH = {
+  description: "Call Smart Shine Car Valeting Centre for a car valeting or detailing in Guildford",
+  phones: [{ number: "07717 310 046" }, { number: "01483 236 060" }],
+  hours: "Mon – Sun · 08:00 – 19:00",
+};
+
+function GetInTouchEditor() {
+  const { data, isLoading } = useSection("get_in_touch", DEFAULT_GET_IN_TOUCH);
+  const save = useSave("get_in_touch");
+  const [local, setLocal] = useState(DEFAULT_GET_IN_TOUCH);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_GET_IN_TOUCH); setDirty(false); } }, [data]);
+  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
+  const updatePhone = (i: number, val: string) => { const phones = [...local.phones]; phones[i] = { number: val }; mark({ ...local, phones }); };
+  const addPhone = () => mark({ ...local, phones: [...local.phones, { number: "" }] });
+  const removePhone = (i: number) => mark({ ...local, phones: local.phones.filter((_, j) => j !== i) });
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div className="space-y-5">
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Call-to-action description</label><Textarea value={local.description} rows={2} onChange={e => mark({ ...local, description: e.target.value })} className="text-sm" /></div>
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-sm font-semibold text-gray-700">Phone numbers</label>
+          <Button size="sm" variant="outline" onClick={addPhone} className="text-xs h-8"><Plus className="h-3.5 w-3.5 mr-1" />Add</Button>
+        </div>
+        <div className="space-y-2">
+          {local.phones.map((p, i) => (
+            <div key={i} className="flex gap-2">
+              <Input value={p.number} onChange={e => updatePhone(i, e.target.value)} placeholder="07717 310 046" className="text-sm" />
+              <Button size="icon" variant="ghost" onClick={() => removePhone(i)} className="text-gray-400 hover:text-red-500 h-9 w-9"><Trash2 className="h-4 w-4" /></Button>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Opening hours text</label><Input value={local.hours} onChange={e => mark({ ...local, hours: e.target.value })} placeholder="Mon – Sun · 08:00 – 19:00" className="text-sm" /></div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+// ─── SERVICES PAGE HERO ───────────────────────────────────────────────────────
+const DEFAULT_SERVICES_HERO = {
+  title: "Premium Car Care Services",
+  subtitle: "From a quick exterior rinse to a full premium detailing — we have the perfect service for your car.",
+};
+
+function ServicesHeroEditor() {
+  const { data, isLoading } = useSection("services_hero", DEFAULT_SERVICES_HERO);
+  const save = useSave("services_hero");
+  const [local, setLocal] = useState(DEFAULT_SERVICES_HERO);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_SERVICES_HERO); setDirty(false); } }, [data]);
+  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div className="space-y-4">
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Page title</label><Input value={local.title} onChange={e => mark({ ...local, title: e.target.value })} placeholder="Premium Car Care Services" /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Page subtitle</label><Textarea value={local.subtitle} rows={3} onChange={e => mark({ ...local, subtitle: e.target.value })} className="text-sm" /></div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+// ─── OUR SERVICES INCLUDE ─────────────────────────────────────────────────────
+const DEFAULT_OUR_SERVICES = { title: "Our services include", subtitle: "A complete range of professional valeting and detailing services." };
+
+function OurServicesEditor() {
+  const { data, isLoading } = useSection("our_services_include", DEFAULT_OUR_SERVICES);
+  const save = useSave("our_services_include");
+  const [local, setLocal] = useState(DEFAULT_OUR_SERVICES);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_OUR_SERVICES); setDirty(false); } }, [data]);
+  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-gray-500 bg-gray-50 rounded-lg p-3">This section appears on the individual service pages (Private Valeting, Commercial Valeting, etc.)</p>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Section heading</label><Input value={local.title} onChange={e => mark({ ...local, title: e.target.value })} placeholder="Our services include" /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Section subtitle</label><Textarea value={local.subtitle} rows={2} onChange={e => mark({ ...local, subtitle: e.target.value })} className="text-sm" /></div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+// ─── PRICING NOTE ─────────────────────────────────────────────────────────────
+const DEFAULT_PRICING = { note: "Prices vary on the size of the car", subtitle: "All prices include materials and labour. Free quotes available on request." };
+
+function PricingNoteEditor() {
+  const { data, isLoading } = useSection("pricing_note", DEFAULT_PRICING);
+  const save = useSave("pricing_note");
+  const [local, setLocal] = useState(DEFAULT_PRICING);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_PRICING); setDirty(false); } }, [data]);
+  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div className="space-y-4">
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Pricing note (shown above services grid)</label><Input value={local.note} onChange={e => mark({ ...local, note: e.target.value })} placeholder="Prices vary on the size of the car" /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Pricing subtitle</label><Textarea value={local.subtitle} rows={2} onChange={e => mark({ ...local, subtitle: e.target.value })} className="text-sm" /></div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+// ─── GALLERY ──────────────────────────────────────────────────────────────────
+const DEFAULT_GALLERY = { title: "Our Work", subtitle: "Select a brand to see our work on that vehicle type" };
+
+function GalleryBrandsEditor() {
+  const { data, isLoading } = useSection("gallery_brands", DEFAULT_GALLERY);
+  const save = useSave("gallery_brands");
+  const [local, setLocal] = useState(DEFAULT_GALLERY);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_GALLERY); setDirty(false); } }, [data]);
+  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-gray-500 bg-gray-50 rounded-lg p-3">Controls the heading shown on the Gallery page above the brand selector.</p>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Page title</label><Input value={local.title} onChange={e => mark({ ...local, title: e.target.value })} placeholder="Our Work" /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Subtitle / instruction text</label><Input value={local.subtitle} onChange={e => mark({ ...local, subtitle: e.target.value })} placeholder="Select a brand to see our work" /></div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+// ─── CONTACT US ───────────────────────────────────────────────────────────────
+const DEFAULT_CONTACT = {
+  address: "Guildford, Surrey",
+  phone: "07717 310 046 / 01483 236 060",
+  email: "nazsalihi@me.com",
+  hours: "Mon–Sun: 08:00 – 19:00",
+};
+
+function ContactUsEditor() {
+  const { data, isLoading } = useSection("contact_us", DEFAULT_CONTACT);
+  const save = useSave("contact_us");
+  const [local, setLocal] = useState(DEFAULT_CONTACT);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_CONTACT); setDirty(false); } }, [data]);
+  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-blue-600 bg-blue-50 rounded-lg p-3 font-medium">These details appear in the footer and contact sections of the website.</p>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Address</label><Input value={local.address} onChange={e => mark({ ...local, address: e.target.value })} placeholder="Guildford, Surrey" /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Phone(s) — shown in footer</label><Input value={local.phone} onChange={e => mark({ ...local, phone: e.target.value })} placeholder="07717 310 046 / 01483 236 060" /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Email address</label><Input value={local.email} onChange={e => mark({ ...local, email: e.target.value })} placeholder="info@smartshine.co.uk" /></div>
+      <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Opening hours</label><Input value={local.hours} onChange={e => mark({ ...local, hours: e.target.value })} placeholder="Mon–Sun: 08:00 – 19:00" /></div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+// ─── ABOUT PAGE FEATURES ──────────────────────────────────────────────────────
+const DEFAULT_ABOUT_FEATURES = {
+  items: [
+    { icon: "🛡️", title: "Satisfaction Guaranteed", desc: "100% satisfaction or we redo it free" },
+    { icon: "⚡", title: "Fast & Efficient", desc: "Quick turnaround without cutting corners" },
+    { icon: "⭐", title: "Premium Products", desc: "We use only high-grade cleaning products" },
+    { icon: "💧", title: "Water Efficient", desc: "Eco-conscious water usage techniques" },
+  ],
+};
+
+function AboutFeaturesEditor() {
+  const { data, isLoading } = useSection("about_features", DEFAULT_ABOUT_FEATURES);
+  const save = useSave("about_features");
+  const [local, setLocal] = useState(DEFAULT_ABOUT_FEATURES);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { if (data) { setLocal(data as typeof DEFAULT_ABOUT_FEATURES); setDirty(false); } }, [data]);
+  const mark = (next: typeof local) => { setLocal(next); setDirty(true); };
+  const addItem = () => mark({ ...local, items: [...local.items, { icon: "⭐", title: "", desc: "" }] });
+  const removeItem = (i: number) => mark({ ...local, items: local.items.filter((_, j) => j !== i) });
+  const updateItem = (i: number, field: "icon" | "title" | "desc", val: string) => {
+    const items = [...local.items]; items[i] = { ...items[i], [field]: val }; mark({ ...local, items });
+  };
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+  return (
+    <div>
+      <p className="text-sm text-gray-500 bg-gray-50 rounded-lg p-3 mb-4">Feature cards shown in the "Why Choose Us" grid on the About page.</p>
+      <div className="flex items-center justify-between mb-3">
+        <label className="text-sm font-semibold text-gray-700">Feature cards ({local.items.length})</label>
+        <Button size="sm" variant="outline" onClick={addItem} className="text-xs h-8"><Plus className="h-3.5 w-3.5 mr-1" />Add card</Button>
+      </div>
+      <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+        {local.items.map((item, i) => (
+          <div key={i} className="flex gap-2 items-start border border-gray-100 rounded-xl p-3 bg-gray-50">
+            <Input value={item.icon} onChange={e => updateItem(i, "icon", e.target.value)} className="w-14 text-center text-lg" placeholder="🛡️" />
+            <div className="flex-1 space-y-1.5">
+              <Input value={item.title} onChange={e => updateItem(i, "title", e.target.value)} className="text-sm font-semibold" placeholder="Feature title" />
+              <Input value={item.desc} onChange={e => updateItem(i, "desc", e.target.value)} className="text-sm" placeholder="Short description" />
+            </div>
+            <Button size="icon" variant="ghost" onClick={() => removeItem(i)} className="text-gray-400 hover:text-red-500 h-8 w-8"><Trash2 className="h-4 w-4" /></Button>
+          </div>
+        ))}
+      </div>
+      <SaveBar dirty={dirty} saving={save.isPending} onSave={() => save.mutate(local, { onSuccess: () => setDirty(false) })} />
+    </div>
+  );
+}
+
+// ─── PAGE GROUPS ──────────────────────────────────────────────────────────────
+type SectionDef = {
+  key: string;
+  label: string;
+  description: string;
+  icon: React.ElementType;
+  editor: React.ComponentType;
+};
+
+type PageGroup = {
+  page: string;
+  icon: React.ElementType;
+  color: string;
+  sections: SectionDef[];
+};
+
+const PAGE_GROUPS: PageGroup[] = [
+  {
+    page: "Home",
+    icon: Home,
+    color: "blue",
+    sections: [
+      { key: "hero_slides", label: "Hero Carousel", description: "Slides, headlines, images & buttons", icon: GalleryHorizontal, editor: HeroSlidesEditor },
+      { key: "about_us", label: "About Us", description: "Typewriter text, heading and paragraph", icon: Info, editor: AboutUsEditor },
+      { key: "stats_cards", label: "Stats (25+ years etc.)", description: "The four stats cards below About Us", icon: BarChart3, editor: StatsEditor },
+      { key: "complete_valeting", label: "Complete Valeting", description: "Dark section with badge and two paragraphs", icon: Layers, editor: CompleteValetingEditor },
+      { key: "car_vehicle_services", label: "Car & Vehicle Services", description: "Services grid on the homepage", icon: Car, editor: CarServicesEditor },
+      { key: "why_choose_us", label: "Why Choose Us?", description: "Feature cards in the Why Choose Us section", icon: Sparkles, editor: WhyUsEditor },
+      { key: "customers_say", label: "Reviews Heading", description: "Section title for the reviews block", icon: Star, editor: ReviewsHeaderEditor },
+      { key: "get_in_touch", label: "Get in Touch", description: "Phone numbers, call-to-action, hours", icon: Phone, editor: GetInTouchEditor },
+    ],
+  },
+  {
+    page: "Services",
+    icon: Briefcase,
+    color: "violet",
+    sections: [
+      { key: "services_hero", label: "Services Page Hero", description: "Title and subtitle for the services listing page", icon: Wrench, editor: ServicesHeroEditor },
+      { key: "our_services_include", label: "Our Services Include", description: "Section heading on individual service pages", icon: ListChecks, editor: OurServicesEditor },
+      { key: "pricing_note", label: "Pricing Note", description: "Pricing note and subtitle text", icon: ListChecks, editor: PricingNoteEditor },
+    ],
+  },
+  {
+    page: "Gallery",
+    icon: Image,
+    color: "emerald",
+    sections: [
+      { key: "gallery_brands", label: "Gallery Header", description: "Gallery page title and instruction text", icon: GalleryHorizontal, editor: GalleryBrandsEditor },
+    ],
+  },
+  {
+    page: "Contact",
+    icon: Contact,
+    color: "orange",
+    sections: [
+      { key: "contact_us", label: "Contact Details", description: "Address, email, phone and hours", icon: MapPin, editor: ContactUsEditor },
+    ],
+  },
+  {
+    page: "About",
+    icon: Shield,
+    color: "rose",
+    sections: [
+      { key: "about_features", label: "Why Choose Us Cards", description: "Feature cards on the About page", icon: Info, editor: AboutFeaturesEditor },
+    ],
+  },
 ];
 
+const COLOR_MAP: Record<string, { active: string; dot: string; header: string; icon: string }> = {
+  blue:    { active: "bg-blue-600 text-white shadow-sm",    dot: "bg-blue-500",    header: "text-blue-700 bg-blue-50 border-blue-100",   icon: "text-blue-600" },
+  violet:  { active: "bg-violet-600 text-white shadow-sm",  dot: "bg-violet-500",  header: "text-violet-700 bg-violet-50 border-violet-100", icon: "text-violet-600" },
+  emerald: { active: "bg-emerald-600 text-white shadow-sm", dot: "bg-emerald-500", header: "text-emerald-700 bg-emerald-50 border-emerald-100", icon: "text-emerald-600" },
+  orange:  { active: "bg-orange-500 text-white shadow-sm",  dot: "bg-orange-500",  header: "text-orange-700 bg-orange-50 border-orange-100", icon: "text-orange-600" },
+  rose:    { active: "bg-rose-600 text-white shadow-sm",    dot: "bg-rose-500",    header: "text-rose-700 bg-rose-50 border-rose-100",   icon: "text-rose-600" },
+};
+
 export default function AdminContent() {
-  const [active, setActive] = useState(SECTIONS[0].key);
-  const activeSection = SECTIONS.find(s => s.key === active)!;
+  const [active, setActive] = useState(PAGE_GROUPS[0].sections[0].key);
+
+  const allSections = PAGE_GROUPS.flatMap(g => g.sections.map(s => ({ ...s, color: g.color })));
+  const activeSection = allSections.find(s => s.key === active)!;
   const ActiveEditor = activeSection.editor;
+  const colors = COLOR_MAP[activeSection.color];
 
   return (
     <AdminLayout>
       <div className="mb-6">
         <h1 className="text-2xl font-black text-gray-900">Content Management</h1>
-        <p className="text-sm text-gray-500 mt-1">Edit the text and content shown on your website.</p>
+        <p className="text-sm text-gray-500 mt-1">Select a page and section to edit the content shown on your website.</p>
       </div>
 
       <div className="flex gap-6 min-h-[600px]">
-        {/* Section list */}
-        <aside className="w-64 flex-shrink-0">
-          <nav className="space-y-1">
-            {SECTIONS.map(s => {
-              const Icon = s.icon;
-              const isActive = s.key === active;
-              return (
-                <button
-                  key={s.key}
-                  onClick={() => setActive(s.key)}
-                  className={`w-full flex items-start gap-3 text-left px-3 py-3 rounded-xl transition-all duration-150 group ${
-                    isActive
-                      ? "bg-blue-600 text-white shadow-sm"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                  }`}
-                >
-                  <Icon className={`h-4 w-4 flex-shrink-0 mt-0.5 ${isActive ? "text-blue-200" : "text-gray-400 group-hover:text-gray-600"}`} />
-                  <div className="min-w-0">
-                    <div className={`text-sm font-semibold leading-snug ${isActive ? "text-white" : ""}`}>{s.label}</div>
-                    <div className={`text-[11px] leading-snug mt-0.5 truncate ${isActive ? "text-blue-200" : "text-gray-400"}`}>{s.description}</div>
-                  </div>
-                  {isActive && <ChevronRight className="h-4 w-4 text-blue-300 flex-shrink-0 ml-auto mt-0.5" />}
-                </button>
-              );
-            })}
-          </nav>
+        {/* Sidebar */}
+        <aside className="w-64 flex-shrink-0 space-y-4">
+          {PAGE_GROUPS.map(group => {
+            const gc = COLOR_MAP[group.color];
+            const PageIcon = group.icon;
+            return (
+              <div key={group.page}>
+                <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-black uppercase tracking-widest mb-1 ${gc.header}`}>
+                  <PageIcon className={`h-3.5 w-3.5 ${gc.icon}`} />
+                  {group.page} Page
+                </div>
+                <nav className="space-y-0.5 pl-1">
+                  {group.sections.map(s => {
+                    const Icon = s.icon;
+                    const isActive = s.key === active;
+                    const sc = COLOR_MAP[group.color];
+                    return (
+                      <button
+                        key={s.key}
+                        onClick={() => setActive(s.key)}
+                        className={`w-full flex items-start gap-2.5 text-left px-3 py-2.5 rounded-xl transition-all duration-150 group ${
+                          isActive ? sc.active : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                        }`}
+                      >
+                        <Icon className={`h-4 w-4 flex-shrink-0 mt-0.5 ${isActive ? "text-white/80" : "text-gray-400 group-hover:text-gray-600"}`} />
+                        <div className="min-w-0 flex-1">
+                          <div className={`text-sm font-semibold leading-snug ${isActive ? "text-white" : ""}`}>{s.label}</div>
+                          <div className={`text-[10px] leading-snug mt-0.5 truncate ${isActive ? "text-white/70" : "text-gray-400"}`}>{s.description}</div>
+                        </div>
+                        {isActive && <ChevronRight className="h-3.5 w-3.5 text-white/60 flex-shrink-0 ml-auto mt-0.5" />}
+                      </button>
+                    );
+                  })}
+                </nav>
+              </div>
+            );
+          })}
         </aside>
 
-        {/* Editor panel */}
-        <div className="flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        {/* Editor Panel */}
+        <div className="flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm p-6 min-w-0">
           <div className="flex items-start gap-3 mb-6 pb-5 border-b border-gray-100">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 flex-shrink-0">
-              <activeSection.icon className="h-5 w-5 text-blue-600" />
+            <div className={`flex h-10 w-10 items-center justify-center rounded-xl flex-shrink-0 ${
+              activeSection.color === "blue" ? "bg-blue-50" :
+              activeSection.color === "violet" ? "bg-violet-50" :
+              activeSection.color === "emerald" ? "bg-emerald-50" :
+              activeSection.color === "orange" ? "bg-orange-50" : "bg-rose-50"
+            }`}>
+              <activeSection.icon className={`h-5 w-5 ${colors.icon}`} />
             </div>
             <div>
               <h2 className="text-base font-bold text-gray-900">{activeSection.label}</h2>
@@ -760,7 +716,6 @@ export default function AdminContent() {
             </div>
             <Badge variant="outline" className="ml-auto text-xs font-mono text-gray-400 border-gray-200">{active}</Badge>
           </div>
-
           <ActiveEditor />
         </div>
       </div>

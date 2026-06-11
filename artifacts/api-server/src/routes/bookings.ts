@@ -2,7 +2,7 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import { supabase } from "../lib/supabase";
 import { logger } from "../lib/logger";
-import { sendEmail, newBookingAdminEmail, bookingConfirmedCustomerEmail, bookingReadyCustomerEmail, customerWelcomeEmail } from "../lib/email";
+import { sendEmail, getNotificationEmail, newBookingAdminEmail, bookingConfirmedCustomerEmail, bookingReadyCustomerEmail, customerWelcomeEmail } from "../lib/email";
 
 const router = Router();
 
@@ -54,9 +54,10 @@ async function getOrCreateCustomerAccount(
 }
 
 async function getAdminNotificationEmail(): Promise<string | null> {
-  const { data } = await supabase.from("settings").select("notification_email, email").limit(1);
-  const row = data?.[0] as Record<string, unknown> | undefined;
-  return (row?.notification_email as string) || (row?.email as string) || null;
+  const notifEmail = await getNotificationEmail();
+  if (notifEmail) return notifEmail;
+  const { data } = await supabase.from("settings").select("email").limit(1);
+  return (data?.[0]?.email as string) || null;
 }
 
 router.get("/bookings", async (req, res) => {

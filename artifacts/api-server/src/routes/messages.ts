@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { supabase } from "../lib/supabase";
 import { logger } from "../lib/logger";
-import { sendEmail, newContactMessageAdminEmail, newContactMessageUserEmail } from "../lib/email";
+import { sendEmail, getNotificationEmail, newContactMessageAdminEmail, newContactMessageUserEmail } from "../lib/email";
 
 const router = Router();
 
@@ -41,13 +41,10 @@ router.post("/messages", async (req, res) => {
       .single();
     if (error) throw error;
 
-    const { data: settingsRows } = await supabase
-      .from("settings")
-      .select("notification_email, email")
-      .limit(1);
-    const settings = settingsRows?.[0];
-    const adminEmail = (settings as Record<string, unknown>)?.notification_email as string | undefined
-      || settings?.email;
+    const { data: settingsRows } = await supabase.from("settings").select("email").limit(1);
+    const fallbackEmail = settingsRows?.[0]?.email;
+    const notifEmail = await getNotificationEmail();
+    const adminEmail = notifEmail || fallbackEmail;
 
     if (adminEmail) {
       sendEmail({

@@ -1,6 +1,49 @@
-const BREVO_API_KEY = process.env.BREVO_API_KEY ?? "";
-const BREVO_SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL ?? "noreply@smartshine.co.uk";
-const BREVO_SENDER_NAME = process.env.BREVO_SENDER_NAME ?? "Smart Shine Car Valeting";
+import { supabase } from "./supabase";
+
+let cachedConfig: EmailConfig | null = null;
+let cacheExpiry = 0;
+
+interface EmailConfig {
+  brevoApiKey: string;
+  senderEmail: string;
+  senderName: string;
+  notificationEmail: string | null;
+}
+
+async function getEmailConfig(): Promise<EmailConfig> {
+  const now = Date.now();
+  if (cachedConfig && now < cacheExpiry) return cachedConfig;
+
+  try {
+    const { data } = await supabase
+      .from("site_content")
+      .select("data")
+      .eq("key", "extra_settings")
+      .maybeSingle();
+    const extra = (data?.data as Record<string, unknown>) ?? {};
+    cachedConfig = {
+      brevoApiKey: (extra.brevoApiKey as string) || process.env.BREVO_API_KEY || "",
+      senderEmail: (extra.senderEmail as string) || process.env.BREVO_SENDER_EMAIL || "noreply@smartshine.co.uk",
+      senderName: (extra.senderName as string) || process.env.BREVO_SENDER_NAME || "Smart Shine Car Valeting",
+      notificationEmail: (extra.notificationEmail as string) || null,
+    };
+    cacheExpiry = now + 60_000;
+  } catch {
+    cachedConfig = {
+      brevoApiKey: process.env.BREVO_API_KEY || "",
+      senderEmail: process.env.BREVO_SENDER_EMAIL || "noreply@smartshine.co.uk",
+      senderName: process.env.BREVO_SENDER_NAME || "Smart Shine Car Valeting",
+      notificationEmail: null,
+    };
+    cacheExpiry = now + 10_000;
+  }
+  return cachedConfig;
+}
+
+export function invalidateEmailConfigCache() {
+  cachedConfig = null;
+  cacheExpiry = 0;
+}
 
 export interface EmailRecipient {
   email: string;
@@ -15,13 +58,15 @@ export interface SendEmailOptions {
 }
 
 export async function sendEmail(opts: SendEmailOptions): Promise<void> {
-  if (!BREVO_API_KEY) {
-    console.warn("[email] BREVO_API_KEY not set — skipping email send");
+  const config = await getEmailConfig();
+
+  if (!config.brevoApiKey) {
+    console.warn("[email] Brevo API key not configured — skipping email send");
     return;
   }
 
   const payload = {
-    sender: { name: BREVO_SENDER_NAME, email: BREVO_SENDER_EMAIL },
+    sender: { name: config.senderName, email: config.senderEmail },
     to: opts.to,
     subject: opts.subject,
     htmlContent: opts.htmlContent,
@@ -31,7 +76,7 @@ export async function sendEmail(opts: SendEmailOptions): Promise<void> {
   const res = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: {
-      "api-key": BREVO_API_KEY,
+      "api-key": config.brevoApiKey,
       "Content-Type": "application/json",
       Accept: "application/json",
     },
@@ -42,6 +87,11 @@ export async function sendEmail(opts: SendEmailOptions): Promise<void> {
     const text = await res.text();
     throw new Error(`Brevo API error ${res.status}: ${text}`);
   }
+}
+
+export async function getNotificationEmail(): Promise<string | null> {
+  const config = await getEmailConfig();
+  return config.notificationEmail;
 }
 
 export function newContactMessageAdminEmail(opts: {
@@ -182,7 +232,6 @@ export function customerWelcomeEmail(opts: {
           <p style="margin:4px 0;font-size:15px;color:#111827"><strong>Date:</strong> ${opts.date}</p>
           <p style="margin:4px 0;font-size:15px;color:#111827"><strong>Time:</strong> ${opts.time}</p>
         </div>
-
         <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:20px;margin:20px 0">
           <p style="margin:0 0 10px;font-size:13px;font-weight:bold;color:#1d4ed8;text-transform:uppercase;letter-spacing:0.05em">🔑 Your Customer Portal Account</p>
           <p style="margin:0 0 8px;color:#374151;font-size:14px">We've created a portal account so you can track your bookings, see when your car is ready, and manage your appointments.</p>
@@ -195,7 +244,6 @@ export function customerWelcomeEmail(opts: {
           </div>
           <p style="margin:12px 0 0;font-size:12px;color:#6b7280;text-align:center">You can change your password after logging in.</p>
         </div>
-
         <p style="color:#374151;font-size:14px">If you need to make any changes, please call us on <a href="tel:${opts.businessPhone}" style="color:#2563eb;font-weight:bold">${opts.businessPhone}</a>.</p>
         <p style="color:#374151;font-size:14px">Smart Shine Car Valeting Centre<br/>Guildford, Surrey<br/>Mon–Sun: 08:00–19:00</p>
       </div>

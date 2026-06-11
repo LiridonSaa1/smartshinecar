@@ -7,8 +7,178 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ImageUpload } from "@/components/ui/ImageUpload";
 import { toast } from "sonner";
+import { ChevronDown, ChevronUp, Eye, EyeOff, Mail, CheckCircle, AlertCircle } from "lucide-react";
 
 const ALL_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+const EMAIL_TEMPLATES = [
+  {
+    id: "new_booking_admin",
+    label: "New Booking Alert (to admin)",
+    description: "Sent to the notification email when a customer books online.",
+    subject: "New Booking Received — Smart Shine",
+    preview: `
+      <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#fff">
+        <div style="background:linear-gradient(135deg,#0a0f2e,#1a2a6c);padding:20px 28px;border-radius:8px 8px 0 0">
+          <h2 style="color:#fff;margin:0;font-size:20px">New Booking Received</h2>
+          <p style="color:rgba(255,255,255,0.7);margin:4px 0 0;font-size:13px">Smart Shine Car Valeting Centre</p>
+        </div>
+        <div style="padding:20px 28px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <tr><td style="padding:8px 10px;background:#f9fafb;font-weight:bold;color:#374151;width:110px;border-bottom:1px solid #e5e7eb">Customer</td><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#111827">James Harrington</td></tr>
+            <tr><td style="padding:8px 10px;background:#f9fafb;font-weight:bold;color:#374151;border-bottom:1px solid #e5e7eb">Phone</td><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#2563eb">07700 900123</td></tr>
+            <tr><td style="padding:8px 10px;background:#f9fafb;font-weight:bold;color:#374151;border-bottom:1px solid #e5e7eb">Service</td><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#111827">Full Valet — £120.00</td></tr>
+            <tr><td style="padding:8px 10px;background:#f9fafb;font-weight:bold;color:#374151;border-bottom:1px solid #e5e7eb">Date</td><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#111827">2026-06-15</td></tr>
+            <tr><td style="padding:8px 10px;background:#f9fafb;font-weight:bold;color:#374151">Time</td><td style="padding:8px 10px;color:#111827">09:00</td></tr>
+          </table>
+          <div style="margin-top:14px;padding:10px;background:#fefce8;border:1px solid #fde047;border-radius:6px;font-size:12px;color:#713f12">
+            Log in to your admin panel to confirm or manage this booking.
+          </div>
+        </div>
+      </div>
+    `,
+  },
+  {
+    id: "booking_confirmed",
+    label: "Booking Confirmed (to customer)",
+    description: "Sent to the customer when you mark their booking as confirmed.",
+    subject: "Your Booking is Confirmed ✓ — Smart Shine",
+    preview: `
+      <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#fff">
+        <div style="background:linear-gradient(135deg,#0a0f2e,#1a2a6c);padding:20px 28px;border-radius:8px 8px 0 0">
+          <h2 style="color:#fff;margin:0;font-size:20px">Your Booking is Confirmed ✓</h2>
+          <p style="color:rgba(255,255,255,0.7);margin:4px 0 0;font-size:13px">Smart Shine Car Valeting Centre</p>
+        </div>
+        <div style="padding:20px 28px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
+          <p style="color:#374151;font-size:14px;margin:0 0 12px">Hi James,</p>
+          <p style="color:#374151;font-size:14px;margin:0 0 14px">Great news — your booking has been <strong>confirmed</strong>! We look forward to seeing you.</p>
+          <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:16px;margin:0 0 14px">
+            <p style="margin:0 0 6px;font-size:12px;font-weight:bold;color:#166534;text-transform:uppercase">Booking Details</p>
+            <p style="margin:3px 0;font-size:14px;color:#111827"><strong>Service:</strong> Full Valet</p>
+            <p style="margin:3px 0;font-size:14px;color:#111827"><strong>Date:</strong> 15 June 2026</p>
+            <p style="margin:3px 0;font-size:14px;color:#111827"><strong>Time:</strong> 09:00</p>
+          </div>
+          <p style="color:#374151;font-size:13px">If you need to make any changes, please call us on <strong>+44 7700 000000</strong>.</p>
+        </div>
+      </div>
+    `,
+  },
+  {
+    id: "car_ready",
+    label: "Car Ready (to customer)",
+    description: "Sent to the customer when you mark their booking as done.",
+    subject: "Your Car is Ready! 🚗✨ — Smart Shine",
+    preview: `
+      <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#fff">
+        <div style="background:linear-gradient(135deg,#166534,#15803d);padding:20px 28px;border-radius:8px 8px 0 0">
+          <h2 style="color:#fff;margin:0;font-size:20px">Your Car is Ready! 🚗✨</h2>
+          <p style="color:rgba(255,255,255,0.7);margin:4px 0 0;font-size:13px">Smart Shine Car Valeting Centre</p>
+        </div>
+        <div style="padding:20px 28px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
+          <p style="color:#374151;font-size:14px;margin:0 0 12px">Hi James,</p>
+          <p style="color:#374151;font-size:14px;margin:0 0 14px">Your <strong>Full Valet</strong> on <strong>15 June 2026</strong> has been completed. Your vehicle is ready to collect!</p>
+          <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:16px;margin:0 0 14px;text-align:center">
+            <p style="margin:0;font-size:16px;font-weight:bold;color:#166534">Your car is ready for collection ✓</p>
+          </div>
+          <p style="color:#374151;font-size:13px">Thank you for choosing Smart Shine Car Valeting Centre!</p>
+        </div>
+      </div>
+    `,
+  },
+  {
+    id: "new_contact",
+    label: "New Contact Message (to admin)",
+    description: "Sent to the notification email when someone submits the contact form.",
+    subject: "New message from [Name] — Smart Shine",
+    preview: `
+      <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#fff">
+        <div style="background:linear-gradient(135deg,#0a0f2e,#1a2a6c);padding:20px 28px;border-radius:8px 8px 0 0">
+          <h2 style="color:#fff;margin:0;font-size:20px">New Contact Message</h2>
+          <p style="color:rgba(255,255,255,0.7);margin:4px 0 0;font-size:13px">Smart Shine Car Valeting Centre</p>
+        </div>
+        <div style="padding:20px 28px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <tr><td style="padding:8px 10px;background:#f9fafb;font-weight:bold;color:#374151;width:80px;border-bottom:1px solid #e5e7eb">Name</td><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#111827">Sophie Clarke</td></tr>
+            <tr><td style="padding:8px 10px;background:#f9fafb;font-weight:bold;color:#374151;border-bottom:1px solid #e5e7eb">Email</td><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#2563eb">sophie@example.com</td></tr>
+            <tr><td style="padding:8px 10px;background:#f9fafb;font-weight:bold;color:#374151;vertical-align:top">Message</td><td style="padding:8px 10px;color:#111827">Hi, I'd like to book a full detail for my car. Could you let me know your availability?</td></tr>
+          </table>
+          <div style="margin-top:14px;padding:10px;background:#eff6ff;border-radius:6px;font-size:12px;color:#1d4ed8">
+            Reply to this email to respond directly to Sophie.
+          </div>
+        </div>
+      </div>
+    `,
+  },
+  {
+    id: "welcome_customer",
+    label: "Welcome + Account Created (to customer)",
+    description: "Sent to first-time customers when their booking is confirmed — includes portal login credentials.",
+    subject: "Your Booking is Confirmed ✓ + Account Created — Smart Shine",
+    preview: `
+      <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#fff">
+        <div style="background:linear-gradient(135deg,#0a0f2e,#1a2a6c);padding:20px 28px;border-radius:8px 8px 0 0">
+          <h2 style="color:#fff;margin:0;font-size:20px">Your Booking is Confirmed ✓</h2>
+          <p style="color:rgba(255,255,255,0.7);margin:4px 0 0;font-size:13px">Smart Shine Car Valeting Centre</p>
+        </div>
+        <div style="padding:20px 28px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
+          <p style="color:#374151;font-size:14px;margin:0 0 12px">Hi Emma,</p>
+          <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:14px;margin:0 0 12px">
+            <p style="margin:3px 0;font-size:13px;color:#111827"><strong>Service:</strong> Exterior Wash & Wax</p>
+            <p style="margin:3px 0;font-size:13px;color:#111827"><strong>Date:</strong> 15 June 2026 at 13:00</p>
+          </div>
+          <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:14px;margin:0 0 12px">
+            <p style="margin:0 0 8px;font-size:12px;font-weight:bold;color:#1d4ed8;text-transform:uppercase">🔑 Your Customer Portal Account</p>
+            <p style="margin:0 0 8px;color:#374151;font-size:13px">Track your bookings and see when your car is ready.</p>
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <tr><td style="padding:6px 8px;background:#fff;font-weight:bold;color:#374151;border:1px solid #dbeafe">Email</td><td style="padding:6px 8px;background:#fff;color:#111827;border:1px solid #dbeafe">emma@example.com</td></tr>
+              <tr><td style="padding:6px 8px;background:#fff;font-weight:bold;color:#374151;border:1px solid #dbeafe;border-top:none">Password</td><td style="padding:6px 8px;background:#fff;color:#111827;font-family:monospace;border:1px solid #dbeafe;border-top:none"><strong>Xk7mN2qR</strong></td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    `,
+  },
+];
+
+function EmailTemplateCard({ tpl }: { tpl: typeof EMAIL_TEMPLATES[0] }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border border-border rounded-xl overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-muted/40 transition-colors text-left"
+      >
+        <div className="flex items-start gap-3 min-w-0">
+          <Mail className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
+          <div className="min-w-0">
+            <p className="text-sm font-medium truncate">{tpl.label}</p>
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">{tpl.description}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 ml-3 flex-shrink-0">
+          <span className="text-xs text-muted-foreground hidden sm:block">Preview</span>
+          {open ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+        </div>
+      </button>
+      {open && (
+        <div className="border-t border-border">
+          <div className="px-4 py-3 bg-muted/30">
+            <p className="text-xs text-muted-foreground">
+              <span className="font-medium text-foreground">Subject:</span> {tpl.subject}
+            </p>
+          </div>
+          <div className="p-3 bg-white dark:bg-zinc-900">
+            <div
+              className="rounded border border-border overflow-hidden"
+              dangerouslySetInnerHTML={{ __html: tpl.preview }}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function AdminSettings() {
   const queryClient = useQueryClient();
@@ -27,23 +197,30 @@ export default function AdminSettings() {
     notificationEmail: "",
     logoUrl: "",
     faviconUrl: "",
+    brevoApiKey: "",
+    senderEmail: "",
+    senderName: "",
   });
+  const [showApiKey, setShowApiKey] = useState(false);
 
   useEffect(() => {
     if (settings) {
       const s = settings as Record<string, unknown>;
       setForm({
-        businessName: settings.businessName as string ?? "",
-        address: settings.address as string ?? "",
-        phone: settings.phone as string ?? "",
-        email: settings.email as string ?? "",
-        openTime: settings.openTime as string ?? "08:00",
-        closeTime: settings.closeTime as string ?? "19:00",
-        slotDuration: settings.slotDuration as number ?? 30,
-        workingDays: (settings.workingDays as string[]) ?? ALL_DAYS,
+        businessName: (s.businessName as string) ?? "",
+        address: (s.address as string) ?? "",
+        phone: (s.phone as string) ?? "",
+        email: (s.email as string) ?? "",
+        openTime: (s.openTime as string) ?? "08:00",
+        closeTime: (s.closeTime as string) ?? "19:00",
+        slotDuration: (s.slotDuration as number) ?? 30,
+        workingDays: (s.workingDays as string[]) ?? ALL_DAYS,
         notificationEmail: (s.notificationEmail as string) ?? "",
         logoUrl: (s.logoUrl as string) ?? "",
         faviconUrl: (s.faviconUrl as string) ?? "",
+        brevoApiKey: (s.brevoApiKey as string) ?? "",
+        senderEmail: (s.senderEmail as string) ?? "",
+        senderName: (s.senderName as string) ?? "",
       });
     }
   }, [settings]);
@@ -68,12 +245,14 @@ export default function AdminSettings() {
     });
   };
 
+  const brevoConfigured = !!(form.brevoApiKey || (settings as Record<string, unknown>)?.brevoApiKey);
+
   return (
     <AdminLayout>
       <div className="space-y-6 max-w-2xl">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Settings</h1>
-          <p className="text-muted-foreground mt-1">Configure your business information and hours.</p>
+          <p className="text-muted-foreground mt-1">Configure your business information, hours and email notifications.</p>
         </div>
 
         {isLoading ? (
@@ -129,16 +308,6 @@ export default function AdminSettings() {
                   <Input data-testid="input-business-email" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
                 </div>
               </div>
-              <div>
-                <label className="text-sm font-medium mb-1.5 block">Notification Email</label>
-                <Input
-                  type="email"
-                  placeholder="admin@yourbusiness.com"
-                  value={form.notificationEmail}
-                  onChange={e => setForm(f => ({ ...f, notificationEmail: e.target.value }))}
-                />
-                <p className="text-xs text-muted-foreground mt-1.5">New bookings and contact messages will be emailed here.</p>
-              </div>
             </div>
 
             {/* Working Hours */}
@@ -185,6 +354,93 @@ export default function AdminSettings() {
                     </button>
                   ))}
                 </div>
+              </div>
+            </div>
+
+            {/* Email Configuration */}
+            <div className="bg-card border border-border rounded-2xl p-6 space-y-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="font-semibold text-card-foreground">Email Configuration</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">Powered by Brevo (Sendinblue)</p>
+                </div>
+                <div className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${brevoConfigured ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"}`}>
+                  {brevoConfigured
+                    ? <><CheckCircle className="h-3 w-3" /> Connected</>
+                    : <><AlertCircle className="h-3 w-3" /> Not configured</>
+                  }
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Notification Email</label>
+                <Input
+                  type="email"
+                  placeholder="admin@yourbusiness.com"
+                  value={form.notificationEmail}
+                  onChange={e => setForm(f => ({ ...f, notificationEmail: e.target.value }))}
+                />
+                <p className="text-xs text-muted-foreground mt-1.5">New bookings and contact messages will be sent here.</p>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Brevo API Key</label>
+                <div className="relative">
+                  <Input
+                    type={showApiKey ? "text" : "password"}
+                    placeholder="xkeysib-..."
+                    value={form.brevoApiKey}
+                    onChange={e => setForm(f => ({ ...f, brevoApiKey: e.target.value }))}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowApiKey(v => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  Get your API key from{" "}
+                  <a href="https://app.brevo.com/settings/keys/api" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">
+                    app.brevo.com → Settings → API Keys
+                  </a>
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium mb-1.5 block">Sender Name</label>
+                  <Input
+                    placeholder="Smart Shine Car Valeting"
+                    value={form.senderName}
+                    onChange={e => setForm(f => ({ ...f, senderName: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-1.5 block">Sender Email</label>
+                  <Input
+                    type="email"
+                    placeholder="noreply@smartshine.co.uk"
+                    value={form.senderEmail}
+                    onChange={e => setForm(f => ({ ...f, senderEmail: e.target.value }))}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1.5">Must be a verified sender in Brevo.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Email Template Previews */}
+            <div className="bg-card border border-border rounded-2xl p-6 space-y-3">
+              <div>
+                <h2 className="font-semibold text-card-foreground">Email Templates</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Preview the emails that are automatically sent to you and your customers.</p>
+              </div>
+              <div className="space-y-2">
+                {EMAIL_TEMPLATES.map(tpl => (
+                  <EmailTemplateCard key={tpl.id} tpl={tpl} />
+                ))}
               </div>
             </div>
 

@@ -11,6 +11,12 @@ export const settingsTable = pgTable("settings", {
   slotDuration: integer("slot_duration").notNull().default(30),
   workingDays: text("working_days").notNull().default("Mon,Tue,Wed,Thu,Fri,Sat,Sun"),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  notificationEmail: text("notification_email"),
+  logoUrl: text("logo_url"),
+  faviconUrl: text("favicon_url"),
+  brevoApiKey: text("brevo_api_key"),
+  senderEmail: text("sender_email"),
+  senderName: text("sender_name"),
 });
 
 export type Settings = typeof settingsTable.$inferSelect;

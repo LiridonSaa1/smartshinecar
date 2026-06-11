@@ -260,6 +260,7 @@ const WHY_CARDS_DEFAULT = [
 
 const WHY_DEFAULT_CONTENT = {
   subtitle: "Over 25 years of experience, competitive prices, and results you can see.",
+  image: "",
   cards: WHY_CARDS_DEFAULT,
 };
 
@@ -700,7 +701,7 @@ export default function Home() {
             <FadeIn direction="right" delay={0.1} className="relative">
               <div className="relative rounded-3xl overflow-hidden shadow-2xl">
                 <img
-                  src={whyUsImg}
+                  src={(whyContent as typeof WHY_DEFAULT_CONTENT).image || whyUsImg}
                   alt="Why Choose Smart Shine"
                   className="w-full h-[520px] object-cover"
                 />

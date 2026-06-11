@@ -322,6 +322,7 @@ function CarServicesEditor() {
 // ─── WHY CHOOSE US ────────────────────────────────────────────────────────────
 const DEFAULT_WHY = {
   subtitle: "Over 25 years of experience, competitive prices, and results you can see.",
+  image: "",
   cards: [
     { emoji: "🏆", title: "25 Years Experience", desc: "Over two decades of professional valeting expertise in Guildford" },
     { emoji: "⭐", title: "5-Star Rated", desc: "Consistently top-rated by hundreds of happy customers" },
@@ -350,6 +351,34 @@ function WhyUsEditor() {
   return (
     <div>
       <div className="mb-6"><label className="block text-sm font-semibold text-gray-700 mb-1.5">Section subtitle</label><Textarea value={local.subtitle} rows={2} onChange={e => mark({ ...local, subtitle: e.target.value })} className="text-sm" /></div>
+      <div className="mb-6">
+        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Section photo (URL)</label>
+        <Input
+          value={local.image ?? ""}
+          onChange={e => mark({ ...local, image: e.target.value })}
+          placeholder="https://images.unsplash.com/… or leave blank for default"
+          className="text-xs"
+        />
+        {local.image ? (
+          <div className="mt-2 relative rounded-xl overflow-hidden border border-gray-200 h-40">
+            <img
+              src={local.image}
+              alt="Preview"
+              className="w-full h-full object-cover"
+              onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+            />
+            <button
+              onClick={() => mark({ ...local, image: "" })}
+              className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow transition-colors"
+              title="Remove image"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ) : (
+          <p className="text-xs text-gray-400 mt-1.5">Leave blank to use the default photo already on the website.</p>
+        )}
+      </div>
       <div className="mb-4">
         <div className="flex items-center justify-between mb-3">
           <label className="text-sm font-semibold text-gray-700">Cards ({local.cards.length})</label>

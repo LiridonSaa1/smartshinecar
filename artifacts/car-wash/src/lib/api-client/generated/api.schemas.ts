@@ -1,0 +1,193 @@
+export interface HealthStatus {
+  status: string;
+}
+
+export interface LoginBody {
+  email: string;
+  password: string;
+}
+
+export interface AdminUser {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  user: AdminUser;
+}
+
+export interface Service {
+  id: number;
+  name: string;
+  description?: string;
+  price: number;
+  duration: number;
+  imageUrl?: string | null;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface ServiceInput {
+  name: string;
+  description?: string;
+  price: number;
+  duration: number;
+  imageUrl?: string | null;
+  isActive?: boolean;
+}
+
+export type BookingStatus = typeof BookingStatus[keyof typeof BookingStatus];
+
+export const BookingStatus = {
+  pending: 'pending',
+  confirmed: 'confirmed',
+  in_progress: 'in_progress',
+  done: 'done',
+  cancelled: 'cancelled',
+} as const;
+
+export interface Booking {
+  id: number;
+  customerName: string;
+  customerPhone: string;
+  customerEmail?: string | null;
+  serviceId: number;
+  serviceName: string;
+  servicePrice: number;
+  date: string;
+  time: string;
+  status: BookingStatus;
+  notes?: string | null;
+  createdAt: string;
+}
+
+export interface BookingInput {
+  customerName: string;
+  customerPhone: string;
+  customerEmail?: string | null;
+  serviceId: number;
+  date: string;
+  time: string;
+  notes?: string | null;
+}
+
+export type BookingUpdateStatus = typeof BookingUpdateStatus[keyof typeof BookingUpdateStatus];
+
+export const BookingUpdateStatus = {
+  pending: 'pending',
+  confirmed: 'confirmed',
+  in_progress: 'in_progress',
+  done: 'done',
+  cancelled: 'cancelled',
+} as const;
+
+export interface BookingUpdate {
+  customerName?: string;
+  customerPhone?: string;
+  customerEmail?: string | null;
+  serviceId?: number;
+  date?: string;
+  time?: string;
+  status?: BookingUpdateStatus;
+  notes?: string | null;
+}
+
+export interface TimeSlot {
+  time: string;
+  available: boolean;
+}
+
+export interface Review {
+  id: number;
+  customerName: string;
+  rating: number;
+  comment: string;
+  serviceName?: string | null;
+  createdAt: string;
+}
+
+export interface ReviewInput {
+  customerName: string;
+  rating: number;
+  comment: string;
+  serviceName?: string | null;
+}
+
+export interface DashboardStats {
+  totalBookings: number;
+  todayBookings: number;
+  monthRevenue: number;
+  pendingBookings: number;
+  confirmedBookings: number;
+  completedBookings: number;
+  averageRating: number;
+  totalReviews: number;
+}
+
+export interface ChartPoint {
+  date: string;
+  bookings: number;
+  revenue: number;
+}
+
+export interface TopService {
+  serviceId: number;
+  serviceName: string;
+  bookingCount: number;
+  totalRevenue: number;
+}
+
+export interface BusinessSettings {
+  businessName: string;
+  address: string;
+  phone: string;
+  email: string;
+  openTime: string;
+  closeTime: string;
+  slotDuration: number;
+  workingDays: string[];
+  [key: string]: unknown;
+}
+
+export interface UploadUrlRequest {
+  name: string;
+  size: number;
+  contentType: string;
+}
+
+export interface UploadUrlResponse {
+  uploadURL: string;
+  objectPath: string;
+  metadata?: UploadUrlRequest;
+}
+
+export interface ErrorEnvelope {
+  error: string;
+}
+
+export type ListBookingsParams = {
+  status?: ListBookingsStatus;
+  date?: string;
+};
+
+export type ListBookingsStatus = typeof ListBookingsStatus[keyof typeof ListBookingsStatus];
+
+export const ListBookingsStatus = {
+  pending: 'pending',
+  confirmed: 'confirmed',
+  in_progress: 'in_progress',
+  done: 'done',
+  cancelled: 'cancelled',
+} as const;
+
+export type GetAvailableSlotsParams = {
+  date: string;
+  serviceId: number;
+};
+
+export type GetBookingsChartParams = {
+  days?: number;
+};

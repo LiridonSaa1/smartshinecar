@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
 import { CookieBanner } from "@/components/ui/CookieBanner";
-import { useGetSettings } from "@workspace/api-client-react";
+import { useGetSettings } from "@/lib/api-client";
 import {
   MapPin,
   Phone,

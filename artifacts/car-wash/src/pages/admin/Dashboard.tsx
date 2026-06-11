@@ -6,7 +6,7 @@ import {
   getGetDashboardStatsQueryKey,
   getGetBookingsChartQueryKey,
   getListBookingsQueryKey,
-} from "@workspace/api-client-react";
+} from "@/lib/api-client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Calendar, DollarSign, Clock, Star, CheckCircle, Users } from "lucide-react";

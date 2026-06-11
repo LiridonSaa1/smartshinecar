@@ -7,7 +7,7 @@ import {
   useGetAvailableSlots,
   useCreateBooking,
   getGetAvailableSlotsQueryKey,
-} from "@workspace/api-client-react";
+} from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {

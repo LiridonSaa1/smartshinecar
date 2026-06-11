@@ -1,5 +1,5 @@
 import { Navbar } from "@/components/layout/Navbar";
-import { useGetSettings } from "@workspace/api-client-react";
+import { useGetSettings } from "@/lib/api-client";
 import { useContentSection } from "@/lib/useContent";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

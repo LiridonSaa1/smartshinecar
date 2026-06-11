@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
 import { CookieBanner } from "@/components/ui/CookieBanner";
-import { useListReviews } from "@workspace/api-client-react";
+import { useListReviews } from "@/lib/api-client";
 import { useContentSection } from "@/lib/useContent";
 import { Link } from "wouter";
 import {
@@ -469,7 +469,7 @@ export default function Home() {
   const carServicesContent = useContentSection("car_vehicle_services", CAR_SERVICES_DEFAULT);
   const getInTouchContent = useContentSection("get_in_touch", GET_IN_TOUCH_DEFAULT);
 
-  const heroData = (heroContent as typeof HERO_SLIDES_DEFAULT | null) ?? HERO_SLIDES_DEFAULT;
+  const heroData = (heroContent as unknown as typeof HERO_SLIDES_DEFAULT | null) ?? HERO_SLIDES_DEFAULT;
   const aboutData = (aboutContent as typeof ABOUT_DEFAULT | null) ?? ABOUT_DEFAULT;
   const statsData = (statsContent as typeof STATS_DEFAULT | null)?.items ?? STATS_DEFAULT.items;
   const completeData = (completeContent as typeof COMPLETE_DEFAULT | null) ?? COMPLETE_DEFAULT;

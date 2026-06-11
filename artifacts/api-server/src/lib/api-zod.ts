@@ -1,0 +1,292 @@
+import * as zod from 'zod';
+
+export const HealthCheckResponse = zod.object({
+  "status": zod.string()
+})
+
+export const AdminLoginBody = zod.object({
+  "email": zod.string(),
+  "password": zod.string()
+})
+
+export const AdminLoginResponse = zod.object({
+  "token": zod.string(),
+  "user": zod.object({
+    "id": zod.number(),
+    "name": zod.string(),
+    "email": zod.string(),
+    "role": zod.string()
+  })
+})
+
+export const GetAdminMeResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "email": zod.string(),
+  "role": zod.string()
+})
+
+export const ListServicesResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().optional(),
+  "price": zod.number(),
+  "duration": zod.number().describe('Duration in minutes'),
+  "imageUrl": zod.string().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string()
+})
+export const ListServicesResponse = zod.array(ListServicesResponseItem)
+
+export const CreateServiceBody = zod.object({
+  "name": zod.string(),
+  "description": zod.string().optional(),
+  "price": zod.number(),
+  "duration": zod.number(),
+  "imageUrl": zod.string().nullish(),
+  "isActive": zod.boolean().optional()
+})
+
+export const GetServiceParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetServiceResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().optional(),
+  "price": zod.number(),
+  "duration": zod.number().describe('Duration in minutes'),
+  "imageUrl": zod.string().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string()
+})
+
+export const UpdateServiceParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateServiceBody = zod.object({
+  "name": zod.string(),
+  "description": zod.string().optional(),
+  "price": zod.number(),
+  "duration": zod.number(),
+  "imageUrl": zod.string().nullish(),
+  "isActive": zod.boolean().optional()
+})
+
+export const UpdateServiceResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().optional(),
+  "price": zod.number(),
+  "duration": zod.number().describe('Duration in minutes'),
+  "imageUrl": zod.string().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string()
+})
+
+export const DeleteServiceParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const ListBookingsQueryParams = zod.object({
+  "status": zod.enum(['pending', 'confirmed', 'in_progress', 'done', 'cancelled']).optional(),
+  "date": zod.coerce.string().optional()
+})
+
+export const ListBookingsResponseItem = zod.object({
+  "id": zod.number(),
+  "customerName": zod.string(),
+  "customerPhone": zod.string(),
+  "customerEmail": zod.string().nullish(),
+  "serviceId": zod.number(),
+  "serviceName": zod.string(),
+  "servicePrice": zod.number(),
+  "date": zod.string(),
+  "time": zod.string(),
+  "status": zod.enum(['pending', 'confirmed', 'in_progress', 'done', 'cancelled']),
+  "notes": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+export const ListBookingsResponse = zod.array(ListBookingsResponseItem)
+
+export const CreateBookingBody = zod.object({
+  "customerName": zod.string(),
+  "customerPhone": zod.string(),
+  "customerEmail": zod.string().nullish(),
+  "serviceId": zod.number(),
+  "date": zod.string(),
+  "time": zod.string(),
+  "notes": zod.string().nullish()
+})
+
+export const GetBookingParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetBookingResponse = zod.object({
+  "id": zod.number(),
+  "customerName": zod.string(),
+  "customerPhone": zod.string(),
+  "customerEmail": zod.string().nullish(),
+  "serviceId": zod.number(),
+  "serviceName": zod.string(),
+  "servicePrice": zod.number(),
+  "date": zod.string(),
+  "time": zod.string(),
+  "status": zod.enum(['pending', 'confirmed', 'in_progress', 'done', 'cancelled']),
+  "notes": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+
+export const UpdateBookingParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateBookingBody = zod.object({
+  "customerName": zod.string().optional(),
+  "customerPhone": zod.string().optional(),
+  "customerEmail": zod.string().nullish(),
+  "serviceId": zod.number().optional(),
+  "date": zod.string().optional(),
+  "time": zod.string().optional(),
+  "status": zod.enum(['pending', 'confirmed', 'in_progress', 'done', 'cancelled']).optional(),
+  "notes": zod.string().nullish()
+})
+
+export const UpdateBookingResponse = zod.object({
+  "id": zod.number(),
+  "customerName": zod.string(),
+  "customerPhone": zod.string(),
+  "customerEmail": zod.string().nullish(),
+  "serviceId": zod.number(),
+  "serviceName": zod.string(),
+  "servicePrice": zod.number(),
+  "date": zod.string(),
+  "time": zod.string(),
+  "status": zod.enum(['pending', 'confirmed', 'in_progress', 'done', 'cancelled']),
+  "notes": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+
+export const DeleteBookingParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetAvailableSlotsQueryParams = zod.object({
+  "date": zod.coerce.string(),
+  "serviceId": zod.coerce.number()
+})
+
+export const GetAvailableSlotsResponseItem = zod.object({
+  "time": zod.string(),
+  "available": zod.boolean()
+})
+export const GetAvailableSlotsResponse = zod.array(GetAvailableSlotsResponseItem)
+
+export const listReviewsResponseRatingMax = 5;
+
+export const ListReviewsResponseItem = zod.object({
+  "id": zod.number(),
+  "customerName": zod.string(),
+  "rating": zod.number().min(1).max(listReviewsResponseRatingMax),
+  "comment": zod.string(),
+  "serviceName": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+export const ListReviewsResponse = zod.array(ListReviewsResponseItem)
+
+export const createReviewBodyRatingMax = 5;
+
+export const CreateReviewBody = zod.object({
+  "customerName": zod.string(),
+  "rating": zod.number().min(1).max(createReviewBodyRatingMax),
+  "comment": zod.string(),
+  "serviceName": zod.string().nullish()
+})
+
+export const GetDashboardStatsResponse = zod.object({
+  "totalBookings": zod.number(),
+  "todayBookings": zod.number(),
+  "monthRevenue": zod.number(),
+  "pendingBookings": zod.number(),
+  "confirmedBookings": zod.number(),
+  "completedBookings": zod.number(),
+  "averageRating": zod.number(),
+  "totalReviews": zod.number()
+})
+
+export const getBookingsChartQueryDaysDefault = 30;
+
+export const GetBookingsChartQueryParams = zod.object({
+  "days": zod.coerce.number().default(getBookingsChartQueryDaysDefault)
+})
+
+export const GetBookingsChartResponseItem = zod.object({
+  "date": zod.string(),
+  "bookings": zod.number(),
+  "revenue": zod.number()
+})
+export const GetBookingsChartResponse = zod.array(GetBookingsChartResponseItem)
+
+export const GetTopServicesResponseItem = zod.object({
+  "serviceId": zod.number(),
+  "serviceName": zod.string(),
+  "bookingCount": zod.number(),
+  "totalRevenue": zod.number()
+})
+export const GetTopServicesResponse = zod.array(GetTopServicesResponseItem)
+
+export const GetSettingsResponse = zod.object({
+  "businessName": zod.string(),
+  "address": zod.string(),
+  "phone": zod.string(),
+  "email": zod.string(),
+  "openTime": zod.string(),
+  "closeTime": zod.string(),
+  "slotDuration": zod.number().describe('Duration of each slot in minutes'),
+  "workingDays": zod.array(zod.string())
+})
+
+export const UpdateSettingsBody = zod.object({
+  "businessName": zod.string(),
+  "address": zod.string(),
+  "phone": zod.string(),
+  "email": zod.string(),
+  "openTime": zod.string(),
+  "closeTime": zod.string(),
+  "slotDuration": zod.number().describe('Duration of each slot in minutes'),
+  "workingDays": zod.array(zod.string())
+})
+
+export const UpdateSettingsResponse = zod.object({
+  "businessName": zod.string(),
+  "address": zod.string(),
+  "phone": zod.string(),
+  "email": zod.string(),
+  "openTime": zod.string(),
+  "closeTime": zod.string(),
+  "slotDuration": zod.number().describe('Duration of each slot in minutes'),
+  "workingDays": zod.array(zod.string())
+})
+
+export const RequestUploadUrlBody = zod.object({
+  "name": zod.string().min(1),
+  "size": zod.number().min(1),
+  "contentType": zod.string().min(1)
+})
+
+export const RequestUploadUrlResponse = zod.object({
+  "uploadURL": zod.string().url(),
+  "objectPath": zod.string(),
+  "metadata": zod.object({
+    "name": zod.string().min(1),
+    "size": zod.number().min(1),
+    "contentType": zod.string().min(1)
+  }).optional()
+})
+
+export const GetStorageObjectParams = zod.object({
+  "objectPath": zod.coerce.string()
+})

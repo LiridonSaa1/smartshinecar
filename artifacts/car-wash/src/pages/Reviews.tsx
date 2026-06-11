@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
-import { useListReviews, useCreateReview, getListReviewsQueryKey } from "@workspace/api-client-react";
+import { useListReviews, useCreateReview, getListReviewsQueryKey } from "@/lib/api-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

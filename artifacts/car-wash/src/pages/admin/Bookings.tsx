@@ -7,7 +7,7 @@ import {
   useCreateBooking,
   useListServices,
   getListBookingsQueryKey,
-} from "@workspace/api-client-react";
+} from "@/lib/api-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

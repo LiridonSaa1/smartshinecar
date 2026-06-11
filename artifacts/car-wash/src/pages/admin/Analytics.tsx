@@ -6,7 +6,7 @@ import {
   getGetDashboardStatsQueryKey,
   getGetBookingsChartQueryKey,
   getGetTopServicesQueryKey,
-} from "@workspace/api-client-react";
+} from "@/lib/api-client";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,

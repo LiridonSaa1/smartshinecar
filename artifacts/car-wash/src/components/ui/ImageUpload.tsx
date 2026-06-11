@@ -8,9 +8,12 @@ interface ImageUploadProps {
   onChange: (url: string) => void;
   placeholder?: string;
   className?: string;
+  label?: string;
+  previewClassName?: string;
+  compact?: boolean;
 }
 
-export function ImageUpload({ value, onChange, placeholder = "Paste image URL or upload a file", className = "" }: ImageUploadProps) {
+export function ImageUpload({ value, onChange, placeholder = "Paste image URL or upload a file", className = "", previewClassName }: ImageUploadProps) {
   const [tab, setTab] = useState<"upload" | "url">("upload");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -123,7 +126,7 @@ export function ImageUpload({ value, onChange, placeholder = "Paste image URL or
           <img
             src={value}
             alt="Preview"
-            className="w-full h-full object-cover"
+            className={`w-full h-full object-cover ${previewClassName ?? ""}`}
             onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
           />
           <button

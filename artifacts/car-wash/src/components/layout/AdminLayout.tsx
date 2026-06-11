@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
-import { useAdminLogout } from "@workspace/api-client-react";
+import { useAdminLogout } from "@/lib/api-client";
 import {
   LayoutDashboard,
   CalendarCheck,

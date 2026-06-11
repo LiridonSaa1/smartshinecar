@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AdminLayout } from "@/components/layout/AdminLayout";
-import { useGetSettings, useUpdateSettings, getGetSettingsQueryKey } from "@workspace/api-client-react";
+import { useGetSettings, useUpdateSettings, getGetSettingsQueryKey, type BusinessSettings } from "@/lib/api-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -236,7 +236,7 @@ export default function AdminSettings() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    updateSettings.mutate({ data: form as Record<string, unknown> }, {
+    updateSettings.mutate({ data: form as unknown as BusinessSettings }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetSettingsQueryKey() });
         toast.success("Settings saved.");

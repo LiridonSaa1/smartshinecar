@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ElementType } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
 import { CookieBanner } from "@/components/ui/CookieBanner";
@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Clock, CheckCircle, ChevronLeft, ChevronRight, Calendar,
   User, Phone, Mail, Sparkles, Car, Zap, Shield, Star,
-  MapPin, CreditCard,
+  MapPin, CreditCard, Banknote, Landmark, Wallet,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -21,6 +21,8 @@ import { useLocation, useSearch } from "wouter";
 import { cn } from "@/lib/utils";
 
 type Step = 1 | 2 | 3 | 4;
+
+type PaymentMethod = "cash" | "card" | "bank_transfer";
 
 interface BookingForm {
   serviceId: number | null;
@@ -30,7 +32,35 @@ interface BookingForm {
   customerPhone: string;
   customerEmail: string;
   notes: string;
+  paymentMethod: PaymentMethod;
 }
+
+const PAYMENT_OPTIONS: { id: PaymentMethod; label: string; desc: string; icon: ElementType; color: string; badge: string }[] = [
+  {
+    id: "cash",
+    label: "Cash",
+    desc: "Pay in cash when we arrive",
+    icon: Banknote,
+    color: "#10b981",
+    badge: "Most popular",
+  },
+  {
+    id: "card",
+    label: "Card",
+    desc: "Credit or debit card on-site",
+    icon: CreditCard,
+    color: "#3b82f6",
+    badge: "",
+  },
+  {
+    id: "bank_transfer",
+    label: "Bank Transfer",
+    desc: "Pay before the appointment",
+    icon: Landmark,
+    color: "#8b5cf6",
+    badge: "",
+  },
+];
 
 function formatDate(dateStr: string) {
   if (!dateStr) return "";
@@ -187,6 +217,7 @@ export default function Booking() {
     customerPhone: "",
     customerEmail: "",
     notes: "",
+    paymentMethod: "cash",
   });
   const [confirmedBookingId, setConfirmedBookingId] = useState<number | null>(null);
   const [, setLocation] = useLocation();
@@ -207,6 +238,8 @@ export default function Booking() {
       toast.error("Please fill in all required fields.");
       return;
     }
+    const paymentLabel = PAYMENT_OPTIONS.find(p => p.id === form.paymentMethod)?.label ?? form.paymentMethod;
+    const notesWithPayment = [form.notes, `Payment: ${paymentLabel}`].filter(Boolean).join(" | ");
     createBooking.mutate(
       {
         data: {
@@ -216,7 +249,7 @@ export default function Booking() {
           customerName: form.customerName,
           customerPhone: form.customerPhone,
           customerEmail: form.customerEmail || undefined,
-          notes: form.notes || undefined,
+          notes: notesWithPayment,
         },
       },
       {
@@ -259,6 +292,7 @@ export default function Booking() {
                   { icon: Car, label: "Service", value: selectedService?.name },
                   { icon: Calendar, label: "Date", value: formatDate(form.date) },
                   { icon: Clock, label: "Time", value: form.time },
+                  { icon: Wallet, label: "Payment", value: PAYMENT_OPTIONS.find(p => p.id === form.paymentMethod)?.label },
                   { icon: CreditCard, label: "Total", value: `£${selectedService?.price}` },
                 ].map(({ icon: Icon, label, value }) => (
                   <div key={label} className="flex items-center gap-3">
@@ -523,7 +557,7 @@ export default function Booking() {
                     <div className="rounded-3xl p-6 border border-white/10" style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(20px)" }}>
                       <h2 className="text-2xl font-bold text-white mb-1">Your Details</h2>
                       <p className="text-slate-400 mb-6">Let us know how to reach you.</p>
-                      <div className="space-y-4">
+                      <div className="space-y-5">
                         {[
                           { icon: User, label: "Full Name", key: "customerName", type: "text", placeholder: "John Smith", required: true, testid: "input-customer-name" },
                           { icon: Phone, label: "Phone Number", key: "customerPhone", type: "tel", placeholder: "+44 7700 000 000", required: true, testid: "input-customer-phone" },
@@ -545,6 +579,59 @@ export default function Booking() {
                             />
                           </div>
                         ))}
+
+                        {/* Payment Method */}
+                        <div>
+                          <label className="flex items-center gap-2 text-sm font-medium text-slate-300 mb-3">
+                            <Wallet className="h-4 w-4 text-blue-400" />
+                            Payment Method <span className="text-blue-400">*</span>
+                          </label>
+                          <div className="grid grid-cols-3 gap-3">
+                            {PAYMENT_OPTIONS.map((opt) => {
+                              const Icon = opt.icon;
+                              const isSelected = form.paymentMethod === opt.id;
+                              return (
+                                <motion.button
+                                  key={opt.id}
+                                  type="button"
+                                  whileHover={{ scale: 1.02 }}
+                                  whileTap={{ scale: 0.97 }}
+                                  onClick={() => setForm(f => ({ ...f, paymentMethod: opt.id }))}
+                                  className="relative flex flex-col items-center gap-2 p-4 rounded-2xl border text-center transition-all duration-200"
+                                  style={{
+                                    borderColor: isSelected ? `${opt.color}60` : "rgba(255,255,255,0.08)",
+                                    background: isSelected
+                                      ? `${opt.color}18`
+                                      : "rgba(255,255,255,0.03)",
+                                  }}
+                                >
+                                  {opt.badge && (
+                                    <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap"
+                                      style={{ background: opt.color, color: "#fff" }}>
+                                      {opt.badge}
+                                    </span>
+                                  )}
+                                  <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                                    style={{ background: isSelected ? `${opt.color}30` : "rgba(255,255,255,0.06)" }}>
+                                    <Icon className="h-5 w-5" style={{ color: isSelected ? opt.color : "#64748b" }} />
+                                  </div>
+                                  <div>
+                                    <p className={cn("text-sm font-semibold", isSelected ? "text-white" : "text-slate-400")}>{opt.label}</p>
+                                    <p className="text-[11px] text-slate-600 leading-tight mt-0.5">{opt.desc}</p>
+                                  </div>
+                                  {isSelected && (
+                                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
+                                      className="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center"
+                                      style={{ background: opt.color }}>
+                                      <CheckCircle className="h-3 w-3 text-white" />
+                                    </motion.div>
+                                  )}
+                                </motion.button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
                         <div>
                           <label className="text-sm font-medium text-slate-300 mb-2 block">
                             Additional Notes <span className="text-slate-600 text-xs">(optional)</span>
@@ -589,6 +676,7 @@ export default function Booking() {
                           { icon: Phone, label: "Phone", value: form.customerPhone },
                           ...(form.customerEmail ? [{ icon: Mail, label: "Email", value: form.customerEmail, accent: false }] : []),
                           ...(form.notes ? [{ icon: Sparkles, label: "Notes", value: form.notes, accent: false }] : []),
+                          { icon: Wallet, label: "Payment", value: PAYMENT_OPTIONS.find(p => p.id === form.paymentMethod)?.label, accent: false },
                         ].map(({ icon: Icon, label, value, accent }) => (
                           <div key={label} className="flex items-center gap-3 py-2.5 px-4 rounded-xl border border-white/5" style={{ background: "rgba(255,255,255,0.03)" }}>
                             <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "rgba(59,130,246,0.15)" }}>
@@ -670,6 +758,7 @@ export default function Booking() {
                     { icon: Clock, label: "Time", value: form.time || null, placeholder: "Not selected" },
                     { icon: User, label: "Name", value: form.customerName || null, placeholder: "Not provided" },
                     { icon: Phone, label: "Phone", value: form.customerPhone || null, placeholder: "Not provided" },
+                    { icon: Wallet, label: "Payment", value: PAYMENT_OPTIONS.find(p => p.id === form.paymentMethod)?.label ?? null, placeholder: "Not selected" },
                   ].map(({ icon: Icon, label, value, placeholder }) => (
                     <div key={label} className="flex items-start gap-3">
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "rgba(255,255,255,0.06)" }}>

@@ -4,6 +4,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster as Sonner } from "sonner";
 import { AuthProvider } from "@/lib/auth";
+import { CustomerAuthProvider } from "@/lib/customerAuth";
+import MyAccount from "@/pages/MyAccount";
+import CustomerDashboard from "@/pages/CustomerDashboard";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Services from "@/pages/Services";
@@ -43,6 +46,8 @@ function Router() {
       <Route path="/private-valeting" component={PrivateValeting} />
       <Route path="/car-vehicle-detailing-service" component={CarDetailing} />
       <Route path="/commercial-valeting" component={CommercialValeting} />
+      <Route path="/my-account" component={MyAccount} />
+      <Route path="/my-account/dashboard" component={CustomerDashboard} />
       <Route path="/admin" component={() => <Redirect to="/admin/login" />} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
@@ -61,6 +66,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <CustomerAuthProvider>
         <TooltipProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <Router />
@@ -68,6 +74,7 @@ function App() {
           <Toaster />
           <Sonner position="top-right" richColors />
         </TooltipProvider>
+        </CustomerAuthProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

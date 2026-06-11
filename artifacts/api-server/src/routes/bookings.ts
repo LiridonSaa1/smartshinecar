@@ -1,7 +1,8 @@
 import { Router } from "express";
+import bcrypt from "bcryptjs";
 import { supabase } from "../lib/supabase";
 import { logger } from "../lib/logger";
-import { sendEmail, newBookingAdminEmail, bookingConfirmedCustomerEmail, bookingReadyCustomerEmail } from "../lib/email";
+import { sendEmail, newBookingAdminEmail, bookingConfirmedCustomerEmail, bookingReadyCustomerEmail, customerWelcomeEmail } from "../lib/email";
 
 const router = Router();
 
@@ -20,6 +21,36 @@ function mapBooking(row: Record<string, unknown>) {
     notes: row.notes,
     createdAt: row.created_at,
   };
+}
+
+function generatePassword(length = 10): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+  return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+}
+
+async function getOrCreateCustomerAccount(
+  email: string,
+  name: string
+): Promise<{ isNew: boolean; password?: string }> {
+  const { data: existing } = await supabase
+    .from("customer_accounts")
+    .select("id")
+    .eq("email", email.toLowerCase())
+    .single();
+
+  if (existing) return { isNew: false };
+
+  const password = generatePassword();
+  const password_hash = await bcrypt.hash(password, 10);
+
+  const { error } = await supabase.from("customer_accounts").insert({
+    email: email.toLowerCase(),
+    name,
+    password_hash,
+  });
+
+  if (error) throw error;
+  return { isNew: true, password };
 }
 
 async function getAdminNotificationEmail(): Promise<string | null> {
@@ -174,19 +205,42 @@ router.put("/bookings/:id", async (req, res) => {
     if (custEmail && prevStatus !== newStatus) {
       const { data: settingsRows } = await supabase.from("settings").select("phone").limit(1);
       const businessPhone = settingsRows?.[0]?.phone ?? "07717 310 046";
+      const portalUrl = process.env.PORTAL_URL ?? "https://smartshine.co.uk/my-account";
 
       if (newStatus === "confirmed") {
-        sendEmail({
-          to: [{ email: custEmail, name: booking.customerName as string }],
-          subject: "Your booking is confirmed — Smart Shine Car Valeting",
-          htmlContent: bookingConfirmedCustomerEmail({
-            customerName: booking.customerName as string,
-            serviceName: booking.serviceName as string,
-            date: booking.date as string,
-            time: booking.time as string,
-            businessPhone,
-          }),
-        }).catch(err => logger.error({ err }, "Booking confirmed email failed"));
+        getOrCreateCustomerAccount(custEmail, booking.customerName as string)
+          .then(({ isNew, password }) => {
+            const subject = "Your booking is confirmed — Smart Shine Car Valeting";
+            if (isNew && password) {
+              return sendEmail({
+                to: [{ email: custEmail, name: booking.customerName as string }],
+                subject,
+                htmlContent: customerWelcomeEmail({
+                  customerName: booking.customerName as string,
+                  email: custEmail,
+                  password,
+                  serviceName: booking.serviceName as string,
+                  date: booking.date as string,
+                  time: booking.time as string,
+                  portalUrl,
+                  businessPhone,
+                }),
+              });
+            } else {
+              return sendEmail({
+                to: [{ email: custEmail, name: booking.customerName as string }],
+                subject,
+                htmlContent: bookingConfirmedCustomerEmail({
+                  customerName: booking.customerName as string,
+                  serviceName: booking.serviceName as string,
+                  date: booking.date as string,
+                  time: booking.time as string,
+                  businessPhone,
+                }),
+              });
+            }
+          })
+          .catch(err => logger.error({ err }, "Booking confirmed email/account failed"));
       } else if (newStatus === "done") {
         sendEmail({
           to: [{ email: custEmail, name: booking.customerName as string }],

@@ -70,10 +70,10 @@ export function Navbar() {
             ))}
           </nav>
 
-          {/* Login */}
-          <Link href="/admin/login" className="flex-shrink-0">
+          {/* My Account */}
+          <Link href="/my-account" className="flex-shrink-0">
             <button className="inline-flex items-center justify-center rounded-full border border-white/30 hover:bg-white/10 px-5 py-2.5 text-[13px] font-bold text-white transition-all duration-150">
-              Login
+              My Account
             </button>
           </Link>
 
@@ -128,9 +128,9 @@ export function Navbar() {
                 </Link>
               ))}
             </nav>
-            <Link href="/admin/login" onClick={() => setMobileOpen(false)}>
+            <Link href="/my-account" onClick={() => setMobileOpen(false)}>
               <button className="w-full rounded-2xl border border-white/30 hover:bg-white/10 py-3.5 text-[16px] font-bold text-white transition-colors mb-3">
-                Login
+                My Account
               </button>
             </Link>
             <Link href="/booking" onClick={() => setMobileOpen(false)}>

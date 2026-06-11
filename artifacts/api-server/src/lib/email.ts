@@ -157,6 +157,52 @@ export function bookingConfirmedCustomerEmail(opts: {
   `;
 }
 
+export function customerWelcomeEmail(opts: {
+  customerName: string;
+  email: string;
+  password: string;
+  serviceName: string;
+  date: string;
+  time: string;
+  portalUrl: string;
+  businessPhone: string;
+}) {
+  return `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#ffffff">
+      <div style="background:linear-gradient(135deg,#0a0f2e,#1a2a6c);padding:24px 32px;border-radius:8px 8px 0 0">
+        <h1 style="color:#ffffff;margin:0;font-size:22px">Your Booking is Confirmed ✓</h1>
+        <p style="color:rgba(255,255,255,0.7);margin:4px 0 0;font-size:14px">Smart Shine Car Valeting Centre</p>
+      </div>
+      <div style="padding:24px 32px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
+        <p style="color:#374151;font-size:15px">Hi ${opts.customerName},</p>
+        <p style="color:#374151;font-size:15px">Great news — your booking has been <strong>confirmed</strong>! We look forward to seeing you.</p>
+        <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:20px;margin:20px 0">
+          <p style="margin:0 0 8px;font-size:13px;font-weight:bold;color:#166534;text-transform:uppercase;letter-spacing:0.05em">Booking Details</p>
+          <p style="margin:4px 0;font-size:15px;color:#111827"><strong>Service:</strong> ${opts.serviceName}</p>
+          <p style="margin:4px 0;font-size:15px;color:#111827"><strong>Date:</strong> ${opts.date}</p>
+          <p style="margin:4px 0;font-size:15px;color:#111827"><strong>Time:</strong> ${opts.time}</p>
+        </div>
+
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:20px;margin:20px 0">
+          <p style="margin:0 0 10px;font-size:13px;font-weight:bold;color:#1d4ed8;text-transform:uppercase;letter-spacing:0.05em">🔑 Your Customer Portal Account</p>
+          <p style="margin:0 0 8px;color:#374151;font-size:14px">We've created a portal account so you can track your bookings, see when your car is ready, and manage your appointments.</p>
+          <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:12px">
+            <tr><td style="padding:8px 10px;background:#ffffff;font-weight:bold;color:#374151;width:100px;border:1px solid #dbeafe">Email</td><td style="padding:8px 10px;background:#ffffff;color:#111827;border:1px solid #dbeafe">${opts.email}</td></tr>
+            <tr><td style="padding:8px 10px;background:#ffffff;font-weight:bold;color:#374151;border:1px solid #dbeafe;border-top:none">Password</td><td style="padding:8px 10px;background:#ffffff;color:#111827;font-family:monospace;letter-spacing:0.05em;border:1px solid #dbeafe;border-top:none"><strong>${opts.password}</strong></td></tr>
+          </table>
+          <div style="text-align:center;margin-top:16px">
+            <a href="${opts.portalUrl}" style="display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;padding:10px 24px;border-radius:6px;font-size:14px;font-weight:bold">View My Bookings →</a>
+          </div>
+          <p style="margin:12px 0 0;font-size:12px;color:#6b7280;text-align:center">You can change your password after logging in.</p>
+        </div>
+
+        <p style="color:#374151;font-size:14px">If you need to make any changes, please call us on <a href="tel:${opts.businessPhone}" style="color:#2563eb;font-weight:bold">${opts.businessPhone}</a>.</p>
+        <p style="color:#374151;font-size:14px">Smart Shine Car Valeting Centre<br/>Guildford, Surrey<br/>Mon–Sun: 08:00–19:00</p>
+      </div>
+    </div>
+  `;
+}
+
 export function bookingReadyCustomerEmail(opts: {
   customerName: string;
   serviceName: string;

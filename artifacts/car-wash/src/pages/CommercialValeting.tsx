@@ -26,12 +26,13 @@ import { useContentSection } from "@/lib/useContent";
 import logoSrc from "@assets/Professional_Car_Valeting_Logo_in_Navy_and_Silver_1781123501610.png";
 import vanImg from "@assets/IMG_1997-1920w_1781130022961.webp";
 import kenworthImg from "@assets/IMG_0022-8ade3f8e-1920w_1781130012426.webp";
+import heroSlide1 from "@assets/image_1781255006269.png";
+import heroSlide3 from "@assets/image_1781255016349.png";
 
 const HERO_SLIDES = [
   {
     id: 0,
-    image:
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=85",
+    image: heroSlide1,
     headline: "Top-Class Commercial Vehicle\nValeting Service in Guildford",
     sub: "Commercial vehicles see much more wear and tear than private cars due to the amount of usage, and therefore need regular valeting. Count on Smart Shine Car Valeting Centre to clean your car or van and bring its shine back.",
   },
@@ -44,8 +45,7 @@ const HERO_SLIDES = [
   },
   {
     id: 2,
-    image:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1600&q=85",
+    image: heroSlide3,
     headline: "Serving Guildford,\nGodalming & Woking",
     sub: "Based in Guildford, we welcome customers from Godalming, Woking and the surrounding areas. Get in touch with us and let us know your requirements.",
   },

@@ -2,7 +2,7 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import { supabase } from "../lib/supabase";
 import { logger } from "../lib/logger";
-import { sendEmail, getNotificationEmail, newBookingAdminEmail, bookingConfirmedCustomerEmail, bookingReadyCustomerEmail, customerWelcomeEmail } from "../lib/email";
+import { sendEmail, getNotificationEmail, newBookingAdminEmail, bookingConfirmedCustomerEmail, bookingReadyCustomerEmail, customerWelcomeEmail, bookingReceivedCustomerEmail } from "../lib/email";
 
 const router = Router();
 
@@ -138,6 +138,9 @@ router.post("/bookings", async (req, res) => {
     }).select().single();
     if (error) throw error;
 
+    const { data: settingsRows } = await supabase.from("settings").select("phone").limit(1);
+    const businessPhone = settingsRows?.[0]?.phone ?? "07717 310 046";
+
     const adminEmail = await getAdminNotificationEmail();
     if (adminEmail) {
       sendEmail({
@@ -155,6 +158,20 @@ router.post("/bookings", async (req, res) => {
         }),
         ...(customerEmail ? { replyTo: { email: customerEmail, name: customerName } } : {}),
       }).catch(err => logger.error({ err }, "New booking admin email failed"));
+    }
+
+    if (customerEmail) {
+      sendEmail({
+        to: [{ email: customerEmail, name: customerName }],
+        subject: `Booking request received — Smart Shine Car Valeting`,
+        htmlContent: bookingReceivedCustomerEmail({
+          customerName,
+          serviceName: service.name,
+          date,
+          time,
+          businessPhone,
+        }),
+      }).catch(err => logger.error({ err }, "Booking received customer email failed"));
     }
 
     return res.status(201).json(mapBooking(data));

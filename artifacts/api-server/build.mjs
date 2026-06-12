@@ -81,6 +81,7 @@ async function buildAll() {
       "@workspace/db": path.join(dbRoot, "index.ts"),
       "@workspace/db/schema": path.join(dbRoot, "schema/index.ts"),
     },
+    nodePaths: [path.resolve(artifactDir, "node_modules")],
     external: [
       "*.node",
       "sharp",

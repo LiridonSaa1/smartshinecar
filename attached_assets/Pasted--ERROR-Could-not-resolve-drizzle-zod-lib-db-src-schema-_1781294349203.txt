@@ -1,0 +1,36 @@
+✘ [ERROR] Could not resolve "drizzle-zod"
+    ../../lib/db/src/schema/reviews.ts:2:35:
+      2 │ import { createInsertSchema } from "drizzle-zod";
+        ╵                                    ~~~~~~~~~~~~~
+  You can mark the path "drizzle-zod" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+✘ [ERROR] Could not resolve "drizzle-zod"
+    ../../lib/db/src/schema/services.ts:2:35:
+      2 │ import { createInsertSchema } from "drizzle-zod";
+        ╵                                    ~~~~~~~~~~~~~
+  You can mark the path "drizzle-zod" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+✘ [ERROR] Could not resolve "drizzle-zod"
+    ../../lib/db/src/schema/users.ts:2:35:
+      2 │ import { createInsertSchema } from "drizzle-zod";
+        ╵                                    ~~~~~~~~~~~~~
+  You can mark the path "drizzle-zod" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+✘ [ERROR] Could not resolve "drizzle-zod"
+    ../../lib/db/src/schema/bookings.ts:2:35:
+      2 │ import { createInsertSchema } from "drizzle-zod";
+        ╵                                    ~~~~~~~~~~~~~
+  You can mark the path "drizzle-zod" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+15 errors
+Error: Build failed with 15 errors:
+../../lib/db/src/index.ts:1:24: ERROR: Could not resolve "drizzle-orm/node-postgres"
+../../lib/db/src/index.ts:2:15: ERROR: Could not resolve "pg"
+../../lib/db/src/schema/bookings.ts:1:67: ERROR: Could not resolve "drizzle-orm/pg-core"
+../../lib/db/src/schema/bookings.ts:2:35: ERROR: Could not resolve "drizzle-zod"
+../../lib/db/src/schema/customer_accounts.ts:1:49: ERROR: Could not resolve "drizzle-orm/pg-core"
+...
+    at failureErrorWithLog (/opt/render/project/src/artifacts/api-server/node_modules/esbuild/lib/main.js:1467:15)
+    at /opt/render/project/src/artifacts/api-server/node_modules/esbuild/lib/main.js:926:25
+    at /opt/render/project/src/artifacts/api-server/node_modules/esbuild/lib/main.js:1345:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  errors: [Getter/Setter],
+  warnings: [Getter/Setter]
+}
+==> Build failed 😞

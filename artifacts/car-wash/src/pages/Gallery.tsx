@@ -272,6 +272,48 @@ const BRANDS = [
     emoji: "🐆",
     images: [],
   },
+  {
+    id: "vauxhall",
+    name: "Vauxhall",
+    emoji: "🔱",
+    images: [],
+  },
+  {
+    id: "mitsubishi",
+    name: "Mitsubishi",
+    emoji: "🚙",
+    images: [],
+  },
+  {
+    id: "peugeot",
+    name: "Peugeot",
+    emoji: "🦁",
+    images: [],
+  },
+  {
+    id: "citroen",
+    name: "Citroën",
+    emoji: "🇫🇷",
+    images: [],
+  },
+  {
+    id: "aston-martin",
+    name: "Aston Martin",
+    emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+    images: [],
+  },
+  {
+    id: "bugatti",
+    name: "Bugatti",
+    emoji: "🐝",
+    images: [],
+  },
+  {
+    id: "mercedes",
+    name: "Mercedes",
+    emoji: "⭐",
+    images: [],
+  },
 ];
 
 /* ── Brand Gallery Slider ─────────────────────────────────────────── */

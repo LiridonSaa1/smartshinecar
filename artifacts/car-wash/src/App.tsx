@@ -1,10 +1,11 @@
-import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
+import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster as Sonner } from "sonner";
 import { AuthProvider } from "@/lib/auth";
 import { CustomerAuthProvider } from "@/lib/customerAuth";
+import { useEffect } from "react";
 import MyAccount from "@/pages/MyAccount";
 import CustomerDashboard from "@/pages/CustomerDashboard";
 import NotFound from "@/pages/not-found";
@@ -33,8 +34,18 @@ const queryClient = new QueryClient({
   },
 });
 
+function ScrollToTop() {
+  const [location] = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [location]);
+  return null;
+}
+
 function Router() {
   return (
+    <>
+      <ScrollToTop />
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/services" component={Services} />
@@ -59,6 +70,7 @@ function Router() {
       <Route path="/admin/messages" component={AdminMessages} />
       <Route component={NotFound} />
     </Switch>
+    </>
   );
 }
 

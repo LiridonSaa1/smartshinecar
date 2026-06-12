@@ -54,10 +54,10 @@ async function getOrCreateCustomerAccount(
 }
 
 async function getAdminNotificationEmail(): Promise<string | null> {
-  const notifEmail = await getNotificationEmail();
-  if (notifEmail) return notifEmail;
   const { data } = await supabase.from("settings").select("email").limit(1);
-  return (data?.[0]?.email as string) || null;
+  if (data?.[0]?.email) return data[0].email as string;
+  const notifEmail = await getNotificationEmail();
+  return notifEmail;
 }
 
 router.get("/bookings", async (req, res) => {

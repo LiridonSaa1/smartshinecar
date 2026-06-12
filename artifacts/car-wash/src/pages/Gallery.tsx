@@ -543,11 +543,40 @@ export default function Gallery() {
       <Navbar />
       <HeroCarousel />
 
+      {/* Text intro section */}
+      <section className="py-14 bg-white">
+        <div className="mx-auto max-w-2xl px-6 text-center">
+          <FadeIn>
+            <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 rounded-full px-4 py-1.5 text-sm font-bold mb-5">
+              <Sparkles className="h-3.5 w-3.5" /> Our Work
+            </div>
+            <h2 className="text-3xl md:text-4xl font-black text-[#0a0f2e] mb-5">
+              Paint restoration specialists in Guildford
+            </h2>
+            <p className="text-gray-500 text-[15px] leading-relaxed">
+              Take a look at some exceptional works done by the experts at Smart Shine Car Valeting Centre.
+              From car scratch removals to paint restoration, we can do it all. Get in touch with us to book an
+              appointment for car valeting in Guildford. We offer both interior and exterior valeting. You can
+              choose between full valet and part valet. Customers from across Guildford, Godalming and
+              Woking are welcomed to our car valeting centre.
+            </p>
+          </FadeIn>
+        </div>
+      </section>
+
       {/* Brand gallery section */}
       <section id="gallery" className="py-14 bg-gray-50">
         <div className="mx-auto max-w-7xl px-6">
+          <FadeIn className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 rounded-full px-4 py-1.5 text-sm font-bold mb-4">
+              <Images className="h-3.5 w-3.5" /> A Glimpse of Our Previous Valets
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black text-[#0a0f2e] tracking-tight mb-3">Browse by vehicle</h2>
+            <p className="text-gray-500 text-[15px]">Select a brand to see our work on that vehicle type</p>
+          </FadeIn>
+
           {/* Brand tabs */}
-          <FadeIn className="flex flex-wrap gap-2 justify-center mb-10">
+          <FadeIn delay={0.1} className="flex flex-wrap gap-2 justify-center mb-10">
             {BRANDS.map(brand => {
               const hasPhotos = brand.images.length > 0;
               const isActive = activeBrand === brand.id;

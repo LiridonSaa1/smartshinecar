@@ -5,12 +5,22 @@ import { Link } from "wouter";
 import {
   Phone, MapPin, Clock, Mail,
   ChevronLeft, ChevronRight, ChevronDown,
-  Facebook, Twitter, Shield, Send, Sparkles, Images,
+  Facebook, Twitter, Shield, Send, Sparkles, Images, Car,
 } from "lucide-react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useContentSection } from "@/lib/useContent";
 import logoSrc from "@assets/Professional_Car_Valeting_Logo_in_Navy_and_Silver_1781123501610.png";
+
+type GalleryCar = {
+  id: string;
+  make: string;
+  model: string;
+  year: number;
+  image: string;
+  service: string;
+};
 
 /* ── Resolve gallery image URLs with correct base path ───────────── */
 const BASE = (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "");
@@ -451,6 +461,129 @@ function ContactForm() {
   );
 }
 
+/* ── Gallery Car Grid (from database) ────────────────────────────── */
+function GalleryCarGrid() {
+  const { data: cars, isLoading } = useQuery<GalleryCar[]>({
+    queryKey: ["gallery-cars"],
+    queryFn: () => fetch("/api/gallery").then(r => r.json()),
+    staleTime: 30_000,
+  });
+
+  const [selected, setSelected] = useState<GalleryCar | null>(null);
+
+  if (isLoading) {
+    return (
+      <section className="py-20 bg-white">
+        <div className="mx-auto max-w-6xl px-6 text-center">
+          <div className="inline-flex items-center gap-2 text-gray-400 text-sm animate-pulse">
+            <Car className="h-4 w-4" /> Loading vehicles…
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!cars?.length) return null;
+
+  return (
+    <section className="py-20 bg-white border-b border-gray-100">
+      <div className="mx-auto max-w-7xl px-6">
+        <FadeIn className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 rounded-full px-4 py-1.5 text-sm font-bold mb-4">
+            <Car className="h-4 w-4" />
+            Our Vehicles
+          </div>
+          <h2 className="text-4xl md:text-5xl font-black text-[#0a0f2e] tracking-tight">
+            Cars We've Worked On
+          </h2>
+          <p className="text-gray-500 mt-3 text-[15px] max-w-md mx-auto">
+            Real vehicles from our Guildford centre — every make and model welcome
+          </p>
+        </FadeIn>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {cars.map((car, i) => (
+            <motion.div
+              key={car.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.45, delay: (i % 10) * 0.05 }}
+              whileHover={{ y: -4, scale: 1.02 }}
+              onClick={() => setSelected(car)}
+              className="group cursor-pointer rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 bg-gray-900 aspect-[4/3] relative"
+            >
+              <img
+                src={resolveUrl(car.image)}
+                alt={`${car.make} ${car.model}`}
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-3">
+                <p className="text-white font-black text-sm leading-tight">
+                  {car.make}
+                </p>
+                <p className="text-white/80 text-xs font-medium leading-tight">
+                  {car.model}
+                </p>
+                <div className="flex items-center gap-1.5 mt-1.5">
+                  <span className="bg-blue-500/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    {car.year}
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Lightbox */}
+      <AnimatePresence>
+        {selected && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelected(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={e => e.stopPropagation()}
+              className="relative bg-[#0a0f2e] rounded-3xl overflow-hidden max-w-2xl w-full shadow-2xl"
+            >
+              <img
+                src={resolveUrl(selected.image)}
+                alt={`${selected.make} ${selected.model}`}
+                className="w-full aspect-[16/9] object-cover"
+              />
+              <div className="p-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="bg-blue-500 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">{selected.year}</span>
+                      <span className="text-blue-300 text-xs font-bold uppercase tracking-widest">{selected.service}</span>
+                    </div>
+                    <h3 className="text-white font-black text-2xl">{selected.make} {selected.model}</h3>
+                  </div>
+                  <button
+                    onClick={() => setSelected(null)}
+                    className="h-9 w-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors flex-shrink-0"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </section>
+  );
+}
+
 /* ── Default CMS values ────────────────────────────────────────────── */
 const DEFAULT_GALLERY_HERO = HERO_SLIDES;
 const DEFAULT_GALLERY_BELOW_HERO = {
@@ -496,7 +629,10 @@ export default function Gallery() {
         </div>
       </section>
 
-      {/* 3. BRAND GALLERY */}
+      {/* 3. CAR GRID FROM DATABASE */}
+      <GalleryCarGrid />
+
+      {/* 4. BRAND GALLERY */}
       <section id="gallery" className="py-20 bg-gray-50">
         <div className="mx-auto max-w-6xl px-6">
           <FadeIn className="text-center mb-12">

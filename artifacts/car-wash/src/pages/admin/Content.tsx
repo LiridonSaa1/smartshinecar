@@ -9,9 +9,11 @@ import {
   Car, Sparkles, Star, Phone, MapPin, Wrench, ListChecks,
   Image, Check, Loader2, Plus, Trash2, ChevronRight,
   GalleryHorizontal, Info, BarChart3, Layers, Home,
-  Contact, Shield,
+  Contact, Shield, Edit2, X,
 } from "lucide-react";
 import { ImageUpload } from "@/components/ui/ImageUpload";
+
+type GalleryCar = { id: string; make: string; model: string; year: number; image: string; service: string; };
 
 const API = "/api/content";
 
@@ -1117,6 +1119,160 @@ function CdTestimonialEditor() {
   );
 }
 
+// ─── GALLERY CARS ─────────────────────────────────────────────────────────────
+const EMPTY_CAR: Omit<GalleryCar, "id"> = { make: "", model: "", year: new Date().getFullYear(), image: "", service: "" };
+
+function GalleryCarsEditor() {
+  const qc = useQueryClient();
+  const { data: cars, isLoading } = useQuery<GalleryCar[]>({
+    queryKey: ["gallery-cars"],
+    queryFn: () => fetch("/api/gallery").then(r => r.json()),
+  });
+
+  const [adding, setAdding] = useState(false);
+  const [newCar, setNewCar] = useState<Omit<GalleryCar, "id">>(EMPTY_CAR);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValues, setEditValues] = useState<Omit<GalleryCar, "id">>(EMPTY_CAR);
+  const [saving, setSaving] = useState(false);
+
+  const deleteCar = useMutation({
+    mutationFn: (id: string) => fetch(`/api/gallery/${id}`, { method: "DELETE" }).then(r => { if (!r.ok) throw new Error("Delete failed"); return r.json(); }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["gallery-cars"] }),
+  });
+
+  const handleAdd = async () => {
+    if (!newCar.make || !newCar.model || !newCar.year) return;
+    setSaving(true);
+    try {
+      await fetch("/api/gallery", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newCar),
+      });
+      qc.invalidateQueries({ queryKey: ["gallery-cars"] });
+      setNewCar(EMPTY_CAR);
+      setAdding(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleEdit = async (id: string) => {
+    setSaving(true);
+    try {
+      const updated = (cars ?? []).map(c => c.id === id ? { ...c, ...editValues } : c);
+      await fetch("/api/gallery", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updated),
+      });
+      qc.invalidateQueries({ queryKey: ["gallery-cars"] });
+      setEditingId(null);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (isLoading) return <div className="py-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-gray-400" /></div>;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm text-gray-500">{cars?.length ?? 0} vehicle{cars?.length !== 1 ? "s" : ""} in gallery</p>
+        <Button size="sm" variant="outline" onClick={() => { setAdding(true); setEditingId(null); }} className="text-xs h-8">
+          <Plus className="h-3.5 w-3.5 mr-1" />Add Vehicle
+        </Button>
+      </div>
+
+      {/* Add new car form */}
+      {adding && (
+        <div className="border-2 border-blue-200 rounded-xl p-4 bg-blue-50/50 mb-4 space-y-3">
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-sm font-bold text-blue-700">New Vehicle</p>
+            <Button size="icon" variant="ghost" onClick={() => setAdding(false)} className="h-7 w-7"><X className="h-3.5 w-3.5" /></Button>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div><label className="block text-xs font-semibold text-gray-600 mb-1">Make *</label>
+              <Input value={newCar.make} onChange={e => setNewCar(c => ({ ...c, make: e.target.value }))} placeholder="BMW" /></div>
+            <div><label className="block text-xs font-semibold text-gray-600 mb-1">Model *</label>
+              <Input value={newCar.model} onChange={e => setNewCar(c => ({ ...c, model: e.target.value }))} placeholder="3 Series" /></div>
+            <div><label className="block text-xs font-semibold text-gray-600 mb-1">Year *</label>
+              <Input type="number" value={newCar.year} onChange={e => setNewCar(c => ({ ...c, year: Number(e.target.value) }))} placeholder="2020" /></div>
+            <div><label className="block text-xs font-semibold text-gray-600 mb-1">Service</label>
+              <Input value={newCar.service} onChange={e => setNewCar(c => ({ ...c, service: e.target.value }))} placeholder="Full Valet" /></div>
+          </div>
+          <div><label className="block text-xs font-semibold text-gray-600 mb-1">Photo</label>
+            <ImageUpload value={newCar.image} onChange={val => setNewCar(c => ({ ...c, image: val }))} placeholder="Upload or paste URL…" compact /></div>
+          <div className="flex justify-end gap-2 pt-1">
+            <Button size="sm" variant="outline" onClick={() => setAdding(false)}>Cancel</Button>
+            <Button size="sm" onClick={handleAdd} disabled={saving || !newCar.make || !newCar.model} className="bg-blue-600 hover:bg-blue-700 text-white">
+              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Check className="h-3.5 w-3.5 mr-1" />}Save Vehicle
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Car list */}
+      <div className="space-y-2 max-h-[520px] overflow-y-auto pr-1">
+        {(cars ?? []).map(car => (
+          <div key={car.id} className="border border-gray-200 rounded-xl overflow-hidden bg-white">
+            {editingId === car.id ? (
+              <div className="p-4 space-y-3 bg-amber-50/50 border-t-2 border-amber-300">
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="block text-xs font-semibold text-gray-600 mb-1">Make</label>
+                    <Input value={editValues.make} onChange={e => setEditValues(v => ({ ...v, make: e.target.value }))} /></div>
+                  <div><label className="block text-xs font-semibold text-gray-600 mb-1">Model</label>
+                    <Input value={editValues.model} onChange={e => setEditValues(v => ({ ...v, model: e.target.value }))} /></div>
+                  <div><label className="block text-xs font-semibold text-gray-600 mb-1">Year</label>
+                    <Input type="number" value={editValues.year} onChange={e => setEditValues(v => ({ ...v, year: Number(e.target.value) }))} /></div>
+                  <div><label className="block text-xs font-semibold text-gray-600 mb-1">Service</label>
+                    <Input value={editValues.service} onChange={e => setEditValues(v => ({ ...v, service: e.target.value }))} /></div>
+                </div>
+                <div><label className="block text-xs font-semibold text-gray-600 mb-1">Photo</label>
+                  <ImageUpload value={editValues.image} onChange={val => setEditValues(v => ({ ...v, image: val }))} compact /></div>
+                <div className="flex justify-end gap-2">
+                  <Button size="sm" variant="outline" onClick={() => setEditingId(null)}>Cancel</Button>
+                  <Button size="sm" onClick={() => handleEdit(car.id)} disabled={saving} className="bg-amber-500 hover:bg-amber-600 text-white">
+                    {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Check className="h-3.5 w-3.5 mr-1" />}Save
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 p-3">
+                {car.image ? (
+                  <img src={car.image} alt={`${car.make} ${car.model}`} className="h-14 w-20 object-cover rounded-lg flex-shrink-0 bg-gray-100" />
+                ) : (
+                  <div className="h-14 w-20 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <Car className="h-6 w-6 text-gray-300" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm text-gray-900 truncate">{car.make} {car.model}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">{car.year}</span>
+                    {car.service && <span className="text-gray-400 text-xs truncate">{car.service}</span>}
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <Button size="icon" variant="ghost" onClick={() => { setEditingId(car.id); setEditValues({ make: car.make, model: car.model, year: car.year, image: car.image, service: car.service }); setAdding(false); }} className="h-8 w-8 text-gray-400 hover:text-blue-600">
+                    <Edit2 className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button size="icon" variant="ghost" onClick={() => deleteCar.mutate(car.id)} className="h-8 w-8 text-gray-400 hover:text-red-500">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+        {!cars?.length && !adding && (
+          <p className="text-center text-sm text-gray-400 py-8">No vehicles yet. Click "Add Vehicle" to get started.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── PAGE GROUPS ──────────────────────────────────────────────────────────────
 type SectionDef = {
   key: string;
@@ -1188,6 +1344,7 @@ const PAGE_GROUPS: PageGroup[] = [
     icon: Image,
     color: "rose",
     sections: [
+      { key: "gallery_cars", label: "Gallery Cars", description: "Add/edit/delete vehicles shown in the car grid (Make, Model, Year)", icon: Car, editor: GalleryCarsEditor },
       { key: "gallery_hero", label: "Hero Carousel", description: "Gallery page hero slides — images and headlines", icon: GalleryHorizontal, editor: GalleryHeroEditor },
       { key: "gallery_below_hero", label: "Gallery Section Heading", description: "Heading and subtitle below the hero carousel", icon: Info, editor: GalleryBelowHeroEditor },
       { key: "gallery_brands_v2", label: "Vehicle Tags & Images", description: "Browse-by-vehicle tags with images per brand", icon: Car, editor: GalleryBrandsEditor },

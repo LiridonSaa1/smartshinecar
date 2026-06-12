@@ -10,6 +10,7 @@ import contentRouter from "./content";
 import storageRouter from "./storage";
 import messagesRouter from "./messages";
 import customerRouter from "./customer";
+import galleryRouter from "./gallery";
 
 const router: IRouter = Router();
 
@@ -24,5 +25,6 @@ router.use(settingsRouter);
 router.use(contentRouter);
 router.use(storageRouter);
 router.use(messagesRouter);
+router.use(galleryRouter);
 
 export default router;

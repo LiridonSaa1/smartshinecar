@@ -544,18 +544,10 @@ export default function Gallery() {
       <HeroCarousel />
 
       {/* Brand gallery section */}
-      <section id="gallery" className="py-20 bg-gray-50">
-        <div className="mx-auto max-w-6xl px-6">
-          <FadeIn className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 rounded-full px-4 py-1.5 text-sm font-bold mb-4">
-              <Images className="h-4 w-4" /> Our Work
-            </div>
-            <h2 className="text-4xl md:text-5xl font-black text-[#0a0f2e] tracking-tight">Browse by Vehicle Brand</h2>
-            <p className="text-gray-500 mt-3 text-[15px] max-w-md mx-auto">Select a brand to see our work on that vehicle type</p>
-          </FadeIn>
-
+      <section id="gallery" className="py-14 bg-gray-50">
+        <div className="mx-auto max-w-7xl px-6">
           {/* Brand tabs */}
-          <FadeIn delay={0.1} className="flex flex-wrap gap-2 justify-center mb-10">
+          <FadeIn className="flex flex-wrap gap-2 justify-center mb-10">
             {BRANDS.map(brand => {
               const hasPhotos = brand.images.length > 0;
               const isActive = activeBrand === brand.id;
@@ -582,7 +574,7 @@ export default function Gallery() {
           </FadeIn>
 
           {/* Slider */}
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-5xl mx-auto">
             <AnimatePresence mode="wait">
               {currentBrand && currentBrand.images.length > 0 && (
                 <motion.div

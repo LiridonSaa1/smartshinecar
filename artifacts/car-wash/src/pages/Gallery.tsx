@@ -550,7 +550,7 @@ export default function Gallery() {
             <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 rounded-full px-4 py-1.5 text-sm font-bold mb-5">
               <Sparkles className="h-3.5 w-3.5" /> Our Work
             </div>
-            <h2 className="text-3xl md:text-4xl font-black text-[#0a0f2e] mb-5">
+            <h2 className="text-3xl md:text-4xl font-black text-[#0a0f2e] tracking-tight mb-5">
               Paint restoration specialists in Guildford
             </h2>
             <p className="text-gray-500 text-[15px] leading-relaxed">
@@ -571,7 +571,7 @@ export default function Gallery() {
             <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 rounded-full px-4 py-1.5 text-sm font-bold mb-4">
               <Images className="h-3.5 w-3.5" /> A Glimpse of Our Previous Valets
             </div>
-            <h2 className="text-4xl md:text-5xl font-black text-[#0a0f2e] tracking-tight mb-3">Browse by vehicle</h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-[#0a0f2e] tracking-tight mb-3">Browse by vehicle</h2>
             <p className="text-gray-500 text-[15px]">Select a brand to see our work on that vehicle type</p>
           </FadeIn>
 

@@ -48,9 +48,11 @@ app.get("/health", (_req, res) => {
 app.use("/api", router);
 
 // SPA fallback — return index.html for any non-API route so client-side
-// routing (React Router / Wouter) works correctly on deep links
+// routing (React Router / Wouter) works correctly on deep links.
+// Uses app.use() (not app.get("*")) because path-to-regexp v8 (Express 5)
+// no longer accepts bare "*" wildcards.
 if (existsSync(publicDir)) {
-  app.get("*", (_req, res) => {
+  app.use((_req, res) => {
     res.sendFile(path.join(publicDir, "index.html"));
   });
 }

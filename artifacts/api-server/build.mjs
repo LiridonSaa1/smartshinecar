@@ -19,13 +19,15 @@ async function buildFrontend() {
     return;
   }
 
-  // Detect pnpm workspace (local / Replit dev environment)
+  // Detect whether the pnpm virtual store is actually populated
+  // (pnpm-workspace.yaml may exist on Render too, but packages won't be installed)
   const workspaceRoot = path.resolve(artifactDir, "../..");
-  const isPnpmWorkspace = existsSync(path.join(workspaceRoot, "pnpm-workspace.yaml"));
+  const pnpmStoreDir = path.join(workspaceRoot, "node_modules", ".pnpm");
+  const pnpmInstalled = existsSync(pnpmStoreDir);
   const buildEnv = { ...process.env, BASE_PATH: "/" };
 
-  if (isPnpmWorkspace) {
-    // Packages already managed by pnpm — just run the vite build directly
+  if (pnpmInstalled) {
+    // Packages already managed by pnpm (Replit dev) — run vite directly
     console.log("🏗️  Building frontend (pnpm workspace)...");
     execSync("pnpm exec vite build --config vite.config.ts", {
       cwd: carWashDir,
@@ -33,7 +35,7 @@ async function buildFrontend() {
       env: buildEnv,
     });
   } else {
-    // Clean npm environment (e.g. Render) — install then build
+    // Clean npm environment (Render) — install then build
     console.log("📦 Installing frontend dependencies...");
     execSync("npm install --ignore-scripts", {
       cwd: carWashDir,

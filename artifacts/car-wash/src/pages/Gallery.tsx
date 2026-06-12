@@ -236,6 +236,42 @@ const BRANDS = [
       { url: "https://images.unsplash.com/photo-1614200179396-2bdb77ebf81b?w=900&q=85", caption: "Porsche Macan — Interior Clean" },
     ],
   },
+  {
+    id: "mini",
+    name: "MINI",
+    emoji: "🇬🇧",
+    images: [],
+  },
+  {
+    id: "mg",
+    name: "MG",
+    emoji: "🏎️",
+    images: [],
+  },
+  {
+    id: "nissan",
+    name: "Nissan",
+    emoji: "🚗",
+    images: [],
+  },
+  {
+    id: "lexus",
+    name: "Lexus",
+    emoji: "⬜",
+    images: [],
+  },
+  {
+    id: "ford",
+    name: "Ford",
+    emoji: "🇬🇧",
+    images: [],
+  },
+  {
+    id: "jaguar",
+    name: "Jaguar",
+    emoji: "🐆",
+    images: [],
+  },
 ];
 
 /* ── Brand Gallery Slider ─────────────────────────────────────────── */
@@ -665,10 +701,7 @@ export default function Gallery() {
         </div>
       </section>
 
-      {/* 3. CAR GRID FROM DATABASE */}
-      <GalleryCarGrid />
-
-      {/* 4. BRAND GALLERY */}
+      {/* 3. BRAND GALLERY */}
       <section id="gallery" className="py-20 bg-gray-50">
         <div className="mx-auto max-w-6xl px-6">
           <FadeIn className="text-center mb-12">

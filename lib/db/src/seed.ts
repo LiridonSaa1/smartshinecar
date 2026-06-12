@@ -1,9 +1,11 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
+import bcrypt from "bcryptjs";
 import { servicesTable } from "./schema/services";
 import { bookingsTable } from "./schema/bookings";
 import { reviewsTable } from "./schema/reviews";
 import { settingsTable } from "./schema/settings";
+import { usersTable } from "./schema/users";
 
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 const db = drizzle(pool);
@@ -78,6 +80,21 @@ if (existingSettings.length === 0) {
   console.log("✅ Seeded settings");
 } else {
   console.log("⏭  Settings already exist, skipping");
+}
+
+// ─── ADMIN USER ───────────────────────────────────────────────────────────────
+const existingAdmin = await db.select().from(usersTable).limit(1);
+if (existingAdmin.length === 0) {
+  const passwordHash = await bcrypt.hash("SmartShine2026!", 12);
+  await db.insert(usersTable).values({
+    name: "Admin",
+    email: "admin@smartshine.co.uk",
+    passwordHash,
+    role: "admin",
+  });
+  console.log("✅ Seeded admin user");
+} else {
+  console.log("⏭  Admin user already exists, skipping");
 }
 
 await pool.end();

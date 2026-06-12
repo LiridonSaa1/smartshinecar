@@ -1,5 +1,9 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import { db } from "@workspace/db";
+import { usersTable } from "@workspace/db/schema";
+import { eq } from "drizzle-orm";
 import { logger } from "../lib/logger";
 
 const router = Router();
@@ -8,22 +12,6 @@ const LOCAL_ISS = "smartshine-local";
 
 function getJwtSecret(): string {
   return process.env.JWT_SECRET ?? process.env.SESSION_SECRET ?? "fallback-secret-change-me";
-}
-
-function tryLocalAdminLogin(email: string, password: string) {
-  const adminEmail = process.env.ADMIN_EMAIL ?? "admin@carwash.com";
-  const adminPassword = process.env.ADMIN_PASSWORD ?? "admin123";
-  if (email !== adminEmail || password !== adminPassword) return null;
-
-  const token = jwt.sign(
-    { sub: "local-admin", email: adminEmail, role: "admin", iss: LOCAL_ISS },
-    getJwtSecret(),
-    { expiresIn: "7d" },
-  );
-  return {
-    token,
-    user: { id: "local-admin", email: adminEmail, name: "Admin", role: "admin" },
-  };
 }
 
 function verifyLocalToken(token: string) {
@@ -43,10 +31,32 @@ router.post("/auth/login", async (req, res) => {
       return res.status(400).json({ error: "Email and password required" });
     }
 
-    const local = tryLocalAdminLogin(email, password);
-    if (local) return res.json(local);
+    // Look up user in DB
+    const [user] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.email, email.toLowerCase().trim()))
+      .limit(1);
 
-    return res.status(401).json({ error: "Invalid credentials" });
+    if (!user || user.role !== "admin") {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.passwordHash);
+    if (!passwordMatch) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    const token = jwt.sign(
+      { sub: String(user.id), email: user.email, role: user.role, iss: LOCAL_ISS },
+      getJwtSecret(),
+      { expiresIn: "7d" },
+    );
+
+    return res.json({
+      token,
+      user: { id: user.id, email: user.email, name: user.name, role: user.role },
+    });
   } catch (err) {
     logger.error({ err }, "Login error");
     return res.status(500).json({ error: "Internal server error" });

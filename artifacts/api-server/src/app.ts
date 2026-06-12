@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import { existsSync } from "fs";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import { runMigrations } from "./lib/migrate";
 
 const app: Express = express();
 
@@ -40,6 +41,8 @@ const publicDir = path.resolve(currentDir, "..", "public");
 if (existsSync(publicDir)) {
   app.use(express.static(publicDir));
 }
+
+runMigrations();
 
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });

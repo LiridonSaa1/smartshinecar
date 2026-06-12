@@ -10,7 +10,7 @@ const router: IRouter = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 15 * 1024 * 1024 } });
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
-const uploadsDir = path.resolve(currentDir, "..", "..", "public", "uploads");
+const uploadsDir = path.resolve(currentDir, "..", "public", "uploads");
 
 async function ensureUploadsDir() {
   if (!existsSync(uploadsDir)) {

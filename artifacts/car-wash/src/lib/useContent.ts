@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const API = "/api/content";
 
-export function useContentSection<T>(key: string, fallback: T) {
+export function useContentSection<T>(key: string, fallback: T): T {
   const { data } = useQuery<T>({
     queryKey: ["content", key],
     queryFn: async () => {
@@ -11,9 +11,25 @@ export function useContentSection<T>(key: string, fallback: T) {
       const json = await res.json();
       return json ?? fallback;
     },
-    staleTime: 30_000,
+    staleTime: 5 * 60_000,
+    placeholderData: (prev) => prev,
   });
   return (data ?? fallback) as T;
+}
+
+export function useContentSectionWithLoading<T>(key: string, fallback: T): { data: T | undefined; isLoading: boolean } {
+  const { data, isLoading } = useQuery<T>({
+    queryKey: ["content", key],
+    queryFn: async () => {
+      const res = await fetch(`${API}/${key}`);
+      if (!res.ok) return fallback;
+      const json = await res.json();
+      return json ?? fallback;
+    },
+    staleTime: 5 * 60_000,
+    placeholderData: (prev) => prev,
+  });
+  return { data: data as T | undefined, isLoading };
 }
 
 export function useUpdateContent(key: string) {

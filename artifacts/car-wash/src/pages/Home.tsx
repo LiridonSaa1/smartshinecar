@@ -2,7 +2,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
 import { CookieBanner } from "@/components/ui/CookieBanner";
 import { useListReviews } from "@/lib/api-client";
-import { useContentSection } from "@/lib/useContent";
+import { useContentSection, useContentSectionWithLoading } from "@/lib/useContent";
 import { Link } from "wouter";
 import {
   ArrowRight, Star, Shield, Phone, MapPin, Clock, Mail,
@@ -70,7 +70,7 @@ const COMPLETE_DEFAULT = {
   image: "",
 };
 
-function HeroCarousel({ hero }: { hero: typeof HERO_SLIDES_DEFAULT }) {
+function HeroCarousel({ hero }: { hero: typeof HERO_SLIDES_DEFAULT | undefined }) {
   const [[index, dir], setSlide] = useState([0, 0]);
   const safeSlides = hero?.slides?.length ? hero.slides : HERO_SLIDES_DEFAULT.slides;
   const slide = safeSlides[index] ?? safeSlides[0];
@@ -89,6 +89,12 @@ function HeroCarousel({ hero }: { hero: typeof HERO_SLIDES_DEFAULT }) {
     const t = setTimeout(next, 5500);
     return () => clearTimeout(t);
   }, [next]);
+
+  if (!hero) {
+    return (
+      <section className="relative h-screen min-h-[620px] overflow-hidden select-none bg-[#06091a]" />
+    );
+  }
 
   return (
     <section className="relative h-screen min-h-[620px] overflow-hidden select-none">
@@ -461,7 +467,7 @@ function HomeContactForm() {
 
 export default function Home() {
   const { data: reviews } = useListReviews();
-  const heroContent = useContentSection("hero_slides", { slides: HERO_SLIDES_DEFAULT });
+  const { data: heroContent, isLoading: heroLoading } = useContentSectionWithLoading("hero_slides", HERO_SLIDES_DEFAULT);
   const aboutContent = useContentSection("about_us", ABOUT_DEFAULT);
   const statsContent = useContentSection("stats_cards", STATS_DEFAULT);
   const completeContent = useContentSection("complete_valeting", COMPLETE_DEFAULT);
@@ -469,7 +475,7 @@ export default function Home() {
   const carServicesContent = useContentSection("car_vehicle_services", CAR_SERVICES_DEFAULT);
   const getInTouchContent = useContentSection("get_in_touch", GET_IN_TOUCH_DEFAULT);
 
-  const heroData = (heroContent as unknown as typeof HERO_SLIDES_DEFAULT | null) ?? HERO_SLIDES_DEFAULT;
+  const heroData = heroLoading ? undefined : ((heroContent as unknown as typeof HERO_SLIDES_DEFAULT | null) ?? HERO_SLIDES_DEFAULT);
   const aboutData = (aboutContent as typeof ABOUT_DEFAULT | null) ?? ABOUT_DEFAULT;
   const statsData = (statsContent as typeof STATS_DEFAULT | null)?.items ?? STATS_DEFAULT.items;
   const completeData = (completeContent as typeof COMPLETE_DEFAULT | null) ?? COMPLETE_DEFAULT;

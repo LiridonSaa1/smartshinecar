@@ -27,23 +27,16 @@ export function ImageUpload({ value, onChange, placeholder = "Paste image URL or
     setError(null);
     setUploading(true);
     try {
-      const res = await fetch("/api/storage/uploads/request-url", {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/storage/uploads", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: file.name, size: file.size, contentType: file.type }),
+        body: formData,
       });
-      if (!res.ok) throw new Error("Could not get upload URL");
-      const { uploadURL, objectPath } = await res.json();
-
-      const put = await fetch(uploadURL, {
-        method: "PUT",
-        headers: { "Content-Type": file.type },
-        body: file,
-      });
-      if (!put.ok) throw new Error("Upload failed");
-
-      const servingUrl = `/api/storage${objectPath}`;
-      onChange(servingUrl);
+      if (!res.ok) throw new Error("Upload failed");
+      const { url } = await res.json();
+      onChange(url);
     } catch (e: any) {
       setError(e.message ?? "Upload failed");
     } finally {

@@ -66,6 +66,9 @@ async function buildAll() {
   const distDir = path.resolve(artifactDir, "dist");
   await rm(distDir, { recursive: true, force: true });
 
+  const workspaceRoot = path.resolve(artifactDir, "../..");
+  const dbRoot = path.join(workspaceRoot, "lib/db/src");
+
   await esbuild({
     entryPoints: [path.resolve(artifactDir, "src/index.ts")],
     platform: "node",
@@ -74,6 +77,10 @@ async function buildAll() {
     outdir: distDir,
     outExtension: { ".js": ".mjs" },
     logLevel: "info",
+    alias: {
+      "@workspace/db": path.join(dbRoot, "index.ts"),
+      "@workspace/db/schema": path.join(dbRoot, "schema/index.ts"),
+    },
     external: [
       "*.node",
       "sharp",

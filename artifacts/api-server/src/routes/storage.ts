@@ -1,22 +1,24 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import multer from "multer";
 import { randomUUID } from "crypto";
-import { supabase } from "../lib/supabase";
+import { writeFile, mkdir } from "fs/promises";
+import { existsSync } from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const router: IRouter = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 15 * 1024 * 1024 } });
 
-const BUCKET = "site-images";
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
+const uploadsDir = path.resolve(currentDir, "..", "..", "public", "uploads");
 
-async function ensureBucket() {
-  const { data: buckets } = await supabase.storage.listBuckets();
-  const exists = buckets?.some((b) => b.name === BUCKET);
-  if (!exists) {
-    await supabase.storage.createBucket(BUCKET, { public: true });
+async function ensureUploadsDir() {
+  if (!existsSync(uploadsDir)) {
+    await mkdir(uploadsDir, { recursive: true });
   }
 }
 
-ensureBucket().catch((err) => console.warn("[storage] bucket check failed:", err));
+ensureUploadsDir().catch(err => console.warn("[storage] Could not create uploads dir:", err));
 
 router.post("/storage/uploads", upload.single("file"), async (req: Request, res: Response) => {
   try {
@@ -25,23 +27,22 @@ router.post("/storage/uploads", upload.single("file"), async (req: Request, res:
       return;
     }
 
+    await ensureUploadsDir();
+
     const ext = req.file.originalname.split(".").pop()?.toLowerCase() || "bin";
-    const objectName = `${randomUUID()}.${ext}`;
+    const fileName = `${randomUUID()}.${ext}`;
+    const filePath = path.join(uploadsDir, fileName);
 
-    const { error } = await supabase.storage
-      .from(BUCKET)
-      .upload(objectName, req.file.buffer, {
-        contentType: req.file.mimetype,
-        upsert: false,
-      });
+    await writeFile(filePath, req.file.buffer);
 
-    if (error) throw error;
-
-    const { data: { publicUrl } } = supabase.storage.from(BUCKET).getPublicUrl(objectName);
+    const domain = process.env.REPLIT_DEV_DOMAIN
+      ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+      : "";
+    const publicUrl = `${domain}/uploads/${fileName}`;
 
     res.json({ url: publicUrl });
   } catch (err) {
-    req.log.error({ err }, "Error uploading file to Supabase Storage");
+    console.error("[storage] Error saving file:", err);
     res.status(500).json({ error: "Upload failed" });
   }
 });

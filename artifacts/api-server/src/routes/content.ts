@@ -1,15 +1,16 @@
 import { Router } from "express";
-import { supabase } from "../lib/supabase";
+import { db } from "@workspace/db";
+import { siteContentTable } from "@workspace/db/schema";
+import { eq } from "drizzle-orm";
 import { logger } from "../lib/logger";
 
 const router = Router();
 
 router.get("/content", async (_req, res) => {
   try {
-    const { data, error } = await supabase.from("site_content").select("key, data");
-    if (error) throw error;
+    const data = await db.select({ key: siteContentTable.key, data: siteContentTable.data }).from(siteContentTable);
     const result: Record<string, unknown> = {};
-    for (const row of data ?? []) result[row.key] = row.data;
+    for (const row of data) result[row.key] = row.data;
     return res.json(result);
   } catch (err) {
     logger.error({ err }, "List content error");
@@ -19,9 +20,8 @@ router.get("/content", async (_req, res) => {
 
 router.get("/content/:key", async (req, res) => {
   try {
-    const { data, error } = await supabase.from("site_content").select("data").eq("key", req.params.key).maybeSingle();
-    if (error) throw error;
-    return res.json(data?.data ?? null);
+    const rows = await db.select({ data: siteContentTable.data }).from(siteContentTable).where(eq(siteContentTable.key, req.params.key)).limit(1);
+    return res.json(rows[0]?.data ?? null);
   } catch (err) {
     logger.error({ err }, "Get content error");
     return res.json(null);
@@ -31,19 +31,13 @@ router.get("/content/:key", async (req, res) => {
 router.put("/content/:key", async (req, res) => {
   try {
     const { key } = req.params;
-    const { data: existing } = await supabase.from("site_content").select("id").eq("key", key).maybeSingle();
+    const existing = await db.select({ id: siteContentTable.id }).from(siteContentTable).where(eq(siteContentTable.key, key)).limit(1);
 
-    if (existing) {
-      const { data, error } = await supabase.from("site_content")
-        .update({ data: req.body, updated_at: new Date().toISOString() })
-        .eq("key", key).select("data").single();
-      if (error) throw error;
+    if (existing.length > 0) {
+      const [data] = await db.update(siteContentTable).set({ data: req.body, updatedAt: new Date() }).where(eq(siteContentTable.key, key)).returning({ data: siteContentTable.data });
       return res.json(data.data);
     } else {
-      const { data, error } = await supabase.from("site_content")
-        .insert({ key, data: req.body })
-        .select("data").single();
-      if (error) throw error;
+      const [data] = await db.insert(siteContentTable).values({ key, data: req.body }).returning({ data: siteContentTable.data });
       return res.json(data.data);
     }
   } catch (err) {

@@ -1,5 +1,7 @@
 import { Router } from "express";
-import { supabase } from "../lib/supabase";
+import { db } from "@workspace/db";
+import { bookingsTable, reviewsTable } from "@workspace/db/schema";
+import { gte } from "drizzle-orm";
 import { logger } from "../lib/logger";
 
 const router = Router();
@@ -11,26 +13,25 @@ router.get("/analytics/dashboard", async (_req, res) => {
     startOfMonth.setDate(1);
     const monthStr = startOfMonth.toISOString().split("T")[0];
 
-    const { data: allBookings } = await supabase.from("bookings").select("date, status, service_price");
-    const { data: allReviews } = await supabase.from("reviews").select("rating");
+    const [allBookings, allReviews] = await Promise.all([
+      db.select({ date: bookingsTable.date, status: bookingsTable.status, servicePrice: bookingsTable.servicePrice }).from(bookingsTable),
+      db.select({ rating: reviewsTable.rating }).from(reviewsTable),
+    ]);
 
-    const bookings = allBookings ?? [];
-    const reviews = allReviews ?? [];
-
-    const totalBookings = bookings.length;
-    const todayBookings = bookings.filter(b => b.date === today).length;
-    const monthRevenue = bookings
+    const totalBookings = allBookings.length;
+    const todayBookings = allBookings.filter(b => b.date === today).length;
+    const monthRevenue = allBookings
       .filter(b => b.date >= monthStr && ["confirmed", "in_progress", "done"].includes(b.status))
-      .reduce((sum, b) => sum + parseFloat(b.service_price ?? "0"), 0);
+      .reduce((sum, b) => sum + parseFloat(b.servicePrice ?? "0"), 0);
 
     const statusMap: Record<string, number> = {};
-    for (const b of bookings) {
+    for (const b of allBookings) {
       statusMap[b.status] = (statusMap[b.status] ?? 0) + 1;
     }
 
-    const totalReviews = reviews.length;
+    const totalReviews = allReviews.length;
     const averageRating = totalReviews > 0
-      ? Number((reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews).toFixed(1))
+      ? Number((allReviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews).toFixed(1))
       : 0;
 
     return res.json({
@@ -56,13 +57,16 @@ router.get("/analytics/bookings-chart", async (req, res) => {
     since.setDate(since.getDate() - days);
     const sinceStr = since.toISOString().split("T")[0];
 
-    const { data: bookings } = await supabase.from("bookings").select("date, service_price").gte("date", sinceStr);
+    const bookings = await db
+      .select({ date: bookingsTable.date, servicePrice: bookingsTable.servicePrice })
+      .from(bookingsTable)
+      .where(gte(bookingsTable.date, sinceStr));
 
     const byDate: Record<string, { bookings: number; revenue: number }> = {};
-    for (const b of bookings ?? []) {
+    for (const b of bookings) {
       if (!byDate[b.date]) byDate[b.date] = { bookings: 0, revenue: 0 };
       byDate[b.date].bookings++;
-      byDate[b.date].revenue += parseFloat(b.service_price ?? "0");
+      byDate[b.date].revenue += parseFloat(b.servicePrice ?? "0");
     }
 
     const result = Object.entries(byDate)
@@ -78,14 +82,16 @@ router.get("/analytics/bookings-chart", async (req, res) => {
 
 router.get("/analytics/top-services", async (_req, res) => {
   try {
-    const { data: bookings } = await supabase.from("bookings").select("service_id, service_name, service_price");
+    const bookings = await db
+      .select({ serviceId: bookingsTable.serviceId, serviceName: bookingsTable.serviceName, servicePrice: bookingsTable.servicePrice })
+      .from(bookingsTable);
 
     const byService: Record<string, { serviceId: number; serviceName: string; bookingCount: number; totalRevenue: number }> = {};
-    for (const b of bookings ?? []) {
-      const key = String(b.service_id);
-      if (!byService[key]) byService[key] = { serviceId: b.service_id, serviceName: b.service_name, bookingCount: 0, totalRevenue: 0 };
+    for (const b of bookings) {
+      const key = String(b.serviceId);
+      if (!byService[key]) byService[key] = { serviceId: b.serviceId, serviceName: b.serviceName, bookingCount: 0, totalRevenue: 0 };
       byService[key].bookingCount++;
-      byService[key].totalRevenue += parseFloat(b.service_price ?? "0");
+      byService[key].totalRevenue += parseFloat(b.servicePrice ?? "0");
     }
 
     const result = Object.values(byService)

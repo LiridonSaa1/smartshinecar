@@ -1,5 +1,7 @@
 import { Router } from "express";
-import { supabase } from "../lib/supabase";
+import { db } from "@workspace/db";
+import { siteContentTable } from "@workspace/db/schema";
+import { eq } from "drizzle-orm";
 import { logger } from "../lib/logger";
 
 const router = Router();
@@ -29,13 +31,17 @@ const DEFAULT_CARS = [
 ];
 
 async function getGalleryCars() {
-  const { data, error } = await supabase
-    .from("site_content")
-    .select("data")
-    .eq("key", GALLERY_KEY)
-    .maybeSingle();
-  if (error) throw error;
-  return (data?.data as typeof DEFAULT_CARS) ?? DEFAULT_CARS;
+  const rows = await db.select({ data: siteContentTable.data }).from(siteContentTable).where(eq(siteContentTable.key, GALLERY_KEY)).limit(1);
+  return (rows[0]?.data as typeof DEFAULT_CARS) ?? DEFAULT_CARS;
+}
+
+async function saveGalleryCars(cars: typeof DEFAULT_CARS) {
+  const existing = await db.select({ id: siteContentTable.id }).from(siteContentTable).where(eq(siteContentTable.key, GALLERY_KEY)).limit(1);
+  if (existing.length > 0) {
+    await db.update(siteContentTable).set({ data: cars, updatedAt: new Date() }).where(eq(siteContentTable.key, GALLERY_KEY));
+  } else {
+    await db.insert(siteContentTable).values({ key: GALLERY_KEY, data: cars });
+  }
 }
 
 router.get("/gallery", async (_req, res) => {
@@ -51,24 +57,7 @@ router.get("/gallery", async (_req, res) => {
 router.put("/gallery", async (req, res) => {
   try {
     const cars = req.body;
-    const { data: existing } = await supabase
-      .from("site_content")
-      .select("id")
-      .eq("key", GALLERY_KEY)
-      .maybeSingle();
-
-    if (existing) {
-      const { error } = await supabase
-        .from("site_content")
-        .update({ data: cars, updated_at: new Date().toISOString() })
-        .eq("key", GALLERY_KEY);
-      if (error) throw error;
-    } else {
-      const { error } = await supabase
-        .from("site_content")
-        .insert({ key: GALLERY_KEY, data: cars });
-      if (error) throw error;
-    }
+    await saveGalleryCars(cars);
     return res.json(cars);
   } catch (err) {
     logger.error({ err }, "Update gallery error");
@@ -81,18 +70,7 @@ router.post("/gallery", async (req, res) => {
     const cars = await getGalleryCars();
     const newCar = { ...req.body, id: Date.now().toString() };
     const updated = [...cars, newCar];
-
-    const { data: existing } = await supabase
-      .from("site_content")
-      .select("id")
-      .eq("key", GALLERY_KEY)
-      .maybeSingle();
-
-    if (existing) {
-      await supabase.from("site_content").update({ data: updated, updated_at: new Date().toISOString() }).eq("key", GALLERY_KEY);
-    } else {
-      await supabase.from("site_content").insert({ key: GALLERY_KEY, data: updated });
-    }
+    await saveGalleryCars(updated as typeof DEFAULT_CARS);
     return res.json(newCar);
   } catch (err) {
     logger.error({ err }, "Add gallery car error");
@@ -104,18 +82,7 @@ router.delete("/gallery/:id", async (req, res) => {
   try {
     const cars = await getGalleryCars();
     const updated = cars.filter((c) => c.id !== req.params.id);
-
-    const { data: existing } = await supabase
-      .from("site_content")
-      .select("id")
-      .eq("key", GALLERY_KEY)
-      .maybeSingle();
-
-    if (existing) {
-      await supabase.from("site_content").update({ data: updated, updated_at: new Date().toISOString() }).eq("key", GALLERY_KEY);
-    } else {
-      await supabase.from("site_content").insert({ key: GALLERY_KEY, data: updated });
-    }
+    await saveGalleryCars(updated);
     return res.json({ success: true });
   } catch (err) {
     logger.error({ err }, "Delete gallery car error");

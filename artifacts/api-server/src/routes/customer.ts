@@ -1,6 +1,8 @@
 import { Router } from "express";
 import bcrypt from "bcryptjs";
-import { supabase } from "../lib/supabase";
+import { db } from "@workspace/db";
+import { bookingsTable, customerAccountsTable } from "@workspace/db/schema";
+import { eq, desc } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import { signCustomerToken, verifyCustomerToken } from "../lib/customerJwt";
 
@@ -19,17 +21,14 @@ router.post("/customer/login", async (req, res) => {
       return res.status(400).json({ error: "Email and password required" });
     }
 
-    const { data, error } = await supabase
-      .from("customer_accounts")
-      .select("*")
-      .eq("email", email.toLowerCase().trim())
-      .single();
+    const rows = await db.select().from(customerAccountsTable).where(eq(customerAccountsTable.email, email.toLowerCase().trim())).limit(1);
+    const data = rows[0];
 
-    if (error || !data) {
+    if (!data || !data.passwordHash) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    const valid = await bcrypt.compare(password, data.password_hash);
+    const valid = await bcrypt.compare(password, data.passwordHash);
     if (!valid) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
@@ -53,31 +52,24 @@ router.get("/customer/bookings", async (req, res) => {
   if (!customer) return res.status(401).json({ error: "Unauthorized" });
 
   try {
-    const { data, error } = await supabase
-      .from("bookings")
-      .select("*")
-      .eq("customer_email", customer.email)
-      .order("date", { ascending: false })
-      .order("time", { ascending: false });
+    const data = await db.select().from(bookingsTable)
+      .where(eq(bookingsTable.customerEmail, customer.email))
+      .orderBy(desc(bookingsTable.date));
 
-    if (error) throw error;
-
-    return res.json(
-      (data ?? []).map((row: Record<string, unknown>) => ({
-        id: row.id,
-        customerName: row.customer_name,
-        customerPhone: row.customer_phone,
-        customerEmail: row.customer_email,
-        serviceId: row.service_id,
-        serviceName: row.service_name,
-        servicePrice: row.service_price,
-        date: row.date,
-        time: row.time,
-        status: row.status,
-        notes: row.notes,
-        createdAt: row.created_at,
-      }))
-    );
+    return res.json(data.map(row => ({
+      id: row.id,
+      customerName: row.customerName,
+      customerPhone: row.customerPhone,
+      customerEmail: row.customerEmail,
+      serviceId: row.serviceId,
+      serviceName: row.serviceName,
+      servicePrice: row.servicePrice,
+      date: row.date,
+      time: row.time,
+      status: row.status,
+      notes: row.notes,
+      createdAt: row.createdAt,
+    })));
   } catch (err) {
     logger.error({ err }, "Customer get bookings error");
     return res.status(500).json({ error: "Internal server error" });
@@ -91,14 +83,11 @@ router.put("/customer/bookings/:id/cancel", async (req, res) => {
   try {
     const bookingId = parseInt(req.params.id);
 
-    const { data: existing, error: fetchError } = await supabase
-      .from("bookings")
-      .select("*")
-      .eq("id", bookingId)
-      .eq("customer_email", customer.email)
-      .single();
+    const [existing] = await db.select().from(bookingsTable)
+      .where(eq(bookingsTable.id, bookingId))
+      .limit(1);
 
-    if (fetchError || !existing) {
+    if (!existing || existing.customerEmail !== customer.email) {
       return res.status(404).json({ error: "Booking not found" });
     }
 
@@ -106,14 +95,7 @@ router.put("/customer/bookings/:id/cancel", async (req, res) => {
       return res.status(400).json({ error: "Booking cannot be cancelled" });
     }
 
-    const { data, error } = await supabase
-      .from("bookings")
-      .update({ status: "cancelled" })
-      .eq("id", bookingId)
-      .select()
-      .single();
-
-    if (error || !data) throw error ?? new Error("Update failed");
+    await db.update(bookingsTable).set({ status: "cancelled" }).where(eq(bookingsTable.id, bookingId));
 
     return res.json({ ok: true, status: "cancelled" });
   } catch (err) {

@@ -1,5 +1,7 @@
 import { Router } from "express";
-import { supabase } from "../lib/supabase";
+import { db } from "@workspace/db";
+import { messagesTable, settingsTable } from "@workspace/db/schema";
+import { eq, desc } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import { sendEmail, getNotificationEmail, newContactMessageAdminEmail, newContactMessageUserEmail } from "../lib/email";
 
@@ -7,12 +9,8 @@ const router = Router();
 
 router.get("/messages", async (_req, res) => {
   try {
-    const { data, error } = await supabase
-      .from("messages")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) throw error;
-    return res.json(data ?? []);
+    const data = await db.select().from(messagesTable).orderBy(desc(messagesTable.createdAt));
+    return res.json(data);
   } catch (err) {
     logger.error({ err }, "List messages error");
     return res.status(500).json({ error: "Internal server error" });
@@ -26,25 +24,20 @@ router.post("/messages", async (req, res) => {
       return res.status(400).json({ error: "name, email and message are required" });
     }
 
-    const { data, error } = await supabase
-      .from("messages")
-      .insert({
-        name,
-        email,
-        phone: phone ?? null,
-        service: service ?? null,
-        message,
-        source: source ?? "contact",
-        status: "unread",
-      })
-      .select()
-      .single();
-    if (error) throw error;
+    const [data] = await db.insert(messagesTable).values({
+      name,
+      email,
+      phone: phone ?? null,
+      service: service ?? null,
+      message,
+      source: source ?? "contact",
+      status: "unread",
+    }).returning();
 
-    const { data: settingsRows } = await supabase.from("settings").select("email").limit(1);
-    const fallbackEmail = settingsRows?.[0]?.email;
+    const settingsRows = await db.select({ email: settingsTable.email, notificationEmail: settingsTable.notificationEmail }).from(settingsTable).limit(1);
+    const fallbackEmail = settingsRows[0]?.email;
     const notifEmail = await getNotificationEmail();
-    const adminEmail = notifEmail || fallbackEmail;
+    const adminEmail = notifEmail || settingsRows[0]?.notificationEmail || fallbackEmail;
 
     if (adminEmail) {
       sendEmail({
@@ -73,13 +66,8 @@ router.post("/messages", async (req, res) => {
 router.put("/messages/:id", async (req, res) => {
   try {
     const { status } = req.body;
-    const { data, error } = await supabase
-      .from("messages")
-      .update({ status })
-      .eq("id", parseInt(req.params.id))
-      .select()
-      .single();
-    if (error || !data) return res.status(404).json({ error: "Not found" });
+    const [data] = await db.update(messagesTable).set({ status }).where(eq(messagesTable.id, parseInt(req.params.id))).returning();
+    if (!data) return res.status(404).json({ error: "Not found" });
     return res.json(data);
   } catch (err) {
     logger.error({ err }, "Update message error");
@@ -89,11 +77,7 @@ router.put("/messages/:id", async (req, res) => {
 
 router.delete("/messages/:id", async (req, res) => {
   try {
-    const { error } = await supabase
-      .from("messages")
-      .delete()
-      .eq("id", parseInt(req.params.id));
-    if (error) throw error;
+    await db.delete(messagesTable).where(eq(messagesTable.id, parseInt(req.params.id)));
     return res.status(204).send();
   } catch (err) {
     logger.error({ err }, "Delete message error");

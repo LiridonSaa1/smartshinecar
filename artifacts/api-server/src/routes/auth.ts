@@ -1,6 +1,5 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
-import { supabase } from "../lib/supabase";
 import { logger } from "../lib/logger";
 
 const router = Router();
@@ -8,12 +7,12 @@ const router = Router();
 const LOCAL_ISS = "smartshine-local";
 
 function getJwtSecret(): string {
-  return process.env.JWT_SECRET ?? process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  return process.env.JWT_SECRET ?? process.env.SESSION_SECRET ?? "fallback-secret-change-me";
 }
 
 function tryLocalAdminLogin(email: string, password: string) {
-  const adminEmail = process.env.ADMIN_EMAIL ?? "admin@smartshine.co.uk";
-  const adminPassword = process.env.ADMIN_PASSWORD ?? "SmartShine2026!";
+  const adminEmail = process.env.ADMIN_EMAIL ?? "admin@carwash.com";
+  const adminPassword = process.env.ADMIN_PASSWORD ?? "admin123";
   if (email !== adminEmail || password !== adminPassword) return null;
 
   const token = jwt.sign(
@@ -44,45 +43,18 @@ router.post("/auth/login", async (req, res) => {
       return res.status(400).json({ error: "Email and password required" });
     }
 
-    // 1. Check local admin env-var credentials first
     const local = tryLocalAdminLogin(email, password);
     if (local) return res.json(local);
 
-    // 2. Fall back to Supabase Auth
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error || !data.session) {
-      return res.status(401).json({ error: "Invalid credentials" });
-    }
-    return res.json({
-      token: data.session.access_token,
-      user: {
-        id: data.user.id,
-        email: data.user.email,
-        name: data.user.user_metadata?.name ?? data.user.email,
-        role: data.user.user_metadata?.role ?? "admin",
-      },
-    });
+    return res.status(401).json({ error: "Invalid credentials" });
   } catch (err) {
     logger.error({ err }, "Login error");
     return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-router.post("/auth/logout", async (req, res) => {
-  try {
-    const token = req.headers.authorization?.replace("Bearer ", "");
-    if (token) {
-      // Only call Supabase sign-out for Supabase tokens (not local JWTs)
-      const localPayload = verifyLocalToken(token);
-      if (!localPayload) {
-        await supabase.auth.admin.signOut(token);
-      }
-    }
-    return res.json({ ok: true });
-  } catch (err) {
-    logger.error({ err }, "Logout error");
-    return res.json({ ok: true });
-  }
+router.post("/auth/logout", async (_req, res) => {
+  return res.json({ ok: true });
 });
 
 router.get("/auth/me", async (req, res) => {
@@ -90,7 +62,6 @@ router.get("/auth/me", async (req, res) => {
     const token = req.headers.authorization?.replace("Bearer ", "");
     if (!token) return res.status(401).json({ error: "Unauthorized" });
 
-    // 1. Check if it's a local admin token
     const localPayload = verifyLocalToken(token);
     if (localPayload) {
       return res.json({
@@ -101,15 +72,7 @@ router.get("/auth/me", async (req, res) => {
       });
     }
 
-    // 2. Fall back to Supabase
-    const { data, error } = await supabase.auth.getUser(token);
-    if (error || !data.user) return res.status(401).json({ error: "Unauthorized" });
-    return res.json({
-      id: data.user.id,
-      email: data.user.email,
-      name: data.user.user_metadata?.name ?? data.user.email,
-      role: data.user.user_metadata?.role ?? "admin",
-    });
+    return res.status(401).json({ error: "Unauthorized" });
   } catch (err) {
     logger.error({ err }, "Get me error");
     return res.status(500).json({ error: "Internal server error" });

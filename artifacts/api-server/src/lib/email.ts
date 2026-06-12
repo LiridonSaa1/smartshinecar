@@ -1,4 +1,6 @@
-import { supabase } from "./supabase";
+import { db } from "@workspace/db";
+import { siteContentTable } from "@workspace/db/schema";
+import { eq } from "drizzle-orm";
 
 let cachedConfig: EmailConfig | null = null;
 let cacheExpiry = 0;
@@ -15,12 +17,12 @@ async function getEmailConfig(): Promise<EmailConfig> {
   if (cachedConfig && now < cacheExpiry) return cachedConfig;
 
   try {
-    const { data } = await supabase
-      .from("site_content")
-      .select("data")
-      .eq("key", "extra_settings")
-      .maybeSingle();
-    const extra = (data?.data as Record<string, unknown>) ?? {};
+    const rows = await db
+      .select({ data: siteContentTable.data })
+      .from(siteContentTable)
+      .where(eq(siteContentTable.key, "extra_settings"))
+      .limit(1);
+    const extra = (rows[0]?.data as Record<string, unknown>) ?? {};
     cachedConfig = {
       brevoApiKey: (extra.brevoApiKey as string) || process.env.BREVO_API_KEY || "",
       senderEmail: (extra.senderEmail as string) || process.env.BREVO_SENDER_EMAIL || "noreply@smartshine.co.uk",

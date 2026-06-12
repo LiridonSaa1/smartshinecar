@@ -140,6 +140,7 @@ router.post("/bookings", async (req, res) => {
 
     const { data: settingsRows } = await supabase.from("settings").select("phone").limit(1);
     const businessPhone = settingsRows?.[0]?.phone ?? "07717 310 046";
+    const portalUrl = process.env.PORTAL_URL ?? "https://smartshine.co.uk/my-account";
 
     const adminEmail = await getAdminNotificationEmail();
     if (adminEmail) {
@@ -161,17 +162,25 @@ router.post("/bookings", async (req, res) => {
     }
 
     if (customerEmail) {
-      sendEmail({
-        to: [{ email: customerEmail, name: customerName }],
-        subject: `Booking request received — Smart Shine Car Valeting`,
-        htmlContent: bookingReceivedCustomerEmail({
-          customerName,
-          serviceName: service.name,
-          date,
-          time,
-          businessPhone,
-        }),
-      }).catch(err => logger.error({ err }, "Booking received customer email failed"));
+      getOrCreateCustomerAccount(customerEmail, customerName)
+        .then(({ isNew, password }) => {
+          return sendEmail({
+            to: [{ email: customerEmail, name: customerName }],
+            subject: `Booking request received — Smart Shine Car Valeting`,
+            htmlContent: bookingReceivedCustomerEmail({
+              customerName,
+              serviceName: service.name,
+              date,
+              time,
+              businessPhone,
+              portalUrl,
+              isNewAccount: isNew,
+              email: customerEmail,
+              password,
+            }),
+          });
+        })
+        .catch(err => logger.error({ err }, "Booking received customer email failed"));
     }
 
     return res.status(201).json(mapBooking(data));

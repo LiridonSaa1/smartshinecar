@@ -150,7 +150,28 @@ export function bookingReceivedCustomerEmail(opts: {
   date: string;
   time: string;
   businessPhone: string;
+  portalUrl: string;
+  isNewAccount: boolean;
+  email?: string;
+  password?: string;
 }) {
+  const accountSection = opts.isNewAccount && opts.password ? `
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:20px;margin:20px 0">
+          <p style="margin:0 0 10px;font-size:13px;font-weight:bold;color:#1d4ed8;text-transform:uppercase;letter-spacing:0.05em">🔑 Your Customer Portal Account</p>
+          <p style="margin:0 0 8px;color:#374151;font-size:14px">We've created a portal account so you can track your booking, see when your car is ready, and view your history.</p>
+          <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:12px">
+            <tr><td style="padding:8px 10px;background:#ffffff;font-weight:bold;color:#374151;width:100px;border:1px solid #dbeafe">Email</td><td style="padding:8px 10px;background:#ffffff;color:#111827;border:1px solid #dbeafe">${opts.email}</td></tr>
+            <tr><td style="padding:8px 10px;background:#ffffff;font-weight:bold;color:#374151;border:1px solid #dbeafe;border-top:none">Password</td><td style="padding:8px 10px;background:#ffffff;color:#111827;font-family:monospace;letter-spacing:0.05em;border:1px solid #dbeafe;border-top:none"><strong>${opts.password}</strong></td></tr>
+          </table>
+          <div style="text-align:center;margin-top:16px">
+            <a href="${opts.portalUrl}" style="display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;padding:10px 24px;border-radius:6px;font-size:14px;font-weight:bold">View My Bookings →</a>
+          </div>
+          <p style="margin:12px 0 0;font-size:12px;color:#6b7280;text-align:center">You can change your password after logging in.</p>
+        </div>` : `
+        <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:16px;margin:20px 0;text-align:center">
+          <a href="${opts.portalUrl}" style="display:inline-block;background:#166534;color:#ffffff;text-decoration:none;padding:10px 24px;border-radius:6px;font-size:14px;font-weight:bold">View My Bookings →</a>
+        </div>`;
+
   return `
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#ffffff">
       <div style="background:linear-gradient(135deg,#0a0f2e,#1a2a6c);padding:24px 32px;border-radius:8px 8px 0 0">
@@ -160,13 +181,14 @@ export function bookingReceivedCustomerEmail(opts: {
       <div style="padding:24px 32px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
         <p style="color:#374151;font-size:15px">Hi ${opts.customerName},</p>
         <p style="color:#374151;font-size:15px">Thank you for your booking request! We've received it and will confirm your appointment shortly.</p>
-        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:20px;margin:20px 0">
-          <p style="margin:0 0 8px;font-size:13px;font-weight:bold;color:#1d4ed8;text-transform:uppercase;letter-spacing:0.05em">Your Booking Details</p>
+        <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:20px;margin:20px 0">
+          <p style="margin:0 0 8px;font-size:13px;font-weight:bold;color:#374151;text-transform:uppercase;letter-spacing:0.05em">Your Booking Details</p>
           <p style="margin:4px 0;font-size:15px;color:#111827"><strong>Service:</strong> ${opts.serviceName}</p>
           <p style="margin:4px 0;font-size:15px;color:#111827"><strong>Date:</strong> ${opts.date}</p>
           <p style="margin:4px 0;font-size:15px;color:#111827"><strong>Time:</strong> ${opts.time}</p>
         </div>
-        <p style="color:#374151;font-size:15px">You will receive another email once your booking is confirmed. If you have any questions in the meantime, please call us on <a href="tel:${opts.businessPhone}" style="color:#2563eb;font-weight:bold">${opts.businessPhone}</a>.</p>
+        ${accountSection}
+        <p style="color:#374151;font-size:15px">You will receive another email once your booking is confirmed. If you have any questions, please call us on <a href="tel:${opts.businessPhone}" style="color:#2563eb;font-weight:bold">${opts.businessPhone}</a>.</p>
         <p style="color:#374151;font-size:14px">Smart Shine Car Valeting Centre<br/>Guildford, Surrey<br/>Mon–Sun: 08:00–19:00</p>
       </div>
     </div>

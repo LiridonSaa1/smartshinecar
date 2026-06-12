@@ -12,6 +12,15 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useContentSection } from "@/lib/useContent";
 import logoSrc from "@assets/Professional_Car_Valeting_Logo_in_Navy_and_Silver_1781123501610.png";
 
+/* ── Resolve gallery image URLs with correct base path ───────────── */
+const BASE = (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "");
+function resolveUrl(url: string): string {
+  if (url && url.startsWith("/") && !url.startsWith("//") && !url.startsWith("/api")) {
+    return `${BASE}${url}`;
+  }
+  return url;
+}
+
 /* ── FadeIn helper ────────────────────────────────────────────────── */
 function FadeIn({ children, className, delay = 0, direction = "up" }: {
   children: React.ReactNode; className?: string; delay?: number; direction?: "up" | "left" | "right";
@@ -72,7 +81,7 @@ function HeroCarousel({ slides = HERO_SLIDES }: { slides?: typeof HERO_SLIDES })
           transition={{ duration: 0.9, ease: "easeInOut" }}
           className="absolute inset-0"
         >
-          <img src={slide.image} alt="" className="w-full h-full object-cover" />
+          <img src={resolveUrl(slide.image)} alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
         </motion.div>
       </AnimatePresence>
@@ -237,7 +246,7 @@ function BrandSlider({ brand }: { brand: typeof BRANDS[0] }) {
       <AnimatePresence mode="wait">
         <motion.img
           key={img.url}
-          src={img.url}
+          src={resolveUrl(img.url)}
           alt={img.caption}
           initial={{ opacity: 0, scale: 1.04 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -536,7 +545,7 @@ export default function Gallery() {
                 transition={{ delay: i * 0.08 }}
                 className="rounded-xl overflow-hidden border-2 border-gray-200 w-28 h-18 cursor-pointer hover:border-blue-400 transition-colors flex-shrink-0"
               >
-                <img src={img.url} alt={img.caption} className="w-full h-full object-cover" style={{ height: "72px" }} />
+                <img src={resolveUrl(img.url)} alt={img.caption} className="w-full h-full object-cover" style={{ height: "72px" }} />
               </motion.div>
             ))}
           </div>

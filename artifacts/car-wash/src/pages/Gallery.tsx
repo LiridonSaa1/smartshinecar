@@ -592,13 +592,49 @@ const DEFAULT_GALLERY_BELOW_HERO = {
 };
 const DEFAULT_GALLERY_BRANDS_V2 = { brands: BRANDS };
 
+/* ── Merge DB cars into brand slots ─────────────────────────────────── */
+function normalizeName(s: string) {
+  return s.toLowerCase()
+    .replace(/volkswagen/g, "vw")
+    .replace(/vauxhall/g, "vauxhall")
+    .replace(/[^a-z0-9 ]/g, "")
+    .trim();
+}
+
+function makeMatchesBrand(carMake: string, brandName: string): boolean {
+  const make = normalizeName(carMake);
+  const brand = normalizeName(brandName);
+  if (make === brand) return true;
+  const makeWords = make.split(" ").filter(w => w.length > 1);
+  const brandWords = brand.split(" ").filter(w => w.length > 1);
+  return makeWords.some(w => brandWords.some(b => b === w || b.includes(w) || w.includes(b)));
+}
+
+function mergeCarsIntoBrands(brands: typeof BRANDS, cars: GalleryCar[]): typeof BRANDS {
+  return brands.map(brand => {
+    const matching = cars.filter(c => makeMatchesBrand(c.make, brand.name));
+    if (!matching.length) return brand;
+    const realImages = matching.map(c => ({
+      url: c.image,
+      caption: `${c.make} ${c.model} (${c.year})${c.service ? " — " + c.service : ""}`,
+    }));
+    return { ...brand, images: [...realImages, ...brand.images] };
+  });
+}
+
 /* ── Page ─────────────────────────────────────────────────────────── */
 export default function Gallery() {
   const heroData = useContentSection("gallery_hero", DEFAULT_GALLERY_HERO) as typeof HERO_SLIDES;
   const belowHero = useContentSection("gallery_below_hero", DEFAULT_GALLERY_BELOW_HERO) as typeof DEFAULT_GALLERY_BELOW_HERO;
   const brandsData = useContentSection("gallery_brands_v2", DEFAULT_GALLERY_BRANDS_V2) as typeof DEFAULT_GALLERY_BRANDS_V2;
 
-  const brands = (brandsData?.brands?.length ? brandsData.brands : BRANDS) as typeof BRANDS;
+  const { data: galleryCars } = useQuery<GalleryCar[]>({
+    queryKey: ["gallery-cars"],
+    queryFn: () => fetch("/api/gallery").then(r => r.json()),
+  });
+
+  const rawBrands = (brandsData?.brands?.length ? brandsData.brands : BRANDS) as typeof BRANDS;
+  const brands = galleryCars?.length ? mergeCarsIntoBrands(rawBrands, galleryCars) : rawBrands;
   const slides = (Array.isArray(heroData) && heroData.length ? heroData : DEFAULT_GALLERY_HERO) as typeof HERO_SLIDES;
 
   const [activeBrand, setActiveBrand] = useState<typeof BRANDS[0] | null>(null);

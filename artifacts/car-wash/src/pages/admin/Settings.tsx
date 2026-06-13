@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ImageUpload } from "@/components/ui/ImageUpload";
 import { toast } from "sonner";
-import { ChevronDown, ChevronUp, Eye, EyeOff, Mail, CheckCircle, AlertCircle } from "lucide-react";
+import { ChevronDown, ChevronUp, Eye, EyeOff, Mail, CheckCircle, AlertCircle, Send, Loader2 } from "lucide-react";
 
 const ALL_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -247,6 +247,29 @@ export default function AdminSettings() {
 
   const brevoConfigured = !!(form.brevoApiKey || (settings as Record<string, unknown>)?.brevoApiKey);
 
+  const [testingEmail, setTestingEmail] = useState(false);
+  const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
+
+  const handleTestEmail = async () => {
+    setTestingEmail(true);
+    setTestResult(null);
+    try {
+      const res = await fetch("/api/settings/test-email", { method: "POST", headers: { "Content-Type": "application/json" } });
+      const data = await res.json();
+      if (data.ok) {
+        setTestResult({ ok: true, message: `Email dërguar te ${data.sentTo}` });
+        toast.success("Email test u dërgua me sukses!");
+      } else {
+        setTestResult({ ok: false, message: data.error || "Dështoi" });
+        toast.error("Email test dështoi — shih detajet poshtë");
+      }
+    } catch {
+      setTestResult({ ok: false, message: "Network error — serveri nuk u përgjigj" });
+    } finally {
+      setTestingEmail(false);
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6 max-w-2xl">
@@ -428,6 +451,33 @@ export default function AdminSettings() {
                   />
                   <p className="text-xs text-muted-foreground mt-1.5">Must be a verified sender in Brevo.</p>
                 </div>
+              </div>
+
+              {/* Test Email */}
+              <div className="pt-2 border-t border-border">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    onClick={handleTestEmail}
+                    disabled={testingEmail || !brevoConfigured}
+                  >
+                    {testingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                    {testingEmail ? "Duke dërguar..." : "Test Email"}
+                  </Button>
+                  <p className="text-xs text-muted-foreground">Dërgon email test tek Notification Email-i yt.</p>
+                </div>
+                {testResult && (
+                  <div className={`mt-3 flex items-start gap-2 rounded-lg p-3 text-sm ${testResult.ok ? "bg-green-50 text-green-800 border border-green-200" : "bg-red-50 text-red-800 border border-red-200"}`}>
+                    {testResult.ok
+                      ? <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-green-600" />
+                      : <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-red-600" />
+                    }
+                    <span className="font-medium">{testResult.message}</span>
+                  </div>
+                )}
               </div>
             </div>
 

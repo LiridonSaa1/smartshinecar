@@ -22,7 +22,7 @@ type Message = {
   message: string;
   source?: string;
   status: "unread" | "read";
-  created_at: string;
+  createdAt: string;
 };
 
 function useMessages() {
@@ -192,7 +192,7 @@ export default function AdminMessages() {
                       {msg.status === "unread" && <Badge className="bg-blue-600 text-white text-xs px-1.5 py-0 h-5">New</Badge>}
                       {msg.source && <Badge variant="outline" className="text-xs px-1.5 py-0 h-5 text-gray-500">{SOURCE_LABELS[msg.source] ?? msg.source}</Badge>}
                     </div>
-                    <span className="text-xs text-gray-400 flex-shrink-0">{formatDate(msg.created_at)}</span>
+                    <span className="text-xs text-gray-400 flex-shrink-0">{formatDate(msg.createdAt)}</span>
                   </div>
                   <p className="text-xs text-gray-500 mt-0.5">{msg.email}{msg.phone ? ` · ${msg.phone}` : ""}</p>
                   <p className="text-sm text-gray-700 mt-1.5 line-clamp-2">{msg.message}</p>
@@ -242,7 +242,7 @@ export default function AdminMessages() {
                 )}
                 <div className="flex items-center gap-2 text-gray-600 col-span-2">
                   <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                  <span>{formatDate(viewMsg.created_at)}</span>
+                  <span>{formatDate(viewMsg.createdAt)}</span>
                 </div>
               </div>
               <div className="border-t border-gray-100 pt-4">

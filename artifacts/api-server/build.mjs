@@ -81,9 +81,16 @@ async function buildAll() {
       "@workspace/db": path.join(dbRoot, "index.ts"),
       "@workspace/db/schema": path.join(dbRoot, "schema/index.ts"),
     },
-    nodePaths: [path.resolve(artifactDir, "node_modules")],
+    nodePaths: [
+      path.resolve(artifactDir, "node_modules"),
+      path.resolve(artifactDir, "../../node_modules"),
+    ],
     external: [
       "*.node",
+      "multer",
+      "bcryptjs",
+      "jsonwebtoken",
+      "zod",
       "sharp",
       "better-sqlite3",
       "sqlite3",

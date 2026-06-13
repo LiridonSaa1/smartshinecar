@@ -1,6 +1,5 @@
 import { db } from "@workspace/db";
-import { siteContentTable } from "@workspace/db/schema";
-import { eq } from "drizzle-orm";
+import { settingsTable } from "@workspace/db/schema";
 
 let cachedConfig: EmailConfig | null = null;
 let cacheExpiry = 0;
@@ -18,16 +17,20 @@ async function getEmailConfig(): Promise<EmailConfig> {
 
   try {
     const rows = await db
-      .select({ data: siteContentTable.data })
-      .from(siteContentTable)
-      .where(eq(siteContentTable.key, "extra_settings"))
+      .select({
+        brevoApiKey: settingsTable.brevoApiKey,
+        senderEmail: settingsTable.senderEmail,
+        senderName: settingsTable.senderName,
+        notificationEmail: settingsTable.notificationEmail,
+      })
+      .from(settingsTable)
       .limit(1);
-    const extra = (rows[0]?.data as Record<string, unknown>) ?? {};
+    const row = rows[0] ?? {};
     cachedConfig = {
-      brevoApiKey: (extra.brevoApiKey as string) || process.env.BREVO_API_KEY || "",
-      senderEmail: (extra.senderEmail as string) || process.env.BREVO_SENDER_EMAIL || "noreply@smartshine.co.uk",
-      senderName: (extra.senderName as string) || process.env.BREVO_SENDER_NAME || "Smart Shine Car Valeting",
-      notificationEmail: (extra.notificationEmail as string) || null,
+      brevoApiKey: row.brevoApiKey || process.env.BREVO_API_KEY || "",
+      senderEmail: row.senderEmail || process.env.BREVO_SENDER_EMAIL || "noreply@smartshine.co.uk",
+      senderName: row.senderName || process.env.BREVO_SENDER_NAME || "Smart Shine Car Valeting",
+      notificationEmail: row.notificationEmail || null,
     };
     cacheExpiry = now + 60_000;
   } catch {

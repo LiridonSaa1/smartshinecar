@@ -1,0 +1,2 @@
+- [API server build config](api-server-build.md) — pnpm deps not linked until `pnpm install` runs; esbuild external list must include multer/bcryptjs/jsonwebtoken/zod; nodePaths needs workspace root.
+- [Supabase client in server](supabase-server-client.md) — createClient throws if URL empty; use lazy getter pattern; VITE_ prefix env vars ARE available to Node server processes in Replit.

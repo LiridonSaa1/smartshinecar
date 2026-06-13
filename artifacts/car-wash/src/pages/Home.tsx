@@ -72,8 +72,12 @@ const COMPLETE_DEFAULT = {
 
 function HeroCarousel({ hero }: { hero: typeof HERO_SLIDES_DEFAULT | undefined }) {
   const [[index, dir], setSlide] = useState([0, 0]);
-  const safeSlides = hero?.slides?.length ? hero.slides : HERO_SLIDES_DEFAULT.slides;
+
+  // Only use slides that have an actual image — never fall back to default images
+  const safeSlides = (hero?.slides ?? []).filter(s => s.image?.trim());
+  const hasSlides = safeSlides.length > 0;
   const slide = safeSlides[index] ?? safeSlides[0];
+
   const btn1Label = hero?.btn1Label || HERO_SLIDES_DEFAULT.btn1Label;
   const btn1Link  = hero?.btn1Link  || HERO_SLIDES_DEFAULT.btn1Link;
   const btn2Label = hero?.btn2Label || HERO_SLIDES_DEFAULT.btn2Label;
@@ -86,13 +90,40 @@ function HeroCarousel({ hero }: { hero: typeof HERO_SLIDES_DEFAULT | undefined }
   const next = useCallback(() => go((index + 1) % safeSlides.length, 1), [index, go, safeSlides.length]);
 
   useEffect(() => {
+    if (!hasSlides) return;
     const t = setTimeout(next, 5500);
     return () => clearTimeout(t);
-  }, [next]);
+  }, [next, hasSlides]);
 
-  if (!hero) {
+  // Loading or no images configured — plain dark section, no defaults
+  if (!hero || !hasSlides) {
     return (
-      <section className="relative h-screen min-h-[620px] overflow-hidden select-none bg-[#06091a]" />
+      <section className="relative h-screen min-h-[620px] overflow-hidden select-none bg-[#06091a]">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#06091a] via-[#0a0f2e] to-[#06091a]" />
+        <div className="relative z-10 h-full flex items-center">
+          <div className="mx-auto max-w-7xl w-full px-6 md:px-10">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-white/80 text-xs font-bold tracking-widest uppercase mb-6">
+                <Sparkles className="h-3.5 w-3.5 text-blue-300" />
+                Smart Shine Car Valeting Centre
+              </div>
+              <div className="flex flex-wrap gap-3 mt-4">
+                <Link href={btn1Link}>
+                  <button className="inline-flex items-center gap-2 rounded-full bg-blue-600 hover:bg-blue-500 active:scale-95 px-8 py-3.5 text-[15px] font-black text-white transition-all duration-150 shadow-xl shadow-blue-600/40">
+                    {btn1Label}
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </Link>
+                <Link href={btn2Link}>
+                  <button className="inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 border border-white/30 px-8 py-3.5 text-[15px] font-bold text-white backdrop-blur-sm transition-all duration-150">
+                    {btn2Label}
+                  </button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     );
   }
 

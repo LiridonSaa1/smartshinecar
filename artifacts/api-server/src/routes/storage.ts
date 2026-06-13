@@ -1,30 +1,40 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import multer from "multer";
-import { getSupabaseClient } from "../lib/supabase";
+import path from "path";
+import { fileURLToPath } from "url";
+import { existsSync, mkdirSync } from "fs";
 
 const router: IRouter = Router();
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 15 * 1024 * 1024 } });
 
-const BUCKET = "uploads";
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
+const uploadsDir = path.resolve(currentDir, "..", "..", "public", "uploads");
 
-async function ensureBucket() {
-  try {
-    const supabase = getSupabaseClient();
-    if (!supabase) return;
-    const { data: buckets } = await supabase.storage.listBuckets();
-    const exists = buckets?.some(b => b.name === BUCKET);
-    if (!exists) {
-      await supabase.storage.createBucket(BUCKET, {
-        public: true,
-        allowedMimeTypes: ["image/*"],
-        fileSizeLimit: 15 * 1024 * 1024,
-      });
-    }
-  } catch {
-  }
+if (!existsSync(uploadsDir)) {
+  mkdirSync(uploadsDir, { recursive: true });
 }
 
-ensureBucket();
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase() || ".bin";
+    const name = `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`;
+    cb(null, name);
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 15 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed"));
+    }
+  },
+});
 
 router.post("/storage/uploads", upload.single("file"), async (req: Request, res: Response) => {
   try {
@@ -33,34 +43,11 @@ router.post("/storage/uploads", upload.single("file"), async (req: Request, res:
       return;
     }
 
-    const supabase = getSupabaseClient();
-    if (!supabase) {
-      res.status(503).json({ error: "Storage not configured — VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY must be set" });
-      return;
-    }
-
-    const ext = req.file.originalname.split(".").pop()?.toLowerCase() || "bin";
-    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-
-    const { error } = await supabase.storage
-      .from(BUCKET)
-      .upload(fileName, req.file.buffer, {
-        contentType: req.file.mimetype,
-        upsert: false,
-      });
-
-    if (error) {
-      console.error("[storage] Supabase upload error:", error.message);
-      res.status(500).json({ error: "Upload failed: " + error.message });
-      return;
-    }
-
-    const { data: { publicUrl } } = supabase.storage.from(BUCKET).getPublicUrl(fileName);
-
+    const publicUrl = `/uploads/${req.file.filename}`;
     res.json({ url: publicUrl });
   } catch (err: any) {
     console.error("[storage] Upload error:", err);
-    res.status(500).json({ error: "Upload failed" });
+    res.status(500).json({ error: "Upload failed: " + (err?.message ?? "unknown error") });
   }
 });
 

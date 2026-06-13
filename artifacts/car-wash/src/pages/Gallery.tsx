@@ -229,7 +229,7 @@ function HeroCarousel() {
 
   return (
     <section className="relative h-screen min-h-[620px] overflow-hidden select-none">
-      <AnimatePresence initial={false} mode="popLayout">
+      <AnimatePresence initial={false} mode="sync">
         <motion.div
           key={slide.id}
           initial={{ opacity: 0 }}
@@ -238,8 +238,8 @@ function HeroCarousel() {
           transition={{ duration: 0.7, ease: "easeInOut" }}
           className="absolute inset-0"
         >
-          <img src={slide.image} alt="" className="w-full h-full object-cover" loading="eager" fetchPriority="high" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
+          <img src={slide.image} alt="" className="w-full h-full object-cover" loading="eager" fetchPriority="high" style={{ transform: "translateZ(0)", backfaceVisibility: "hidden" }} />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/55" />
         </motion.div>
       </AnimatePresence>
 

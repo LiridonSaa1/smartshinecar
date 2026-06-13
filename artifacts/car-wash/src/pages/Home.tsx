@@ -24,21 +24,21 @@ const HERO_SLIDES_DEFAULT = {
       image: "",
       headline: "Premium Car\nValeting Service",
       sub: "Professional valeting that restores your vehicle to showroom condition. Serving Guildford and surrounding areas.",
-      accent: "from-black/80 via-black/50 to-transparent",
+      accent: "from-black/60 via-black/30 to-transparent",
     },
     {
       id: 1,
       image: "",
       headline: "Showroom Finish,\nEvery Time",
       sub: "Deep paint correction and interior detailing to restore your vehicle to pristine condition.",
-      accent: "from-black/80 via-black/50 to-transparent",
+      accent: "from-black/60 via-black/30 to-transparent",
     },
     {
       id: 2,
       image: "",
       headline: "Trusted by\nThousands of Drivers",
       sub: "Over 25 years of experience. Over 5,000 happy customers. Experience the Smart Shine difference.",
-      accent: "from-black/80 via-black/50 to-transparent",
+      accent: "from-black/60 via-black/30 to-transparent",
     },
   ],
   btn1Label: "Book Your Valet",
@@ -99,7 +99,7 @@ function HeroCarousel({ hero }: { hero: typeof HERO_SLIDES_DEFAULT | undefined }
 
   return (
     <section className="relative h-screen min-h-[620px] overflow-hidden select-none bg-[#06091a]">
-      <AnimatePresence initial={false} mode="popLayout">
+      <AnimatePresence initial={false} mode="sync">
         <motion.div
           key={slide.id}
           initial={{ opacity: 0 }}
@@ -108,9 +108,9 @@ function HeroCarousel({ hero }: { hero: typeof HERO_SLIDES_DEFAULT | undefined }
           transition={{ duration: 0.7, ease: "easeInOut" }}
           className="absolute inset-0"
         >
-          {slide.image?.trim() && <img src={slide.image} alt="" className="w-full h-full object-cover" loading="eager" fetchPriority="high" />}
+          {slide.image?.trim() && <img src={slide.image} alt="" className="w-full h-full object-cover" loading="eager" fetchPriority="high" style={{ transform: "translateZ(0)", backfaceVisibility: "hidden" }} />}
           <div className={`absolute inset-0 bg-gradient-to-r ${slide.accent}`} />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10" />
         </motion.div>
       </AnimatePresence>
 

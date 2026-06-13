@@ -111,7 +111,7 @@ function HeroCarousel({ slides }: { slides: typeof HERO_SLIDES }) {
 
   return (
     <section className="relative h-screen min-h-[620px] overflow-hidden select-none bg-[#06091a]">
-      <AnimatePresence initial={false} mode="popLayout">
+      <AnimatePresence initial={false} mode="sync">
         <motion.div
           key={slide.id}
           initial={{ opacity: 0 }}

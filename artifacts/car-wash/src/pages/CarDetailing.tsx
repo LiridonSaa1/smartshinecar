@@ -16,19 +16,19 @@ import shineImg from "@assets/469570167_588163753901560_1761922679835222318_n_17
 const HERO_SLIDES = [
   {
     id: 0,
-    image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=1600&q=85",
+    image: "",
     headline: "Car Detailing Service\nin Guildford",
     sub: "Smart Shine Car Valeting Centre uses premium products to rejuvenate your car to showroom condition. Serving Guildford, Godalming, Woking and surrounding areas.",
   },
   {
     id: 1,
-    image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=1600&q=85",
+    image: "",
     headline: "Premium Products.\nShowroom Results.",
     sub: "From paintwork correction to scratch and dent removal — our car detailing service brings your vehicle back to its best, regardless of make or model.",
   },
   {
     id: 2,
-    image: "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=1600&q=85",
+    image: "",
     headline: "Interior & Exterior\nDetailing Specialists",
     sub: "Machine polish, clear coat correction, 3D hologram removal — we remove defects and reveal a flawless, defect-free surface every time.",
   },
@@ -61,7 +61,7 @@ function HeroCarousel({ slides }: { slides: typeof HERO_SLIDES }) {
   useEffect(() => { const t = setTimeout(next, 6000); return () => clearTimeout(t); }, [next]);
 
   return (
-    <section className="relative h-screen min-h-[620px] overflow-hidden select-none">
+    <section className="relative h-screen min-h-[620px] overflow-hidden select-none bg-[#06091a]">
       <AnimatePresence initial={false} mode="popLayout">
         <motion.div
           key={slide.id}
@@ -71,7 +71,7 @@ function HeroCarousel({ slides }: { slides: typeof HERO_SLIDES }) {
           transition={{ duration: 0.8, ease: [0.32, 0.72, 0, 1] }}
           className="absolute inset-0"
         >
-          <img src={slide.image} alt="" className="w-full h-full object-cover object-center" />
+          {slide.image?.trim() && <img src={slide.image} alt="" className="w-full h-full object-cover object-center" />}
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
         </motion.div>

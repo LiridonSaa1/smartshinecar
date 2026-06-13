@@ -32,20 +32,19 @@ import heroSlide3 from "@assets/image_1781255016349.png";
 const HERO_SLIDES = [
   {
     id: 0,
-    image: heroSlide1,
+    image: "",
     headline: "Top-Class Commercial Vehicle\nValeting Service in Guildford",
     sub: "Commercial vehicles see much more wear and tear than private cars due to the amount of usage, and therefore need regular valeting. Count on Smart Shine Car Valeting Centre to clean your car or van and bring its shine back.",
   },
   {
     id: 1,
-    image:
-      "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=1600&q=85",
+    image: "",
     headline: "Full & Part Valet Services\nAt Competitive Prices",
     sub: "We offer full valet and part valet services at competitive prices. Whether you need interior valeting or exterior valeting, you can rely on us.",
   },
   {
     id: 2,
-    image: heroSlide3,
+    image: "",
     headline: "Serving Guildford,\nGodalming & Woking",
     sub: "Based in Guildford, we welcome customers from Godalming, Woking and the surrounding areas. Get in touch with us and let us know your requirements.",
   },
@@ -111,7 +110,7 @@ function HeroCarousel({ slides }: { slides: typeof HERO_SLIDES }) {
   }, [next]);
 
   return (
-    <section className="relative h-screen min-h-[620px] overflow-hidden select-none">
+    <section className="relative h-screen min-h-[620px] overflow-hidden select-none bg-[#06091a]">
       <AnimatePresence initial={false} mode="popLayout">
         <motion.div
           key={slide.id}
@@ -121,11 +120,13 @@ function HeroCarousel({ slides }: { slides: typeof HERO_SLIDES }) {
           transition={{ duration: 0.9, ease: "easeInOut" }}
           className="absolute inset-0"
         >
-          <img
-            src={slide.image}
-            alt=""
-            className="w-full h-full object-cover"
-          />
+          {slide.image?.trim() && (
+            <img
+              src={slide.image}
+              alt=""
+              className="w-full h-full object-cover"
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
         </motion.div>
       </AnimatePresence>

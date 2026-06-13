@@ -21,21 +21,21 @@ const HERO_SLIDES_DEFAULT = {
   slides: [
     {
       id: 0,
-      image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=1600&q=85",
+      image: "",
       headline: "Premium Car\nValeting Service",
       sub: "Professional valeting that restores your vehicle to showroom condition. Serving Guildford and surrounding areas.",
       accent: "from-black/80 via-black/50 to-transparent",
     },
     {
       id: 1,
-      image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=1600&q=85",
+      image: "",
       headline: "Showroom Finish,\nEvery Time",
       sub: "Deep paint correction and interior detailing to restore your vehicle to pristine condition.",
       accent: "from-black/80 via-black/50 to-transparent",
     },
     {
       id: 2,
-      image: "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=1600&q=85",
+      image: "",
       headline: "Trusted by\nThousands of Drivers",
       sub: "Over 25 years of experience. Over 5,000 happy customers. Experience the Smart Shine difference.",
       accent: "from-black/80 via-black/50 to-transparent",
@@ -73,10 +73,8 @@ const COMPLETE_DEFAULT = {
 function HeroCarousel({ hero }: { hero: typeof HERO_SLIDES_DEFAULT | undefined }) {
   const [[index, dir], setSlide] = useState([0, 0]);
 
-  // Only use slides that have an actual image — never fall back to default images
-  const safeSlides = (hero?.slides ?? []).filter(s => s.image?.trim());
-  const hasSlides = safeSlides.length > 0;
-  const slide = safeSlides[index] ?? safeSlides[0];
+  const slides = hero?.slides?.length ? hero.slides : HERO_SLIDES_DEFAULT.slides;
+  const slide = slides[index] ?? slides[0];
 
   const btn1Label = hero?.btn1Label || HERO_SLIDES_DEFAULT.btn1Label;
   const btn1Link  = hero?.btn1Link  || HERO_SLIDES_DEFAULT.btn1Link;
@@ -86,49 +84,21 @@ function HeroCarousel({ hero }: { hero: typeof HERO_SLIDES_DEFAULT | undefined }
   const go = useCallback((nextIdx: number, direction: number) => {
     setSlide([nextIdx, direction]);
   }, []);
-  const prev = () => go((index - 1 + safeSlides.length) % safeSlides.length, -1);
-  const next = useCallback(() => go((index + 1) % safeSlides.length, 1), [index, go, safeSlides.length]);
+  const prev = () => go((index - 1 + slides.length) % slides.length, -1);
+  const next = useCallback(() => go((index + 1) % slides.length, 1), [index, go, slides.length]);
 
   useEffect(() => {
-    if (!hasSlides) return;
+    if (!hero) return;
     const t = setTimeout(next, 5500);
     return () => clearTimeout(t);
-  }, [next, hasSlides]);
+  }, [next, hero]);
 
-  // Loading or no images configured — plain dark section, no defaults
-  if (!hero || !hasSlides) {
-    return (
-      <section className="relative h-screen min-h-[620px] overflow-hidden select-none bg-[#06091a]">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#06091a] via-[#0a0f2e] to-[#06091a]" />
-        <div className="relative z-10 h-full flex items-center">
-          <div className="mx-auto max-w-7xl w-full px-6 md:px-10">
-            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-white/80 text-xs font-bold tracking-widest uppercase mb-6">
-                <Sparkles className="h-3.5 w-3.5 text-blue-300" />
-                Smart Shine Car Valeting Centre
-              </div>
-              <div className="flex flex-wrap gap-3 mt-4">
-                <Link href={btn1Link}>
-                  <button className="inline-flex items-center gap-2 rounded-full bg-blue-600 hover:bg-blue-500 active:scale-95 px-8 py-3.5 text-[15px] font-black text-white transition-all duration-150 shadow-xl shadow-blue-600/40">
-                    {btn1Label}
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                </Link>
-                <Link href={btn2Link}>
-                  <button className="inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 border border-white/30 px-8 py-3.5 text-[15px] font-bold text-white backdrop-blur-sm transition-all duration-150">
-                    {btn2Label}
-                  </button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
+  if (!hero) {
+    return <section className="relative h-screen min-h-[620px] bg-[#06091a]" />;
   }
 
   return (
-    <section className="relative h-screen min-h-[620px] overflow-hidden select-none">
+    <section className="relative h-screen min-h-[620px] overflow-hidden select-none bg-[#06091a]">
       <AnimatePresence initial={false} mode="popLayout">
         <motion.div
           key={slide.id}
@@ -138,7 +108,7 @@ function HeroCarousel({ hero }: { hero: typeof HERO_SLIDES_DEFAULT | undefined }
           transition={{ duration: 0.8, ease: [0.32, 0.72, 0, 1] }}
           className="absolute inset-0"
         >
-          <img src={slide.image} alt="" className="w-full h-full object-cover" />
+          {slide.image?.trim() && <img src={slide.image} alt="" className="w-full h-full object-cover" />}
           <div className={`absolute inset-0 bg-gradient-to-r ${slide.accent}`} />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
         </motion.div>
@@ -215,7 +185,7 @@ function HeroCarousel({ hero }: { hero: typeof HERO_SLIDES_DEFAULT | undefined }
       </button>
 
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5">
-        {safeSlides.map((s, i) => (
+        {slides.map((_s, i) => (
           <button
             key={i}
             onClick={() => go(i, i > index ? 1 : -1)}

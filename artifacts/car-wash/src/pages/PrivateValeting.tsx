@@ -19,19 +19,19 @@ import packagesImg from "@assets/516887103_745437798174154_273580891758286555_n_
 const HERO_SLIDES = [
   {
     id: 0,
-    image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=1600&q=85",
+    image: "",
     headline: "Excellent Private Vehicle\nValeting Service in Guildford",
     sub: "At Smart Shine Car Valeting Centre, we provide a wide variety of individually tailored valeting packages to suit all your requirements in the Guildford area. We also welcome customers from Godalming and Woking.",
   },
   {
     id: 1,
-    image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=1600&q=85",
+    image: "",
     headline: "Professional Valeting\nFor Every Vehicle",
     sub: "From a quick mini valet to a full premier package — we restore your vehicle to showroom condition. Fully insured, friendly and thorough service every time.",
   },
   {
     id: 2,
-    image: "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=1600&q=85",
+    image: "",
     headline: "Interior & Exterior\nValeting Specialists",
     sub: "Whether it's an interior deep clean or a full exterior polish — Smart Shine delivers showroom results every time. We also offer dent removal and machine polish.",
   },
@@ -73,7 +73,7 @@ function HeroCarousel({ slides }: { slides: typeof HERO_SLIDES }) {
   useEffect(() => { const t = setTimeout(next, 6000); return () => clearTimeout(t); }, [next]);
 
   return (
-    <section className="relative h-screen min-h-[620px] overflow-hidden select-none">
+    <section className="relative h-screen min-h-[620px] overflow-hidden select-none bg-[#06091a]">
       <AnimatePresence initial={false} mode="popLayout">
         <motion.div
           key={slide.id}
@@ -83,7 +83,7 @@ function HeroCarousel({ slides }: { slides: typeof HERO_SLIDES }) {
           transition={{ duration: 0.8, ease: [0.32, 0.72, 0, 1] }}
           className="absolute inset-0"
         >
-          <img src={slide.image} alt="" className="w-full h-full object-cover object-center" />
+          {slide.image?.trim() && <img src={slide.image} alt="" className="w-full h-full object-cover object-center" />}
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
         </motion.div>

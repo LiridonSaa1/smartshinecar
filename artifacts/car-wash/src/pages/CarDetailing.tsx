@@ -65,13 +65,13 @@ function HeroCarousel({ slides }: { slides: typeof HERO_SLIDES }) {
       <AnimatePresence initial={false} mode="popLayout">
         <motion.div
           key={slide.id}
-          initial={{ opacity: 0, scale: 1.04 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.97 }}
-          transition={{ duration: 0.8, ease: [0.32, 0.72, 0, 1] }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.7, ease: "easeInOut" }}
           className="absolute inset-0"
         >
-          {slide.image?.trim() && <img src={slide.image} alt="" className="w-full h-full object-cover object-center" />}
+          {slide.image?.trim() && <img src={slide.image} alt="" className="w-full h-full object-cover object-center" loading="eager" fetchPriority="high" />}
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
         </motion.div>

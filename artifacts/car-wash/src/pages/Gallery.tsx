@@ -139,10 +139,10 @@ function BrandSlider({ brand }: { brand: typeof BRANDS[0] }) {
             key={img.url}
             src={img.url}
             alt={img.caption}
-            initial={{ opacity: 0, scale: 1.04 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.45 }}
+            transition={{ duration: 0.35 }}
             className="absolute inset-0 w-full h-full object-cover"
           />
         </AnimatePresence>
@@ -232,13 +232,13 @@ function HeroCarousel() {
       <AnimatePresence initial={false} mode="popLayout">
         <motion.div
           key={slide.id}
-          initial={{ opacity: 0, scale: 1.04 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.9, ease: "easeInOut" }}
+          transition={{ duration: 0.7, ease: "easeInOut" }}
           className="absolute inset-0"
         >
-          <img src={slide.image} alt="" className="w-full h-full object-cover" />
+          <img src={slide.image} alt="" className="w-full h-full object-cover" loading="eager" fetchPriority="high" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
         </motion.div>
       </AnimatePresence>

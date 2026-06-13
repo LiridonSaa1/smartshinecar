@@ -114,10 +114,10 @@ function HeroCarousel({ slides }: { slides: typeof HERO_SLIDES }) {
       <AnimatePresence initial={false} mode="popLayout">
         <motion.div
           key={slide.id}
-          initial={{ opacity: 0, scale: 1.04 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.9, ease: "easeInOut" }}
+          transition={{ duration: 0.7, ease: "easeInOut" }}
           className="absolute inset-0"
         >
           {slide.image?.trim() && (

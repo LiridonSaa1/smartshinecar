@@ -207,7 +207,8 @@ router.put("/bookings/:id", async (req, res) => {
     const updates: Partial<typeof bookingsTable.$inferInsert> = {};
     if (customerName !== undefined) updates.customerName = customerName;
     if (customerPhone !== undefined) updates.customerPhone = customerPhone;
-    if (customerEmail !== undefined) updates.customerEmail = customerEmail;
+    // Only overwrite email if a real non-empty value is provided
+    if (customerEmail !== undefined && customerEmail !== "") updates.customerEmail = customerEmail;
     if (date !== undefined) updates.date = date;
     if (time !== undefined) updates.time = time;
     if (status !== undefined) updates.status = status;
@@ -226,7 +227,9 @@ router.put("/bookings/:id", async (req, res) => {
     const booking = mapBooking(data);
     const prevStatus = existingRow?.status;
     const newStatus = status ?? prevStatus;
-    const custEmail = booking.customerEmail as string | null;
+    // Always use the email from BEFORE the update — the form may have sent "" which we now ignore
+    // but we still need the real email that was stored
+    const custEmail = (existingRow?.customerEmail ?? null) as string | null;
 
     if (custEmail && prevStatus !== newStatus) {
       const settingsRows = await db.select({ phone: settingsTable.phone }).from(settingsTable).limit(1);

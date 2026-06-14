@@ -216,9 +216,24 @@ export default function AdminBookings() {
                       <td className="py-3 px-4 text-card-foreground">{b.serviceName}</td>
                       <td className="py-3 px-4 text-muted-foreground">{b.date} {b.time}</td>
                       <td className="py-3 px-4">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${STATUS_COLORS[b.status] ?? ""}`}>
-                          {b.status.replace("_", " ")}
-                        </span>
+                        <select
+                          value={b.status}
+                          onChange={e => {
+                            const newStatus = e.target.value as Status;
+                            updateBooking.mutate(
+                              { id: b.id, data: { status: newStatus } },
+                              {
+                                onSuccess: () => { toast.success(`Status → ${newStatus.replace("_", " ")}`); invalidate(); },
+                                onError: () => toast.error("Status update failed."),
+                              }
+                            );
+                          }}
+                          className={`rounded-full px-2.5 py-0.5 text-xs font-medium capitalize border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary ${STATUS_COLORS[b.status] ?? ""}`}
+                        >
+                          {ALL_STATUSES.map(s => (
+                            <option key={s} value={s}>{s.replace("_", " ")}</option>
+                          ))}
+                        </select>
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-2">

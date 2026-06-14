@@ -3,21 +3,24 @@ import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Car, LogOut, Calendar, Clock, CheckCircle2, XCircle,
-  Loader2, AlertTriangle, Sparkles, ChevronRight, X, RefreshCw,
+  Loader2, AlertTriangle, Sparkles, ChevronRight, X, RefreshCw, Pencil,
 } from "lucide-react";
-import { useCustomerAuth, fetchCustomerBookings, cancelCustomerBooking } from "@/lib/customerAuth";
+import { useCustomerAuth, fetchCustomerBookings, cancelCustomerBooking, editCustomerBooking, CUSTOMER_API_BASE } from "@/lib/customerAuth";
 
 interface Booking {
   id: number;
   customerName: string;
+  serviceId: number;
   serviceName: string;
   servicePrice: string;
   date: string;
   time: string;
   status: "pending" | "confirmed" | "done" | "cancelled";
-  notes?: string;
+  notes?: string | null;
   createdAt: string;
 }
+
+interface Slot { time: string; available: boolean; }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; border: string; icon: React.ReactNode }> = {
   pending: {
@@ -51,9 +54,167 @@ function isUpcoming(dateStr: string) {
   return d >= today;
 }
 
-function BookingCard({ booking, onCancel }: { booking: Booking; onCancel: (id: number) => void }) {
+function todayIso() {
+  return new Date().toISOString().split("T")[0];
+}
+
+function EditBookingModal({
+  booking,
+  onClose,
+  onSaved,
+}: {
+  booking: Booking;
+  onClose: () => void;
+  onSaved: (id: number, date: string, time: string, notes: string) => void;
+}) {
+  const [date, setDate] = useState(booking.date);
+  const [time, setTime] = useState(booking.time);
+  const [notes, setNotes] = useState(booking.notes ?? "");
+  const [slots, setSlots] = useState<Slot[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!date || !booking.serviceId) return;
+    setLoadingSlots(true);
+    setSlots([]);
+    fetch(`${CUSTOMER_API_BASE}/bookings/slots?date=${date}&serviceId=${booking.serviceId}`)
+      .then(r => r.json())
+      .then((data: Slot[]) => {
+        setSlots(data);
+        const currentAvailable = data.find(s => s.time === time && s.available);
+        if (!currentAvailable) setTime("");
+      })
+      .catch(() => setSlots([]))
+      .finally(() => setLoadingSlots(false));
+  }, [date, booking.serviceId]);
+
+  const handleSave = async () => {
+    if (!date || !time) { setError("Please select a date and time."); return; }
+    setSaving(true);
+    setError("");
+    try {
+      await editCustomerBooking(booking.id, { date, time, notes });
+      onSaved(booking.id, date, time, notes);
+      onClose();
+    } catch (err: any) {
+      setError(err.message ?? "Failed to save changes");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-start justify-center z-50 px-4 py-8 overflow-y-auto"
+      onClick={() => !saving && onClose()}
+    >
+      <motion.div
+        initial={{ scale: 0.93, opacity: 0, y: 12 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.93, opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl my-auto"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+              <Pencil className="h-5 w-5 text-blue-600" />
+            </div>
+            <div>
+              <p className="font-black text-gray-900">Edit Booking</p>
+              <p className="text-xs text-gray-500">{booking.serviceName}</p>
+            </div>
+          </div>
+          <button onClick={onClose} disabled={saving}
+            className="text-gray-400 hover:text-gray-600 p-1 rounded-lg transition">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">New Date</label>
+            <input
+              type="date"
+              min={todayIso()}
+              value={date}
+              onChange={e => { setDate(e.target.value); setTime(""); }}
+              className="w-full rounded-xl border-2 border-gray-200 px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-blue-500 transition"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">New Time</label>
+            {loadingSlots ? (
+              <div className="flex items-center gap-2 text-sm text-gray-400 py-3">
+                <Loader2 className="h-4 w-4 animate-spin" /> Loading available slots…
+              </div>
+            ) : slots.length === 0 ? (
+              <p className="text-sm text-gray-400 py-2">Select a date to see available times</p>
+            ) : (
+              <div className="grid grid-cols-4 gap-1.5 max-h-36 overflow-y-auto pr-1">
+                {slots.map(s => (
+                  <button
+                    key={s.time}
+                    type="button"
+                    disabled={!s.available && s.time !== booking.time}
+                    onClick={() => s.available && setTime(s.time)}
+                    className={`rounded-lg py-2 text-xs font-bold border transition-all ${
+                      time === s.time
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : s.available
+                        ? "border-gray-200 text-gray-700 hover:border-blue-400 hover:text-blue-600"
+                        : "border-gray-100 text-gray-300 cursor-not-allowed bg-gray-50"
+                    }`}
+                  >
+                    {s.time}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Notes <span className="font-normal text-gray-400">(optional)</span></label>
+            <textarea
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              placeholder="Any special requests or vehicle details…"
+              rows={3}
+              className="w-full rounded-xl border-2 border-gray-200 px-4 py-2.5 text-sm resize-none focus:outline-none focus:border-blue-500 transition"
+            />
+          </div>
+
+          {error && (
+            <div className="rounded-xl bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 flex-shrink-0" /> {error}
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-3 mt-6">
+          <button onClick={onClose} disabled={saving}
+            className="flex-1 rounded-xl border-2 border-gray-200 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition disabled:opacity-50">
+            Cancel
+          </button>
+          <button onClick={handleSave} disabled={saving || !date || !time}
+            className="flex-1 rounded-xl bg-blue-600 hover:bg-blue-500 py-2.5 text-sm font-bold text-white transition flex items-center justify-center gap-2 disabled:opacity-50">
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Pencil className="h-4 w-4" />}
+            {saving ? "Saving…" : "Save Changes"}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function BookingCard({ booking, onCancel, onEdit }: { booking: Booking; onCancel: (id: number) => void; onEdit: (b: Booking) => void }) {
   const cfg = STATUS_CONFIG[booking.status] ?? STATUS_CONFIG.pending;
-  const canCancel = (booking.status === "pending" || booking.status === "confirmed") && isUpcoming(booking.date);
+  const upcoming = isUpcoming(booking.date);
+  const canCancel = (booking.status === "pending" || booking.status === "confirmed") && upcoming;
+  const canEdit = booking.status === "pending" && upcoming;
   const isDone = booking.status === "done";
 
   return (
@@ -88,14 +249,24 @@ function BookingCard({ booking, onCancel }: { booking: Booking; onCancel: (id: n
           {cfg.icon}{cfg.label}
         </span>
       </div>
-      {canCancel && (
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <button
-            onClick={() => onCancel(booking.id)}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg px-3 py-1.5 transition-all border border-red-200"
-          >
-            <X className="h-3 w-3" /> Cancel booking
-          </button>
+      {(canEdit || canCancel) && (
+        <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3">
+          {canEdit && (
+            <button
+              onClick={() => onEdit(booking)}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg px-3 py-1.5 transition-all border border-blue-200"
+            >
+              <Pencil className="h-3 w-3" /> Edit booking
+            </button>
+          )}
+          {canCancel && (
+            <button
+              onClick={() => onCancel(booking.id)}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg px-3 py-1.5 transition-all border border-red-200"
+            >
+              <X className="h-3 w-3" /> Cancel
+            </button>
+          )}
         </div>
       )}
     </motion.div>
@@ -110,6 +281,7 @@ export default function CustomerDashboard() {
   const [error, setError] = useState("");
   const [cancelId, setCancelId] = useState<number | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [editBooking, setEditBooking] = useState<Booking | null>(null);
 
   useEffect(() => {
     if (!authLoading && !customer) navigate("/my-account");
@@ -142,6 +314,10 @@ export default function CustomerDashboard() {
     }
   };
 
+  const handleEdited = (id: number, date: string, time: string, notes: string) => {
+    setBookings(prev => prev.map(b => b.id === id ? { ...b, date, time, notes } : b));
+  };
+
   const active = bookings.filter(b => b.status !== "cancelled" && b.status !== "done" || (b.status === "done" && isUpcoming(b.date)));
   const past = bookings.filter(b => (b.status === "cancelled") || (b.status === "done" && !isUpcoming(b.date)));
 
@@ -155,7 +331,6 @@ export default function CustomerDashboard() {
 
   return (
     <div className="min-h-screen" style={{ background: "linear-gradient(135deg, #060b1e 0%, #0d1a3a 100%)" }}>
-      {/* Header */}
       <header className="border-b border-white/10 backdrop-blur-sm">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -181,7 +356,6 @@ export default function CustomerDashboard() {
       </header>
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-        {/* Greeting */}
         <div>
           <h1 className="text-2xl font-black text-white">
             Hello, {customer?.name?.split(" ")[0]} 👋
@@ -202,7 +376,6 @@ export default function CustomerDashboard() {
           </div>
         ) : (
           <>
-            {/* Active bookings */}
             <section>
               <h2 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">
                 Active &amp; Upcoming
@@ -218,13 +391,14 @@ export default function CustomerDashboard() {
               ) : (
                 <div className="space-y-3">
                   <AnimatePresence>
-                    {active.map(b => <BookingCard key={b.id} booking={b} onCancel={setCancelId} />)}
+                    {active.map(b => (
+                      <BookingCard key={b.id} booking={b} onCancel={setCancelId} onEdit={setEditBooking} />
+                    ))}
                   </AnimatePresence>
                 </div>
               )}
             </section>
 
-            {/* Past bookings */}
             {past.length > 0 && (
               <section>
                 <h2 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">
@@ -232,7 +406,9 @@ export default function CustomerDashboard() {
                 </h2>
                 <div className="space-y-3 opacity-70">
                   <AnimatePresence>
-                    {past.map(b => <BookingCard key={b.id} booking={b} onCancel={setCancelId} />)}
+                    {past.map(b => (
+                      <BookingCard key={b.id} booking={b} onCancel={setCancelId} onEdit={setEditBooking} />
+                    ))}
                   </AnimatePresence>
                 </div>
               </section>
@@ -250,7 +426,6 @@ export default function CustomerDashboard() {
         )}
       </main>
 
-      {/* Cancel confirm modal */}
       <AnimatePresence>
         {cancelId !== null && (
           <motion.div
@@ -273,7 +448,12 @@ export default function CustomerDashboard() {
                 </div>
               </div>
               <p className="text-sm text-gray-600 mb-5">
-                If you need to reschedule instead, please call us on{" "}
+                Need to reschedule instead? Use the{" "}
+                <button onClick={() => {
+                  const b = bookings.find(x => x.id === cancelId);
+                  if (b) { setCancelId(null); setEditBooking(b); }
+                }} className="text-blue-600 font-bold hover:underline">Edit booking</button>
+                {" "}option, or call{" "}
                 <a href="tel:07717310046" className="text-blue-600 font-bold">07717 310 046</a>.
               </p>
               <div className="flex gap-3">
@@ -289,6 +469,16 @@ export default function CustomerDashboard() {
               </div>
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {editBooking && (
+          <EditBookingModal
+            booking={editBooking}
+            onClose={() => setEditBooking(null)}
+            onSaved={handleEdited}
+          />
         )}
       </AnimatePresence>
     </div>

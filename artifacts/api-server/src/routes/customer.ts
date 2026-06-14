@@ -67,7 +67,7 @@ router.get("/customer/bookings", async (req, res) => {
       date: row.date,
       time: row.time,
       status: row.status,
-      notes: row.notes,
+      notes: row.notes ?? null,
       createdAt: row.createdAt,
     })));
   } catch (err) {
@@ -100,6 +100,55 @@ router.put("/customer/bookings/:id/cancel", async (req, res) => {
     return res.json({ ok: true, status: "cancelled" });
   } catch (err) {
     logger.error({ err }, "Customer cancel booking error");
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.put("/customer/bookings/:id/edit", async (req, res) => {
+  const customer = authCustomer(req);
+  if (!customer) return res.status(401).json({ error: "Unauthorized" });
+
+  try {
+    const bookingId = parseInt(req.params.id);
+    const { date, time, notes } = req.body;
+
+    const [existing] = await db.select().from(bookingsTable)
+      .where(eq(bookingsTable.id, bookingId))
+      .limit(1);
+
+    if (!existing || existing.customerEmail !== customer.email) {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+
+    if (existing.status === "cancelled" || existing.status === "done") {
+      return res.status(400).json({ error: "Booking cannot be edited" });
+    }
+
+    const bookingDate = new Date(existing.date + "T00:00:00");
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    if (bookingDate < today) {
+      return res.status(400).json({ error: "Cannot edit past bookings" });
+    }
+
+    const updates: Partial<typeof bookingsTable.$inferInsert> = {};
+    if (date !== undefined) updates.date = date;
+    if (time !== undefined) updates.time = time;
+    if (notes !== undefined) updates.notes = notes ?? null;
+
+    const [updated] = await db.update(bookingsTable)
+      .set(updates)
+      .where(eq(bookingsTable.id, bookingId))
+      .returning();
+
+    return res.json({
+      id: updated.id,
+      date: updated.date,
+      time: updated.time,
+      notes: updated.notes,
+      status: updated.status,
+    });
+  } catch (err) {
+    logger.error({ err }, "Customer edit booking error");
     return res.status(500).json({ error: "Internal server error" });
   }
 });

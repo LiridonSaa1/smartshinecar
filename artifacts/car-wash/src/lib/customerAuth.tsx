@@ -98,3 +98,20 @@ export async function cancelCustomerBooking(id: number) {
   }
   return res.json();
 }
+
+export async function editCustomerBooking(id: number, updates: { date: string; time: string; notes: string }) {
+  const token = getCustomerToken();
+  if (!token) throw new Error("Not authenticated");
+  const res = await fetch(`${API}/customer/bookings/${id}/edit`, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify(updates),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error ?? "Edit failed");
+  }
+  return res.json();
+}
+
+export { API as CUSTOMER_API_BASE };

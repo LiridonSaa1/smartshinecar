@@ -5,7 +5,7 @@ import { bookingsTable, servicesTable, settingsTable, customerAccountsTable } fr
 import { eq, asc } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import { sendEmail, getNotificationEmail, newBookingAdminEmail, bookingConfirmedCustomerEmail, bookingReadyCustomerEmail, customerWelcomeEmail, bookingReceivedCustomerEmail } from "../lib/email";
-import { sendBookingReceivedSms, sendBookingConfirmationSms, sendCarReadySms } from "../lib/sms";
+import { sendBookingReceivedSms, sendBookingConfirmationSms, sendCarReadySms, sendNewBookingAdminSms } from "../lib/sms";
 
 const router = Router();
 
@@ -187,6 +187,11 @@ router.post("/bookings", async (req, res) => {
 
     sendBookingReceivedSms({ customerPhone, customerName, serviceName: service.name, date, time, businessName })
       .catch(err => logger.error({ err }, "Booking received SMS failed"));
+
+    if (businessPhone) {
+      sendNewBookingAdminSms({ businessPhone, customerName, customerPhone, serviceName: service.name, date, time })
+        .catch(err => logger.error({ err }, "New booking admin SMS failed"));
+    }
 
     return res.status(201).json(mapBooking(data));
   } catch (err) {

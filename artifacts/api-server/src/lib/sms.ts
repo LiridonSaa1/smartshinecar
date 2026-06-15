@@ -137,3 +137,15 @@ export async function sendCarReadySms(opts: {
   const body = `Hi ${opts.customerName.split(" ")[0]}, your ${opts.serviceName} is complete — your car is ready for collection! Thanks from ${opts.businessName}.`;
   await sendSms(opts.customerPhone, body);
 }
+
+export async function sendNewBookingAdminSms(opts: {
+  businessPhone: string;
+  customerName: string;
+  customerPhone: string;
+  serviceName: string;
+  date: string;
+  time: string;
+}): Promise<void> {
+  const body = `New booking: ${opts.customerName} — ${opts.serviceName} on ${opts.date} at ${opts.time}. Customer: ${opts.customerPhone}`;
+  await sendSms(opts.businessPhone, body);
+}

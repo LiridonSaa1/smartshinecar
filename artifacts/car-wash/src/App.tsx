@@ -8,6 +8,8 @@ import { CustomerAuthProvider } from "@/lib/customerAuth";
 import { useEffect } from "react";
 import MyAccount from "@/pages/MyAccount";
 import CustomerDashboard from "@/pages/CustomerDashboard";
+import CustomerReviews from "@/pages/CustomerReviews";
+import CustomerQuote from "@/pages/CustomerQuote";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Services from "@/pages/Services";
@@ -59,6 +61,8 @@ function Router() {
       <Route path="/commercial-valeting" component={CommercialValeting} />
       <Route path="/my-account" component={MyAccount} />
       <Route path="/my-account/dashboard" component={CustomerDashboard} />
+      <Route path="/my-account/reviews" component={CustomerReviews} />
+      <Route path="/my-account/quote" component={CustomerQuote} />
       <Route path="/admin" component={() => <Redirect to="/admin/login" />} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin/dashboard" component={AdminDashboard} />

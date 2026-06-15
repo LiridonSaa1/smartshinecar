@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ImageUpload } from "@/components/ui/ImageUpload";
 import { toast } from "sonner";
 import { ChevronDown, ChevronUp, Eye, EyeOff, Mail, CheckCircle, AlertCircle, Send, Loader2, MessageSquare } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 
 const ALL_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -433,18 +433,20 @@ export default function AdminSettings() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 py-1">
-                <Checkbox
-                  id="emailNotificationsEnabled"
-                  checked={form.emailNotificationsEnabled}
-                  onCheckedChange={v => setForm(f => ({ ...f, emailNotificationsEnabled: Boolean(v) }))}
-                />
+              <div className="flex items-center justify-between py-1 px-4 rounded-xl bg-muted/40 border border-border">
                 <label htmlFor="emailNotificationsEnabled" className="text-sm font-medium cursor-pointer select-none">
-                  Enable email notifications
+                  Email notifications
                 </label>
-                <span className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full ${form.emailNotificationsEnabled ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-zinc-100 text-zinc-500 dark:bg-zinc-800"}`}>
-                  {form.emailNotificationsEnabled ? "ON" : "OFF"}
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className={`text-xs font-semibold ${form.emailNotificationsEnabled ? "text-green-600 dark:text-green-400" : "text-zinc-400"}`}>
+                    {form.emailNotificationsEnabled ? "ON" : "OFF"}
+                  </span>
+                  <Switch
+                    id="emailNotificationsEnabled"
+                    checked={form.emailNotificationsEnabled}
+                    onCheckedChange={v => setForm(f => ({ ...f, emailNotificationsEnabled: Boolean(v) }))}
+                  />
+                </div>
               </div>
 
               <div>
@@ -548,18 +550,20 @@ export default function AdminSettings() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 py-1">
-                <Checkbox
-                  id="smsNotificationsEnabled"
-                  checked={form.smsNotificationsEnabled}
-                  onCheckedChange={v => setForm(f => ({ ...f, smsNotificationsEnabled: Boolean(v) }))}
-                />
+              <div className="flex items-center justify-between py-1 px-4 rounded-xl bg-muted/40 border border-border">
                 <label htmlFor="smsNotificationsEnabled" className="text-sm font-medium cursor-pointer select-none">
-                  Enable SMS notifications
+                  SMS notifications
                 </label>
-                <span className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full ${form.smsNotificationsEnabled ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-zinc-100 text-zinc-500 dark:bg-zinc-800"}`}>
-                  {form.smsNotificationsEnabled ? "ON" : "OFF"}
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className={`text-xs font-semibold ${form.smsNotificationsEnabled ? "text-green-600 dark:text-green-400" : "text-zinc-400"}`}>
+                    {form.smsNotificationsEnabled ? "ON" : "OFF"}
+                  </span>
+                  <Switch
+                    id="smsNotificationsEnabled"
+                    checked={form.smsNotificationsEnabled}
+                    onCheckedChange={v => setForm(f => ({ ...f, smsNotificationsEnabled: Boolean(v) }))}
+                  />
+                </div>
               </div>
 
               <div>

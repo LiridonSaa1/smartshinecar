@@ -4,6 +4,7 @@ import { settingsTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import { invalidateEmailConfigCache } from "../lib/email";
+import { invalidateSmsConfigCache } from "../lib/sms";
 
 const router = Router();
 
@@ -42,6 +43,9 @@ function mapSettings(row: typeof settingsTable.$inferSelect) {
     brevoApiKey: row.brevoApiKey ?? null,
     senderEmail: row.senderEmail ?? null,
     senderName: row.senderName ?? null,
+    twilioAccountSid: row.twilioAccountSid ?? null,
+    twilioAuthToken: row.twilioAuthToken ?? null,
+    twilioFromNumber: row.twilioFromNumber ?? null,
   };
 }
 
@@ -65,6 +69,7 @@ router.put("/settings", async (req, res) => {
       businessName, address, phone, email, openTime, closeTime,
       slotDuration, workingDays,
       notificationEmail, logoUrl, faviconUrl, brevoApiKey, senderEmail, senderName,
+      twilioAccountSid, twilioAuthToken, twilioFromNumber,
     } = req.body;
 
     const updates: Partial<typeof settingsTable.$inferInsert> = { updatedAt: new Date() };
@@ -82,11 +87,15 @@ router.put("/settings", async (req, res) => {
     if (brevoApiKey !== undefined) updates.brevoApiKey = brevoApiKey;
     if (senderEmail !== undefined) updates.senderEmail = senderEmail;
     if (senderName !== undefined) updates.senderName = senderName;
+    if (twilioAccountSid !== undefined) updates.twilioAccountSid = twilioAccountSid || null;
+    if (twilioAuthToken !== undefined) updates.twilioAuthToken = twilioAuthToken || null;
+    if (twilioFromNumber !== undefined) updates.twilioFromNumber = twilioFromNumber || null;
 
     const [data] = await db.update(settingsTable).set(updates).where(eq(settingsTable.id, settings.id)).returning();
     if (!data) return res.status(500).json({ error: "Update failed" });
 
     invalidateEmailConfigCache();
+    invalidateSmsConfigCache();
 
     return res.json(mapSettings(data));
   } catch (err) {
@@ -154,6 +163,32 @@ router.post("/settings/test-email", async (req, res) => {
     return res.json({ ok: true, messageId: (body as any).messageId, sentTo: toEmail });
   } catch (err: any) {
     logger.error({ err }, "Test email error");
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+router.post("/settings/test-sms", async (req, res) => {
+  try {
+    const settings = await ensureSettings();
+    if (!settings) return res.status(500).json({ ok: false, error: "No settings found" });
+
+    const { twilioAccountSid, twilioAuthToken, twilioFromNumber, phone } = settings;
+    const toPhone = req.body?.toPhone || phone;
+
+    if (!twilioAccountSid || !twilioAuthToken || !twilioFromNumber) {
+      return res.json({ ok: false, error: "Twilio credentials are not configured." });
+    }
+
+    if (!toPhone) {
+      return res.json({ ok: false, error: "No phone number to send test SMS to." });
+    }
+
+    const { sendSms } = await import("../lib/sms");
+    await sendSms(toPhone, `✅ Test SMS from Smart Shine — your Twilio integration is working correctly!`);
+
+    return res.json({ ok: true, sentTo: toPhone });
+  } catch (err: any) {
+    logger.error({ err }, "Test SMS error");
     return res.status(500).json({ ok: false, error: err.message });
   }
 });

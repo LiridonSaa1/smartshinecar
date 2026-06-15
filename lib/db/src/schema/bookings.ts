@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, numeric, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, numeric, timestamp, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -14,6 +14,7 @@ export const bookingsTable = pgTable("bookings", {
   time: text("time").notNull(),
   status: text("status").notNull().default("pending"),
   notes: text("notes"),
+  hasReview: boolean("has_review").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

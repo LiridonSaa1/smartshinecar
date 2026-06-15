@@ -5,6 +5,7 @@ import { bookingsTable, servicesTable, settingsTable, customerAccountsTable } fr
 import { eq, asc } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import { sendEmail, getNotificationEmail, newBookingAdminEmail, bookingConfirmedCustomerEmail, bookingReadyCustomerEmail, customerWelcomeEmail, bookingReceivedCustomerEmail } from "../lib/email";
+import { sendBookingReceivedSms, sendBookingConfirmationSms, sendCarReadySms } from "../lib/sms";
 
 const router = Router();
 
@@ -138,8 +139,9 @@ router.post("/bookings", async (req, res) => {
       notes: notes ?? null,
     }).returning();
 
-    const settingsRows = await db.select({ phone: settingsTable.phone }).from(settingsTable).limit(1);
+    const settingsRows = await db.select({ phone: settingsTable.phone, businessName: settingsTable.businessName }).from(settingsTable).limit(1);
     const businessPhone = settingsRows[0]?.phone ?? "07717 310 046";
+    const businessName = settingsRows[0]?.businessName ?? "Smart Shine Car Valeting Centre";
     const portalUrl = process.env.PORTAL_URL ?? "https://smartshine.co.uk/my-account";
 
     const adminEmail = await getAdminNotificationEmail();
@@ -183,6 +185,9 @@ router.post("/bookings", async (req, res) => {
         .catch(err => logger.error({ err }, "Booking received customer email failed"));
     }
 
+    sendBookingReceivedSms({ customerPhone, customerName, serviceName: service.name, date, time, businessName })
+      .catch(err => logger.error({ err }, "Booking received SMS failed"));
+
     return res.status(201).json(mapBooking(data));
   } catch (err) {
     logger.error({ err }, "Create booking error");
@@ -207,7 +212,6 @@ router.put("/bookings/:id", async (req, res) => {
     const updates: Partial<typeof bookingsTable.$inferInsert> = {};
     if (customerName !== undefined) updates.customerName = customerName;
     if (customerPhone !== undefined) updates.customerPhone = customerPhone;
-    // Only overwrite email if a real non-empty value is provided
     if (customerEmail !== undefined && customerEmail !== "") updates.customerEmail = customerEmail;
     if (date !== undefined) updates.date = date;
     if (time !== undefined) updates.time = time;
@@ -227,60 +231,82 @@ router.put("/bookings/:id", async (req, res) => {
     const booking = mapBooking(data);
     const prevStatus = existingRow?.status;
     const newStatus = status ?? prevStatus;
-    // Always use the email from BEFORE the update — the form may have sent "" which we now ignore
-    // but we still need the real email that was stored
     const custEmail = (existingRow?.customerEmail ?? null) as string | null;
+    const custPhone = (existingRow?.customerPhone ?? data.customerPhone) as string;
+    const custName = (existingRow?.customerName ?? data.customerName) as string;
 
-    if (custEmail && prevStatus !== newStatus) {
-      const settingsRows = await db.select({ phone: settingsTable.phone }).from(settingsTable).limit(1);
-      const businessPhone = settingsRows[0]?.phone ?? "07717 310 046";
-      const portalUrl = process.env.PORTAL_URL ?? "https://smartshine.co.uk/my-account";
+    const settingsRows = await db.select({ phone: settingsTable.phone, businessName: settingsTable.businessName }).from(settingsTable).limit(1);
+    const businessPhone = settingsRows[0]?.phone ?? "07717 310 046";
+    const businessName = settingsRows[0]?.businessName ?? "Smart Shine Car Valeting Centre";
+    const portalUrl = process.env.PORTAL_URL ?? "https://smartshine.co.uk/my-account";
 
+    if (prevStatus !== newStatus) {
       if (newStatus === "confirmed") {
-        getOrCreateCustomerAccount(custEmail, booking.customerName as string)
-          .then(({ isNew, password }) => {
-            const subject = "Your booking is confirmed — Smart Shine Car Valeting";
-            if (isNew && password) {
-              return sendEmail({
-                to: [{ email: custEmail, name: booking.customerName as string }],
-                subject,
-                htmlContent: customerWelcomeEmail({
-                  customerName: booking.customerName as string,
-                  email: custEmail,
-                  password,
-                  serviceName: booking.serviceName as string,
-                  date: booking.date as string,
-                  time: booking.time as string,
-                  portalUrl,
-                  businessPhone,
-                }),
-              });
-            } else {
-              return sendEmail({
-                to: [{ email: custEmail, name: booking.customerName as string }],
-                subject,
-                htmlContent: bookingConfirmedCustomerEmail({
-                  customerName: booking.customerName as string,
-                  serviceName: booking.serviceName as string,
-                  date: booking.date as string,
-                  time: booking.time as string,
-                  businessPhone,
-                }),
-              });
-            }
-          })
-          .catch(err => logger.error({ err }, "Booking confirmed email/account failed"));
+        if (custEmail) {
+          getOrCreateCustomerAccount(custEmail, custName)
+            .then(({ isNew, password }) => {
+              const subject = "Your booking is confirmed — Smart Shine Car Valeting";
+              if (isNew && password) {
+                return sendEmail({
+                  to: [{ email: custEmail, name: custName }],
+                  subject,
+                  htmlContent: customerWelcomeEmail({
+                    customerName: custName,
+                    email: custEmail,
+                    password,
+                    serviceName: booking.serviceName as string,
+                    date: booking.date as string,
+                    time: booking.time as string,
+                    portalUrl,
+                    businessPhone,
+                  }),
+                });
+              } else {
+                return sendEmail({
+                  to: [{ email: custEmail, name: custName }],
+                  subject,
+                  htmlContent: bookingConfirmedCustomerEmail({
+                    customerName: custName,
+                    serviceName: booking.serviceName as string,
+                    date: booking.date as string,
+                    time: booking.time as string,
+                    businessPhone,
+                  }),
+                });
+              }
+            })
+            .catch(err => logger.error({ err }, "Booking confirmed email/account failed"));
+        }
+
+        sendBookingConfirmationSms({
+          customerPhone: custPhone,
+          customerName: custName,
+          serviceName: booking.serviceName as string,
+          date: booking.date as string,
+          time: booking.time as string,
+          businessName,
+        }).catch(err => logger.error({ err }, "Booking confirmed SMS failed"));
+
       } else if (newStatus === "done") {
-        sendEmail({
-          to: [{ email: custEmail, name: booking.customerName as string }],
-          subject: "Your car is ready! — Smart Shine Car Valeting",
-          htmlContent: bookingReadyCustomerEmail({
-            customerName: booking.customerName as string,
-            serviceName: booking.serviceName as string,
-            date: booking.date as string,
-            businessPhone,
-          }),
-        }).catch(err => logger.error({ err }, "Booking done email failed"));
+        if (custEmail) {
+          sendEmail({
+            to: [{ email: custEmail, name: custName }],
+            subject: "Your car is ready! — Smart Shine Car Valeting",
+            htmlContent: bookingReadyCustomerEmail({
+              customerName: custName,
+              serviceName: booking.serviceName as string,
+              date: booking.date as string,
+              businessPhone,
+            }),
+          }).catch(err => logger.error({ err }, "Booking done email failed"));
+        }
+
+        sendCarReadySms({
+          customerPhone: custPhone,
+          customerName: custName,
+          serviceName: booking.serviceName as string,
+          businessName,
+        }).catch(err => logger.error({ err }, "Booking done SMS failed"));
       }
     }
 

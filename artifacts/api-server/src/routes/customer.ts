@@ -1,7 +1,7 @@
 import { Router } from "express";
 import bcrypt from "bcryptjs";
 import { db } from "@workspace/db";
-import { bookingsTable, customerAccountsTable } from "@workspace/db/schema";
+import { bookingsTable, customerAccountsTable, reviewsTable } from "@workspace/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import { signCustomerToken, verifyCustomerToken } from "../lib/customerJwt";
@@ -69,6 +69,7 @@ router.get("/customer/bookings", async (req, res) => {
       status: row.status,
       notes: row.notes ?? null,
       createdAt: row.createdAt,
+      hasReview: row.hasReview ?? false,
     })));
   } catch (err) {
     logger.error({ err }, "Customer get bookings error");
@@ -149,6 +150,101 @@ router.put("/customer/bookings/:id/edit", async (req, res) => {
     });
   } catch (err) {
     logger.error({ err }, "Customer edit booking error");
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.put("/customer/bookings/:id/note", async (req, res) => {
+  const customer = authCustomer(req);
+  if (!customer) return res.status(401).json({ error: "Unauthorized" });
+
+  try {
+    const bookingId = parseInt(req.params.id);
+    const { note } = req.body;
+
+    if (typeof note !== "string") {
+      return res.status(400).json({ error: "Note must be a string" });
+    }
+
+    const [existing] = await db.select().from(bookingsTable)
+      .where(eq(bookingsTable.id, bookingId))
+      .limit(1);
+
+    if (!existing || existing.customerEmail !== customer.email) {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+
+    if (existing.status === "cancelled" || existing.status === "done") {
+      return res.status(400).json({ error: "Cannot add notes to this booking" });
+    }
+
+    const existingNotes = existing.notes ?? "";
+    const customerNoteTag = "[Customer note]";
+    const baseNotes = existingNotes.includes(customerNoteTag)
+      ? existingNotes.split(customerNoteTag)[0].trimEnd()
+      : existingNotes;
+
+    const newNotes = note.trim()
+      ? `${baseNotes}${baseNotes ? "\n" : ""}${customerNoteTag} ${note.trim()}`
+      : baseNotes;
+
+    const [updated] = await db.update(bookingsTable)
+      .set({ notes: newNotes || null })
+      .where(eq(bookingsTable.id, bookingId))
+      .returning();
+
+    return res.json({ ok: true, notes: updated.notes });
+  } catch (err) {
+    logger.error({ err }, "Customer add note error");
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.post("/customer/bookings/:id/review", async (req, res) => {
+  const customer = authCustomer(req);
+  if (!customer) return res.status(401).json({ error: "Unauthorized" });
+
+  try {
+    const bookingId = parseInt(req.params.id);
+    const { rating, comment } = req.body;
+
+    if (!rating || typeof rating !== "number" || rating < 1 || rating > 5) {
+      return res.status(400).json({ error: "Rating must be a number between 1 and 5" });
+    }
+    if (!comment || typeof comment !== "string" || !comment.trim()) {
+      return res.status(400).json({ error: "Comment is required" });
+    }
+
+    const [existing] = await db.select().from(bookingsTable)
+      .where(eq(bookingsTable.id, bookingId))
+      .limit(1);
+
+    if (!existing || existing.customerEmail !== customer.email) {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+
+    if (existing.status !== "done") {
+      return res.status(400).json({ error: "You can only review completed bookings" });
+    }
+
+    if ((existing as any).hasReview) {
+      return res.status(400).json({ error: "You have already reviewed this booking" });
+    }
+
+    const [review] = await db.insert(reviewsTable).values({
+      customerName: existing.customerName,
+      rating,
+      comment: comment.trim(),
+      serviceName: existing.serviceName ?? undefined,
+    }).returning();
+
+    await db.update(bookingsTable)
+      .set({ hasReview: true } as any)
+      .where(eq(bookingsTable.id, bookingId));
+
+    return res.status(201).json({ ok: true, reviewId: review.id });
+  } catch (err) {
+    logger.error({ err }, "Customer submit review error");
     return res.status(500).json({ error: "Internal server error" });
   }
 });

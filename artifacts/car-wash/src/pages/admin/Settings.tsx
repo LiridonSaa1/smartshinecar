@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ImageUpload } from "@/components/ui/ImageUpload";
 import { toast } from "sonner";
-import { ChevronDown, ChevronUp, Eye, EyeOff, Mail, CheckCircle, AlertCircle, Send, Loader2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Eye, EyeOff, Mail, CheckCircle, AlertCircle, Send, Loader2, MessageSquare } from "lucide-react";
 
 const ALL_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -200,8 +200,12 @@ export default function AdminSettings() {
     brevoApiKey: "",
     senderEmail: "",
     senderName: "",
+    twilioAccountSid: "",
+    twilioAuthToken: "",
+    twilioFromNumber: "",
   });
   const [showApiKey, setShowApiKey] = useState(false);
+  const [showTwilioToken, setShowTwilioToken] = useState(false);
 
   useEffect(() => {
     if (settings) {
@@ -221,6 +225,9 @@ export default function AdminSettings() {
         brevoApiKey: (s.brevoApiKey as string) ?? "",
         senderEmail: (s.senderEmail as string) ?? "",
         senderName: (s.senderName as string) ?? "",
+        twilioAccountSid: (s.twilioAccountSid as string) ?? "",
+        twilioAuthToken: (s.twilioAuthToken as string) ?? "",
+        twilioFromNumber: (s.twilioFromNumber as string) ?? "",
       });
     }
   }, [settings]);
@@ -246,9 +253,35 @@ export default function AdminSettings() {
   };
 
   const brevoConfigured = !!(form.brevoApiKey || (settings as Record<string, unknown>)?.brevoApiKey);
+  const twilioConfigured = !!(form.twilioAccountSid && form.twilioAuthToken && form.twilioFromNumber);
 
   const [testingEmail, setTestingEmail] = useState(false);
   const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [testingSms, setTestingSms] = useState(false);
+  const [testSmsResult, setTestSmsResult] = useState<{ ok: boolean; message: string } | null>(null);
+
+  const handleTestSms = async () => {
+    setTestingSms(true);
+    setTestSmsResult(null);
+    try {
+      const res = await fetch("/api/settings/test-sms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setTestSmsResult({ ok: true, message: `SMS dërguar te ${data.sentTo}` });
+        toast.success("SMS test u dërgua me sukses!");
+      } else {
+        setTestSmsResult({ ok: false, message: data.error || "Dështoi" });
+        toast.error("SMS test dështoi — shih detajet poshtë");
+      }
+    } catch {
+      setTestSmsResult({ ok: false, message: "Network error — serveri nuk u përgjigj" });
+    } finally {
+      setTestingSms(false);
+    }
+  };
 
   const handleTestEmail = async () => {
     setTestingEmail(true);
@@ -476,6 +509,94 @@ export default function AdminSettings() {
                       : <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-red-600" />
                     }
                     <span className="font-medium">{testResult.message}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* SMS / Twilio Configuration */}
+            <div className="bg-card border border-border rounded-2xl p-6 space-y-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="font-semibold text-card-foreground">SMS Notifications</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">Powered by Twilio — sends SMS to customers on booking events</p>
+                </div>
+                <div className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${twilioConfigured ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"}`}>
+                  {twilioConfigured
+                    ? <><CheckCircle className="h-3 w-3" /> Connected</>
+                    : <><AlertCircle className="h-3 w-3" /> Not configured</>
+                  }
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Account SID</label>
+                <Input
+                  placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                  value={form.twilioAccountSid}
+                  onChange={e => setForm(f => ({ ...f, twilioAccountSid: e.target.value }))}
+                />
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  Found in your{" "}
+                  <a href="https://console.twilio.com" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">
+                    Twilio Console
+                  </a>{" "}
+                  dashboard.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Auth Token</label>
+                <div className="relative">
+                  <Input
+                    type={showTwilioToken ? "text" : "password"}
+                    placeholder="Your Twilio Auth Token"
+                    value={form.twilioAuthToken}
+                    onChange={e => setForm(f => ({ ...f, twilioAuthToken: e.target.value }))}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowTwilioToken(v => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showTwilioToken ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">From Number</label>
+                <Input
+                  placeholder="+44XXXXXXXXXX or +1XXXXXXXXXX"
+                  value={form.twilioFromNumber}
+                  onChange={e => setForm(f => ({ ...f, twilioFromNumber: e.target.value }))}
+                />
+                <p className="text-xs text-muted-foreground mt-1.5">Your Twilio phone number in E.164 format (e.g. +447700900000).</p>
+              </div>
+
+              <div className="pt-2 border-t border-border">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    onClick={handleTestSms}
+                    disabled={testingSms || !twilioConfigured}
+                  >
+                    {testingSms ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
+                    {testingSms ? "Duke dërguar..." : "Test SMS"}
+                  </Button>
+                  <p className="text-xs text-muted-foreground">Dërgon SMS test tek numri i biznesit tënd.</p>
+                </div>
+                {testSmsResult && (
+                  <div className={`mt-3 flex items-start gap-2 rounded-lg p-3 text-sm ${testSmsResult.ok ? "bg-green-50 text-green-800 border border-green-200" : "bg-red-50 text-red-800 border border-red-200"}`}>
+                    {testSmsResult.ok
+                      ? <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-green-600" />
+                      : <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-red-600" />
+                    }
+                    <span className="font-medium">{testSmsResult.message}</span>
                   </div>
                 )}
               </div>

@@ -239,9 +239,25 @@ export default function Booking() {
   const createBooking = useCreateBooking();
   const selectedService = services?.find((s) => s.id === form.serviceId);
 
+  function validateUkPhone(raw: string): boolean {
+    const stripped = raw.replace(/[\s\-().]/g, "");
+    if (/^\+44\d{10}$/.test(stripped)) return true;
+    if (/^07\d{9}$/.test(stripped)) return true;
+    if (/^01\d{8,9}$/.test(stripped)) return true;
+    if (/^02\d{9}$/.test(stripped)) return true;
+    if (/^03\d{9}$/.test(stripped)) return true;
+    if (/^08\d{9}$/.test(stripped)) return true;
+    if (/^09\d{9}$/.test(stripped)) return true;
+    return false;
+  }
+
   const handleSubmit = () => {
     if (!form.serviceId || !form.date || !form.time || !form.customerName || !form.customerPhone) {
       toast.error("Please fill in all required fields.");
+      return;
+    }
+    if (!validateUkPhone(form.customerPhone)) {
+      toast.error("Please enter a valid UK phone number (e.g. 07700 900 123 or +44 7700 900123).");
       return;
     }
     const paymentLabel = PAYMENT_OPTIONS.find(p => p.id === form.paymentMethod)?.label ?? form.paymentMethod;

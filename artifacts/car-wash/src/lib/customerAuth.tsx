@@ -114,4 +114,34 @@ export async function editCustomerBooking(id: number, updates: { date: string; t
   return res.json();
 }
 
+export async function addCustomerBookingNote(id: number, note: string) {
+  const token = getCustomerToken();
+  if (!token) throw new Error("Not authenticated");
+  const res = await fetch(`${API}/customer/bookings/${id}/note`, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ note }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error ?? "Failed to save note");
+  }
+  return res.json();
+}
+
+export async function submitCustomerReview(id: number, payload: { rating: number; comment: string }) {
+  const token = getCustomerToken();
+  if (!token) throw new Error("Not authenticated");
+  const res = await fetch(`${API}/customer/bookings/${id}/review`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error ?? "Failed to submit review");
+  }
+  return res.json();
+}
+
 export { API as CUSTOMER_API_BASE };

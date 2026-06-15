@@ -1,2 +1,4 @@
 - [API server build config](api-server-build.md) — pnpm deps not linked until `pnpm install` runs; esbuild external list must include multer/bcryptjs/jsonwebtoken/zod; nodePaths needs workspace root.
 - [Supabase client in server](supabase-server-client.md) — createClient throws if URL empty; use lazy getter pattern; VITE_ prefix env vars ARE available to Node server processes in Replit.
+- [Twilio SMS integration](twilio-sms.md) — Twilio creds stored in settingsTable (twilioAccountSid/twilioAuthToken/twilioFromNumber); SMS sent via REST fetch, no SDK; sms.ts has lazy cached config getter + invalidateSmsConfigCache().
+- [Customer portal features](customer-portal.md) — bookingsTable has hasReview boolean column; POST /customer/bookings/:id/review for done bookings, PUT /customer/bookings/:id/note appends [Customer note] tag to preserve existing notes.

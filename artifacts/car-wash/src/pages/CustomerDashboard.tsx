@@ -4,8 +4,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Car, LogOut, Calendar, Clock, CheckCircle2, XCircle,
   Loader2, AlertTriangle, Sparkles, ChevronRight, X, RefreshCw, Pencil,
+  Star, MessageSquare, StickyNote, PlusCircle,
 } from "lucide-react";
-import { useCustomerAuth, fetchCustomerBookings, cancelCustomerBooking, editCustomerBooking, CUSTOMER_API_BASE } from "@/lib/customerAuth";
+import {
+  useCustomerAuth,
+  fetchCustomerBookings,
+  cancelCustomerBooking,
+  editCustomerBooking,
+  addCustomerBookingNote,
+  submitCustomerReview,
+  CUSTOMER_API_BASE,
+} from "@/lib/customerAuth";
 
 interface Booking {
   id: number;
@@ -17,6 +26,7 @@ interface Booking {
   time: string;
   status: "pending" | "confirmed" | "done" | "cancelled";
   notes?: string | null;
+  hasReview?: boolean;
   createdAt: string;
 }
 
@@ -56,6 +66,209 @@ function isUpcoming(dateStr: string) {
 
 function todayIso() {
   return new Date().toISOString().split("T")[0];
+}
+
+function StarRating({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const [hovered, setHovered] = useState(0);
+  return (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map(n => (
+        <button
+          key={n}
+          type="button"
+          onMouseEnter={() => setHovered(n)}
+          onMouseLeave={() => setHovered(0)}
+          onClick={() => onChange(n)}
+          className="transition-transform hover:scale-110"
+        >
+          <Star
+            className="h-8 w-8"
+            fill={(hovered || value) >= n ? "#f59e0b" : "none"}
+            stroke={(hovered || value) >= n ? "#f59e0b" : "#d1d5db"}
+          />
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function ReviewModal({ booking, onClose, onSubmitted }: {
+  booking: Booking;
+  onClose: () => void;
+  onSubmitted: (id: number) => void;
+}) {
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async () => {
+    if (rating === 0) { setError("Please select a star rating."); return; }
+    if (!comment.trim()) { setError("Please write a short comment."); return; }
+    setSaving(true);
+    setError("");
+    try {
+      await submitCustomerReview(booking.id, { rating, comment });
+      onSubmitted(booking.id);
+      onClose();
+    } catch (err: any) {
+      setError(err.message ?? "Failed to submit review");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+      onClick={() => !saving && onClose()}
+    >
+      <motion.div
+        initial={{ scale: 0.93, opacity: 0, y: 12 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.93, opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
+              <Star className="h-5 w-5 text-amber-500" />
+            </div>
+            <div>
+              <p className="font-black text-gray-900">Leave a Review</p>
+              <p className="text-xs text-gray-500">{booking.serviceName}</p>
+            </div>
+          </div>
+          <button onClick={onClose} disabled={saving} className="text-gray-400 hover:text-gray-600 p-1 rounded-lg transition">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Your Rating</label>
+            <StarRating value={rating} onChange={setRating} />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Your Review</label>
+            <textarea
+              value={comment}
+              onChange={e => setComment(e.target.value)}
+              placeholder="Tell us about your experience…"
+              rows={4}
+              className="w-full rounded-xl border-2 border-gray-200 px-4 py-2.5 text-sm resize-none focus:outline-none focus:border-amber-400 transition"
+            />
+          </div>
+          {error && (
+            <div className="rounded-xl bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 flex-shrink-0" /> {error}
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-3 mt-6">
+          <button onClick={onClose} disabled={saving}
+            className="flex-1 rounded-xl border-2 border-gray-200 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition disabled:opacity-50">
+            Cancel
+          </button>
+          <button onClick={handleSubmit} disabled={saving || rating === 0 || !comment.trim()}
+            className="flex-1 rounded-xl bg-amber-500 hover:bg-amber-400 py-2.5 text-sm font-bold text-white transition flex items-center justify-center gap-2 disabled:opacity-50">
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Star className="h-4 w-4" />}
+            {saving ? "Submitting…" : "Submit Review"}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function AddNoteModal({ booking, onClose, onSaved }: {
+  booking: Booking;
+  onClose: () => void;
+  onSaved: (id: number, notes: string) => void;
+}) {
+  const [note, setNote] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSave = async () => {
+    if (!note.trim()) { setError("Please write a note or request."); return; }
+    setSaving(true);
+    setError("");
+    try {
+      const result = await addCustomerBookingNote(booking.id, note);
+      onSaved(booking.id, result.notes ?? "");
+      onClose();
+    } catch (err: any) {
+      setError(err.message ?? "Failed to save note");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+      onClick={() => !saving && onClose()}
+    >
+      <motion.div
+        initial={{ scale: 0.93, opacity: 0, y: 12 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.93, opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+              <StickyNote className="h-5 w-5 text-purple-600" />
+            </div>
+            <div>
+              <p className="font-black text-gray-900">Add a Note / Extras</p>
+              <p className="text-xs text-gray-500">{booking.serviceName} · {formatDate(booking.date)}</p>
+            </div>
+          </div>
+          <button onClick={onClose} disabled={saving} className="text-gray-400 hover:text-gray-600 p-1 rounded-lg transition">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              Note / Special Request / Extras
+            </label>
+            <textarea
+              value={note}
+              onChange={e => setNote(e.target.value)}
+              placeholder="e.g. Please add interior shampoo. My car has a scratch on the rear bumper. Key will be left with reception."
+              rows={4}
+              className="w-full rounded-xl border-2 border-gray-200 px-4 py-2.5 text-sm resize-none focus:outline-none focus:border-purple-400 transition"
+            />
+            <p className="text-xs text-gray-400 mt-1.5">Our team will see this note before your appointment.</p>
+          </div>
+          {error && (
+            <div className="rounded-xl bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 flex-shrink-0" /> {error}
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-3 mt-6">
+          <button onClick={onClose} disabled={saving}
+            className="flex-1 rounded-xl border-2 border-gray-200 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition disabled:opacity-50">
+            Cancel
+          </button>
+          <button onClick={handleSave} disabled={saving || !note.trim()}
+            className="flex-1 rounded-xl bg-purple-600 hover:bg-purple-500 py-2.5 text-sm font-bold text-white transition flex items-center justify-center gap-2 disabled:opacity-50">
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <PlusCircle className="h-4 w-4" />}
+            {saving ? "Saving…" : "Save Note"}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
 }
 
 function EditBookingModal({
@@ -210,11 +423,25 @@ function EditBookingModal({
   );
 }
 
-function BookingCard({ booking, onCancel, onEdit }: { booking: Booking; onCancel: (id: number) => void; onEdit: (b: Booking) => void }) {
+function BookingCard({
+  booking,
+  onCancel,
+  onEdit,
+  onReview,
+  onAddNote,
+}: {
+  booking: Booking;
+  onCancel: (id: number) => void;
+  onEdit: (b: Booking) => void;
+  onReview: (b: Booking) => void;
+  onAddNote: (b: Booking) => void;
+}) {
   const cfg = STATUS_CONFIG[booking.status] ?? STATUS_CONFIG.pending;
   const upcoming = isUpcoming(booking.date);
   const canCancel = (booking.status === "pending" || booking.status === "confirmed") && upcoming;
   const canEdit = booking.status === "pending" && upcoming;
+  const canAddNote = (booking.status === "pending" || booking.status === "confirmed") && upcoming;
+  const canReview = booking.status === "done" && !booking.hasReview;
   const isDone = booking.status === "done";
 
   return (
@@ -242,15 +469,36 @@ function BookingCard({ booking, onCancel, onEdit }: { booking: Booking; onCancel
             <p className="text-sm text-gray-500 mt-1">£{booking.servicePrice}</p>
           )}
           {booking.notes && (
-            <p className="text-xs text-gray-400 mt-1 italic">"{booking.notes}"</p>
+            <p className="text-xs text-gray-400 mt-1 italic line-clamp-2">"{booking.notes}"</p>
+          )}
+          {isDone && booking.hasReview && (
+            <div className="flex items-center gap-1.5 mt-2 text-xs text-amber-600 font-semibold">
+              <Star className="h-3.5 w-3.5 fill-amber-400 stroke-amber-400" /> Review submitted — thank you!
+            </div>
           )}
         </div>
         <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold flex-shrink-0 ${cfg.color} ${cfg.bg} ${cfg.border}`}>
           {cfg.icon}{cfg.label}
         </span>
       </div>
-      {(canEdit || canCancel) && (
-        <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3">
+      {(canEdit || canCancel || canAddNote || canReview) && (
+        <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2 flex-wrap">
+          {canReview && (
+            <button
+              onClick={() => onReview(booking)}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg px-3 py-1.5 transition-all border border-amber-200"
+            >
+              <Star className="h-3 w-3" /> Leave a review
+            </button>
+          )}
+          {canAddNote && (
+            <button
+              onClick={() => onAddNote(booking)}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg px-3 py-1.5 transition-all border border-purple-200"
+            >
+              <MessageSquare className="h-3 w-3" /> Add note / extras
+            </button>
+          )}
           {canEdit && (
             <button
               onClick={() => onEdit(booking)}
@@ -282,6 +530,8 @@ export default function CustomerDashboard() {
   const [cancelId, setCancelId] = useState<number | null>(null);
   const [cancelling, setCancelling] = useState(false);
   const [editBooking, setEditBooking] = useState<Booking | null>(null);
+  const [reviewBooking, setReviewBooking] = useState<Booking | null>(null);
+  const [noteBooking, setNoteBooking] = useState<Booking | null>(null);
 
   useEffect(() => {
     if (!authLoading && !customer) navigate("/my-account");
@@ -316,6 +566,14 @@ export default function CustomerDashboard() {
 
   const handleEdited = (id: number, date: string, time: string, notes: string) => {
     setBookings(prev => prev.map(b => b.id === id ? { ...b, date, time, notes } : b));
+  };
+
+  const handleNoteSaved = (id: number, notes: string) => {
+    setBookings(prev => prev.map(b => b.id === id ? { ...b, notes } : b));
+  };
+
+  const handleReviewSubmitted = (id: number) => {
+    setBookings(prev => prev.map(b => b.id === id ? { ...b, hasReview: true } : b));
   };
 
   const active = bookings.filter(b => b.status !== "cancelled" && b.status !== "done" || (b.status === "done" && isUpcoming(b.date)));
@@ -392,7 +650,14 @@ export default function CustomerDashboard() {
                 <div className="space-y-3">
                   <AnimatePresence>
                     {active.map(b => (
-                      <BookingCard key={b.id} booking={b} onCancel={setCancelId} onEdit={setEditBooking} />
+                      <BookingCard
+                        key={b.id}
+                        booking={b}
+                        onCancel={setCancelId}
+                        onEdit={setEditBooking}
+                        onReview={setReviewBooking}
+                        onAddNote={setNoteBooking}
+                      />
                     ))}
                   </AnimatePresence>
                 </div>
@@ -407,7 +672,14 @@ export default function CustomerDashboard() {
                 <div className="space-y-3 opacity-70">
                   <AnimatePresence>
                     {past.map(b => (
-                      <BookingCard key={b.id} booking={b} onCancel={setCancelId} onEdit={setEditBooking} />
+                      <BookingCard
+                        key={b.id}
+                        booking={b}
+                        onCancel={setCancelId}
+                        onEdit={setEditBooking}
+                        onReview={setReviewBooking}
+                        onAddNote={setNoteBooking}
+                      />
                     ))}
                   </AnimatePresence>
                 </div>
@@ -478,6 +750,26 @@ export default function CustomerDashboard() {
             booking={editBooking}
             onClose={() => setEditBooking(null)}
             onSaved={handleEdited}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {reviewBooking && (
+          <ReviewModal
+            booking={reviewBooking}
+            onClose={() => setReviewBooking(null)}
+            onSubmitted={handleReviewSubmitted}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {noteBooking && (
+          <AddNoteModal
+            booking={noteBooking}
+            onClose={() => setNoteBooking(null)}
+            onSaved={handleNoteSaved}
           />
         )}
       </AnimatePresence>

@@ -17,6 +17,9 @@ export const settingsTable = pgTable("settings", {
   brevoApiKey: text("brevo_api_key"),
   senderEmail: text("sender_email"),
   senderName: text("sender_name"),
+  twilioAccountSid: text("twilio_account_sid"),
+  twilioAuthToken: text("twilio_auth_token"),
+  twilioFromNumber: text("twilio_from_number"),
 });
 
 export type Settings = typeof settingsTable.$inferSelect;

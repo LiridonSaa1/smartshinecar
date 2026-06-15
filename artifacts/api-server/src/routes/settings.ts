@@ -46,6 +46,8 @@ function mapSettings(row: typeof settingsTable.$inferSelect) {
     twilioAccountSid: row.twilioAccountSid ?? null,
     twilioAuthToken: row.twilioAuthToken ?? null,
     twilioFromNumber: row.twilioFromNumber ?? null,
+    emailNotificationsEnabled: row.emailNotificationsEnabled ?? true,
+    smsNotificationsEnabled: row.smsNotificationsEnabled ?? true,
   };
 }
 
@@ -70,6 +72,7 @@ router.put("/settings", async (req, res) => {
       slotDuration, workingDays,
       notificationEmail, logoUrl, faviconUrl, brevoApiKey, senderEmail, senderName,
       twilioAccountSid, twilioAuthToken, twilioFromNumber,
+      emailNotificationsEnabled, smsNotificationsEnabled,
     } = req.body;
 
     const updates: Partial<typeof settingsTable.$inferInsert> = { updatedAt: new Date() };
@@ -90,6 +93,8 @@ router.put("/settings", async (req, res) => {
     if (twilioAccountSid !== undefined) updates.twilioAccountSid = twilioAccountSid || null;
     if (twilioAuthToken !== undefined) updates.twilioAuthToken = twilioAuthToken || null;
     if (twilioFromNumber !== undefined) updates.twilioFromNumber = twilioFromNumber || null;
+    if (emailNotificationsEnabled !== undefined) updates.emailNotificationsEnabled = Boolean(emailNotificationsEnabled);
+    if (smsNotificationsEnabled !== undefined) updates.smsNotificationsEnabled = Boolean(smsNotificationsEnabled);
 
     const [data] = await db.update(settingsTable).set(updates).where(eq(settingsTable.id, settings.id)).returning();
     if (!data) return res.status(500).json({ error: "Update failed" });

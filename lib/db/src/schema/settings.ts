@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, timestamp, boolean } from "drizzle-orm/pg-core";
 
 export const settingsTable = pgTable("settings", {
   id: serial("id").primaryKey(),
@@ -20,6 +20,8 @@ export const settingsTable = pgTable("settings", {
   twilioAccountSid: text("twilio_account_sid"),
   twilioAuthToken: text("twilio_auth_token"),
   twilioFromNumber: text("twilio_from_number"),
+  emailNotificationsEnabled: boolean("email_notifications_enabled").notNull().default(true),
+  smsNotificationsEnabled: boolean("sms_notifications_enabled").notNull().default(true),
 });
 
 export type Settings = typeof settingsTable.$inferSelect;

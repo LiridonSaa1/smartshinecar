@@ -5,6 +5,7 @@ interface SmsConfig {
   accountSid: string;
   authToken: string;
   fromNumber: string;
+  smsNotificationsEnabled: boolean;
 }
 
 let cachedSmsConfig: SmsConfig | null = null;
@@ -20,6 +21,7 @@ async function getSmsConfig(): Promise<SmsConfig | null> {
         twilioAccountSid: settingsTable.twilioAccountSid,
         twilioAuthToken: settingsTable.twilioAuthToken,
         twilioFromNumber: settingsTable.twilioFromNumber,
+        smsNotificationsEnabled: settingsTable.smsNotificationsEnabled,
       })
       .from(settingsTable)
       .limit(1);
@@ -33,6 +35,7 @@ async function getSmsConfig(): Promise<SmsConfig | null> {
       accountSid: row.twilioAccountSid,
       authToken: row.twilioAuthToken,
       fromNumber: row.twilioFromNumber,
+      smsNotificationsEnabled: row.smsNotificationsEnabled ?? true,
     };
     smsCacheExpiry = now + 60_000;
     return cachedSmsConfig;
@@ -50,6 +53,10 @@ export async function sendSms(to: string, body: string): Promise<void> {
   const config = await getSmsConfig();
   if (!config) {
     console.info("[sms] Twilio not configured — skipping SMS");
+    return;
+  }
+  if (!config.smsNotificationsEnabled) {
+    console.info("[sms] SMS notifications disabled — skipping SMS");
     return;
   }
 

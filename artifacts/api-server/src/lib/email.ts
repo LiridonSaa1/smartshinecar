@@ -9,6 +9,7 @@ interface EmailConfig {
   senderEmail: string;
   senderName: string;
   notificationEmail: string | null;
+  emailNotificationsEnabled: boolean;
 }
 
 async function getEmailConfig(): Promise<EmailConfig> {
@@ -22,6 +23,7 @@ async function getEmailConfig(): Promise<EmailConfig> {
         senderEmail: settingsTable.senderEmail,
         senderName: settingsTable.senderName,
         notificationEmail: settingsTable.notificationEmail,
+        emailNotificationsEnabled: settingsTable.emailNotificationsEnabled,
       })
       .from(settingsTable)
       .limit(1);
@@ -31,6 +33,7 @@ async function getEmailConfig(): Promise<EmailConfig> {
       senderEmail: row.senderEmail || process.env.BREVO_SENDER_EMAIL || "noreply@smartshine.co.uk",
       senderName: row.senderName || process.env.BREVO_SENDER_NAME || "Smart Shine Car Valeting",
       notificationEmail: row.notificationEmail || null,
+      emailNotificationsEnabled: row.emailNotificationsEnabled ?? true,
     };
     cacheExpiry = now + 60_000;
   } catch {
@@ -39,6 +42,7 @@ async function getEmailConfig(): Promise<EmailConfig> {
       senderEmail: process.env.BREVO_SENDER_EMAIL || "noreply@smartshine.co.uk",
       senderName: process.env.BREVO_SENDER_NAME || "Smart Shine Car Valeting",
       notificationEmail: null,
+      emailNotificationsEnabled: true,
     };
     cacheExpiry = now + 10_000;
   }
@@ -64,6 +68,11 @@ export interface SendEmailOptions {
 
 export async function sendEmail(opts: SendEmailOptions): Promise<void> {
   const config = await getEmailConfig();
+
+  if (!config.emailNotificationsEnabled) {
+    console.info("[email] Email notifications disabled — skipping email send");
+    return;
+  }
 
   if (!config.brevoApiKey) {
     console.warn("[email] Brevo API key not configured — skipping email send");

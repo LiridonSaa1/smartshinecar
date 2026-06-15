@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ImageUpload } from "@/components/ui/ImageUpload";
 import { toast } from "sonner";
 import { ChevronDown, ChevronUp, Eye, EyeOff, Mail, CheckCircle, AlertCircle, Send, Loader2, MessageSquare } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const ALL_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -203,6 +204,8 @@ export default function AdminSettings() {
     twilioAccountSid: "",
     twilioAuthToken: "",
     twilioFromNumber: "",
+    emailNotificationsEnabled: true,
+    smsNotificationsEnabled: true,
   });
   const [showApiKey, setShowApiKey] = useState(false);
   const [showTwilioToken, setShowTwilioToken] = useState(false);
@@ -228,6 +231,8 @@ export default function AdminSettings() {
         twilioAccountSid: (s.twilioAccountSid as string) ?? "",
         twilioAuthToken: (s.twilioAuthToken as string) ?? "",
         twilioFromNumber: (s.twilioFromNumber as string) ?? "",
+        emailNotificationsEnabled: (s.emailNotificationsEnabled as boolean) ?? true,
+        smsNotificationsEnabled: (s.smsNotificationsEnabled as boolean) ?? true,
       });
     }
   }, [settings]);
@@ -428,6 +433,20 @@ export default function AdminSettings() {
                 </div>
               </div>
 
+              <div className="flex items-center gap-3 py-1">
+                <Checkbox
+                  id="emailNotificationsEnabled"
+                  checked={form.emailNotificationsEnabled}
+                  onCheckedChange={v => setForm(f => ({ ...f, emailNotificationsEnabled: Boolean(v) }))}
+                />
+                <label htmlFor="emailNotificationsEnabled" className="text-sm font-medium cursor-pointer select-none">
+                  Enable email notifications
+                </label>
+                <span className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full ${form.emailNotificationsEnabled ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-zinc-100 text-zinc-500 dark:bg-zinc-800"}`}>
+                  {form.emailNotificationsEnabled ? "ON" : "OFF"}
+                </span>
+              </div>
+
               <div>
                 <label className="text-sm font-medium mb-1.5 block">Notification Email</label>
                 <Input
@@ -527,6 +546,20 @@ export default function AdminSettings() {
                     : <><AlertCircle className="h-3 w-3" /> Not configured</>
                   }
                 </div>
+              </div>
+
+              <div className="flex items-center gap-3 py-1">
+                <Checkbox
+                  id="smsNotificationsEnabled"
+                  checked={form.smsNotificationsEnabled}
+                  onCheckedChange={v => setForm(f => ({ ...f, smsNotificationsEnabled: Boolean(v) }))}
+                />
+                <label htmlFor="smsNotificationsEnabled" className="text-sm font-medium cursor-pointer select-none">
+                  Enable SMS notifications
+                </label>
+                <span className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full ${form.smsNotificationsEnabled ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-zinc-100 text-zinc-500 dark:bg-zinc-800"}`}>
+                  {form.smsNotificationsEnabled ? "ON" : "OFF"}
+                </span>
               </div>
 
               <div>

@@ -179,21 +179,57 @@ router.post("/settings/test-sms", async (req, res) => {
     const settings = await ensureSettings();
     if (!settings) return res.status(500).json({ ok: false, error: "No settings found" });
 
-    const { twilioAccountSid, twilioAuthToken, twilioFromNumber, phone } = settings;
-    const toPhone = req.body?.toPhone || phone;
+    // Allow passing unsaved credentials from the form for pre-save testing
+    const accountSid: string = req.body?.twilioAccountSid || settings.twilioAccountSid || "";
+    const authToken: string = req.body?.twilioAuthToken || settings.twilioAuthToken || "";
+    const fromNumber: string = req.body?.twilioFromNumber || settings.twilioFromNumber || "";
+    const toPhone: string = req.body?.toPhone || settings.phone || "";
 
-    if (!twilioAccountSid || !twilioAuthToken || !twilioFromNumber) {
+    if (!accountSid || !authToken || !fromNumber) {
       return res.json({ ok: false, error: "Twilio credentials are not configured." });
     }
-
     if (!toPhone) {
-      return res.json({ ok: false, error: "No phone number to send test SMS to." });
+      return res.json({ ok: false, error: "No phone number to send test SMS to. Set a business phone number in Settings." });
     }
 
-    const { sendSms } = await import("../lib/sms");
-    await sendSms(toPhone, `✅ Test SMS from Smart Shine — your Twilio integration is working correctly!`);
+    const normalizedTo = toPhone.trim().replace(/\s+/g, "");
+    const toE164 = normalizedTo.startsWith("+") ? normalizedTo : `+44${normalizedTo.replace(/^0/, "")}`;
 
-    return res.json({ ok: true, sentTo: toPhone });
+    const credentials = Buffer.from(`${accountSid}:${authToken}`).toString("base64");
+    const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+    const params = new URLSearchParams();
+    params.append("To", toE164);
+    params.append("From", fromNumber);
+    params.append("Body", `✅ Test SMS from Smart Shine — your Twilio integration is working correctly!`);
+
+    const twilioRes = await fetch(url, {
+      method: "POST",
+      headers: { Authorization: `Basic ${credentials}`, "Content-Type": "application/x-www-form-urlencoded" },
+      body: params.toString(),
+    });
+
+    if (!twilioRes.ok) {
+      let twilioCode: number | null = null;
+      let twilioMessage = `HTTP ${twilioRes.status}`;
+      try {
+        const json = await twilioRes.json() as { code?: number; message?: string };
+        twilioCode = json.code ?? null;
+        twilioMessage = json.message ?? twilioMessage;
+      } catch { /* ignore */ }
+
+      const hint =
+        twilioCode === 21659
+          ? `Error 21659: "${fromNumber}" is not a Twilio number in your account, or it doesn't match the destination country. Buy a UK number (+44...) from console.twilio.com/phone-numbers, or use a Messaging Service SID (MGXXX...).`
+          : twilioCode === 21211
+          ? `Error 21211: The destination phone number is not valid.`
+          : twilioCode === 20003
+          ? `Error 20003: Authentication failed — double-check your Account SID and Auth Token.`
+          : `Twilio error ${twilioCode ?? twilioRes.status}: ${twilioMessage}`;
+
+      return res.json({ ok: false, error: hint });
+    }
+
+    return res.json({ ok: true, sentTo: toE164 });
   } catch (err: any) {
     logger.error({ err }, "Test SMS error");
     return res.status(500).json({ ok: false, error: err.message });

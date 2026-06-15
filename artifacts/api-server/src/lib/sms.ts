@@ -81,8 +81,26 @@ export async function sendSms(to: string, body: string): Promise<void> {
   });
 
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Twilio error ${res.status}: ${text}`);
+    let twilioCode: number | null = null;
+    let twilioMessage = `HTTP ${res.status}`;
+    try {
+      const json = await res.json() as { code?: number; message?: string };
+      twilioCode = json.code ?? null;
+      twilioMessage = json.message ?? twilioMessage;
+    } catch {
+      twilioMessage = await res.text().catch(() => twilioMessage);
+    }
+
+    const hint =
+      twilioCode === 21659
+        ? `Error 21659: The "From" number is not a Twilio number in your account, or it doesn't match the destination country. Buy a UK Twilio number (+44...) from console.twilio.com and enter it here, or use a Messaging Service SID (MGXXX...).`
+        : twilioCode === 21211
+        ? `Error 21211: The "To" number is not a valid phone number.`
+        : twilioCode === 20003
+        ? `Error 20003: Authentication failed — check your Account SID and Auth Token.`
+        : `Error ${twilioCode ?? res.status}: ${twilioMessage}`;
+
+    throw new Error(hint);
   }
 }
 

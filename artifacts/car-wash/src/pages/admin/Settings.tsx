@@ -274,17 +274,22 @@ export default function AdminSettings() {
       const res = await fetch("/api/settings/test-sms", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          twilioAccountSid: form.twilioAccountSid,
+          twilioAuthToken: form.twilioAuthToken,
+          twilioFromNumber: form.twilioFromNumber,
+        }),
       });
       const data = await res.json();
       if (data.ok) {
-        setTestSmsResult({ ok: true, message: `SMS dërguar te ${data.sentTo}` });
-        toast.success("SMS test u dërgua me sukses!");
+        setTestSmsResult({ ok: true, message: `SMS sent to ${data.sentTo}` });
+        toast.success("Test SMS sent successfully!");
       } else {
-        setTestSmsResult({ ok: false, message: data.error || "Dështoi" });
-        toast.error("SMS test dështoi — shih detajet poshtë");
+        setTestSmsResult({ ok: false, message: data.error || "Failed" });
+        toast.error("Test SMS failed — see details below");
       }
     } catch {
-      setTestSmsResult({ ok: false, message: "Network error — serveri nuk u përgjigj" });
+      setTestSmsResult({ ok: false, message: "Network error — server did not respond" });
     } finally {
       setTestingSms(false);
     }
@@ -626,13 +631,17 @@ export default function AdminSettings() {
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-1.5 block">From Number</label>
+                <label className="text-sm font-medium mb-1.5 block">From Number / Sender</label>
                 <Input
-                  placeholder="+44XXXXXXXXXX or +1XXXXXXXXXX"
+                  placeholder="+447700900000 or MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
                   value={form.twilioFromNumber}
                   onChange={e => setForm(f => ({ ...f, twilioFromNumber: e.target.value }))}
                 />
-                <p className="text-xs text-muted-foreground mt-1.5">Your Twilio phone number in E.164 format (e.g. +447700900000).</p>
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  Must be a <strong>Twilio phone number you own</strong> — not your personal number.{" "}
+                  <a href="https://console.twilio.com/us1/develop/phone-numbers/manage/incoming" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">Buy a UK number (+44…)</a>{" "}
+                  from the Twilio Console, then paste it here in E.164 format. Alternatively, enter a Messaging Service SID (starts with <code className="bg-muted px-1 rounded text-[11px]">MG</code>).
+                </p>
               </div>
 
               <div className="pt-2 border-t border-border">

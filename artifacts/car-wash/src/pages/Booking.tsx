@@ -6,7 +6,9 @@ import {
   useListServices,
   useGetAvailableSlots,
   useCreateBooking,
+  useGetSettings,
   getGetAvailableSlotsQueryKey,
+  getGetSettingsQueryKey,
 } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -228,6 +230,9 @@ export default function Booking() {
   const [confirmedBookingId, setConfirmedBookingId] = useState<number | null>(null);
   const [, setLocation] = useLocation();
 
+  const { data: settings } = useGetSettings({ query: { queryKey: getGetSettingsQueryKey() } });
+  const phoneValidationEnabled = (settings as Record<string, unknown>)?.phoneValidationEnabled !== false;
+
   const { data: services, isLoading: servicesLoading } = useListServices();
   const slotsParams = { date: form.date, serviceId: form.serviceId ?? 0 };
   const { data: slots, isLoading: slotsLoading } = useGetAvailableSlots(slotsParams, {
@@ -256,7 +261,7 @@ export default function Booking() {
       toast.error("Please fill in all required fields.");
       return;
     }
-    if (!validateUkPhone(form.customerPhone)) {
+    if (phoneValidationEnabled && !validateUkPhone(form.customerPhone)) {
       toast.error("Please enter a valid UK phone number (e.g. 07700 900 123 or +44 7700 900123).");
       return;
     }

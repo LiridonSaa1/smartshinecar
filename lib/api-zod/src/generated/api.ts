@@ -337,7 +337,8 @@ export const GetSettingsResponse = zod.object({
   "openTime": zod.string(),
   "closeTime": zod.string(),
   "slotDuration": zod.number().describe('Duration of each slot in minutes'),
-  "workingDays": zod.array(zod.string())
+  "workingDays": zod.array(zod.string()),
+  "phoneValidationEnabled": zod.boolean().optional().describe('Whether to enforce UK phone number validation on the booking form')
 })
 
 
@@ -352,7 +353,8 @@ export const UpdateSettingsBody = zod.object({
   "openTime": zod.string(),
   "closeTime": zod.string(),
   "slotDuration": zod.number().describe('Duration of each slot in minutes'),
-  "workingDays": zod.array(zod.string())
+  "workingDays": zod.array(zod.string()),
+  "phoneValidationEnabled": zod.boolean().optional().describe('Whether to enforce UK phone number validation on the booking form')
 })
 
 export const UpdateSettingsResponse = zod.object({
@@ -363,7 +365,8 @@ export const UpdateSettingsResponse = zod.object({
   "openTime": zod.string(),
   "closeTime": zod.string(),
   "slotDuration": zod.number().describe('Duration of each slot in minutes'),
-  "workingDays": zod.array(zod.string())
+  "workingDays": zod.array(zod.string()),
+  "phoneValidationEnabled": zod.boolean().optional().describe('Whether to enforce UK phone number validation on the booking form')
 })
 
 

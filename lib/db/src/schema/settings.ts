@@ -22,6 +22,7 @@ export const settingsTable = pgTable("settings", {
   twilioFromNumber: text("twilio_from_number"),
   emailNotificationsEnabled: boolean("email_notifications_enabled").notNull().default(true),
   smsNotificationsEnabled: boolean("sms_notifications_enabled").notNull().default(true),
+  phoneValidationEnabled: boolean("phone_validation_enabled").notNull().default(true),
 });
 
 export type Settings = typeof settingsTable.$inferSelect;

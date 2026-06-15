@@ -206,6 +206,7 @@ export default function AdminSettings() {
     twilioFromNumber: "",
     emailNotificationsEnabled: true,
     smsNotificationsEnabled: true,
+    phoneValidationEnabled: true,
   });
   const [showApiKey, setShowApiKey] = useState(false);
   const [showTwilioToken, setShowTwilioToken] = useState(false);
@@ -233,6 +234,7 @@ export default function AdminSettings() {
         twilioFromNumber: (s.twilioFromNumber as string) ?? "",
         emailNotificationsEnabled: (s.emailNotificationsEnabled as boolean) ?? true,
         smsNotificationsEnabled: (s.smsNotificationsEnabled as boolean) ?? true,
+        phoneValidationEnabled: (s.phoneValidationEnabled as boolean) ?? true,
       });
     }
   }, [settings]);
@@ -414,6 +416,27 @@ export default function AdminSettings() {
                       {day}
                     </button>
                   ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Booking Options */}
+            <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+              <h2 className="font-semibold text-card-foreground">Booking Options</h2>
+              <div className="flex items-center justify-between py-1 px-4 rounded-xl bg-muted/40 border border-border">
+                <div>
+                  <p className="text-sm font-medium">UK phone number validation</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Require a valid UK number on the booking form (e.g. 07700 900 123 or +44 7700 900123)</p>
+                </div>
+                <div className="flex items-center gap-3 ml-4 flex-shrink-0">
+                  <span className={`text-xs font-semibold ${form.phoneValidationEnabled ? "text-green-600 dark:text-green-400" : "text-zinc-400"}`}>
+                    {form.phoneValidationEnabled ? "ON" : "OFF"}
+                  </span>
+                  <Switch
+                    id="phoneValidationEnabled"
+                    checked={form.phoneValidationEnabled}
+                    onCheckedChange={v => setForm(f => ({ ...f, phoneValidationEnabled: Boolean(v) }))}
+                  />
                 </div>
               </div>
             </div>

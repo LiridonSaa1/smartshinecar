@@ -168,6 +168,8 @@ export interface BusinessSettings {
   /** Duration of each slot in minutes */
   slotDuration: number;
   workingDays: string[];
+  /** Whether to enforce UK phone number validation on the booking form */
+  phoneValidationEnabled?: boolean;
 }
 
 export interface UploadUrlRequest {

@@ -738,6 +738,9 @@ components:
           type: array
           items:
             type: string
+        phoneValidationEnabled:
+          type: boolean
+          description: Whether to enforce UK phone number validation on the booking form
       required: [businessName, address, phone, email, openTime, closeTime, slotDuration, workingDays]
 
     UploadUrlRequest:

@@ -606,7 +606,7 @@ export default function Home() {
       </section>
 
       {/* 4. PRODUCTS & SERVICES */}
-      <section className="py-20 bg-white overflow-hidden">
+      <section id="services" className="py-20 bg-white overflow-hidden">
         <div className="mx-auto max-w-7xl px-6">
           <FadeIn className="text-center mb-14">
             <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 rounded-full px-4 py-1.5 text-sm font-bold mb-4">
@@ -700,16 +700,15 @@ export default function Home() {
                   )
                 )}
               </div>
-              <Link href="/private-valeting">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#0a0f2e] hover:bg-blue-900 px-7 py-3 text-[14px] font-bold text-white transition-all duration-150"
-                >
-                  View Our Services
-                  <ArrowRight className="h-4 w-4" />
-                </motion.button>
-              </Link>
+              <motion.button
+                onClick={() => document.getElementById("services")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#0a0f2e] hover:bg-blue-900 px-7 py-3 text-[14px] font-bold text-white transition-all duration-150"
+              >
+                View Our Services
+                <ArrowRight className="h-4 w-4" />
+              </motion.button>
             </FadeIn>
 
             {/* Image with floating stat badges */}

@@ -588,12 +588,12 @@ export default function Home() {
                 {completeData.paragraph2 ?? COMPLETE_DEFAULT.paragraph2}
               </p>
               <div className="flex flex-wrap gap-3">
-                <Link href="/private-valeting">
+                <a href="/private-valeting#packages">
                   <button className="inline-flex items-center gap-2 rounded-full bg-blue-500 hover:bg-blue-400 px-7 py-3 text-[14px] font-bold text-white transition-all duration-150">
                     View Packages
                     <ArrowRight className="h-4 w-4" />
                   </button>
-                </Link>
+                </a>
                 <Link href="/contact">
                   <button className="inline-flex items-center gap-2 rounded-full border border-white/30 hover:bg-white/10 px-7 py-3 text-[14px] font-bold text-white transition-all duration-150">
                     Get Free Quote

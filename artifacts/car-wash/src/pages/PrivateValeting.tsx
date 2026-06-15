@@ -436,6 +436,15 @@ export default function PrivateValeting() {
   const slides = (heroContent as typeof PV_HERO_DEFAULT).slides ?? HERO_SLIDES;
   const pkgItems = (packagesContent as typeof PV_PACKAGES_DEFAULT).items ?? PV_PACKAGES_DEFAULT.items;
 
+  useEffect(() => {
+    if (window.location.hash === "#packages") {
+      const el = document.getElementById("packages");
+      if (el) {
+        setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 300);
+      }
+    }
+  }, []);
+
   const PACKAGE_META = [
     { icon: Droplets, color: "bg-blue-50 text-blue-600" },
     { icon: Car, color: "bg-indigo-50 text-indigo-600" },
@@ -453,7 +462,7 @@ export default function PrivateValeting() {
       <HeroCarousel slides={slides} />
 
       {/* 1b. ABOUT / INTRO + PACKAGES CARDS */}
-      <section className="bg-gray-100 py-16 pb-20">
+      <section id="packages" className="bg-gray-100 py-16 pb-20">
         <div className="mx-auto max-w-6xl px-6">
           <FadeIn className="text-center mb-12">
             <h3 className="text-2xl font-black text-[#0a0f2e] mb-6">

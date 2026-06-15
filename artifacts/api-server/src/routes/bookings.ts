@@ -164,25 +164,27 @@ router.post("/bookings", async (req, res) => {
     }
 
     if (customerEmail) {
-      getOrCreateCustomerAccount(customerEmail, customerName)
-        .then(({ isNew, password }) => {
-          return sendEmail({
-            to: [{ email: customerEmail, name: customerName }],
-            subject: `Booking request received — Smart Shine Car Valeting`,
-            htmlContent: bookingReceivedCustomerEmail({
-              customerName,
-              serviceName: service.name,
-              date,
-              time,
-              businessPhone,
-              portalUrl,
-              isNewAccount: isNew,
-              email: customerEmail,
-              password,
-            }),
-          });
-        })
-        .catch(err => logger.error({ err }, "Booking received customer email failed"));
+      // Try to create customer portal account, but send the email regardless of outcome.
+      const accountResult = await getOrCreateCustomerAccount(customerEmail, customerName).catch(err => {
+        logger.error({ err }, "Customer account create failed — sending email without portal credentials");
+        return { isNew: false, password: undefined };
+      });
+
+      sendEmail({
+        to: [{ email: customerEmail, name: customerName }],
+        subject: `Booking request received — Smart Shine Car Valeting`,
+        htmlContent: bookingReceivedCustomerEmail({
+          customerName,
+          serviceName: service.name,
+          date,
+          time,
+          businessPhone,
+          portalUrl,
+          isNewAccount: accountResult.isNew,
+          email: customerEmail,
+          password: accountResult.password,
+        }),
+      }).catch(err => logger.error({ err }, "Booking received customer email failed"));
     }
 
     sendBookingReceivedSms({ customerPhone, customerName, serviceName: service.name, date, time, businessName })
@@ -248,39 +250,34 @@ router.put("/bookings/:id", async (req, res) => {
     if (prevStatus !== newStatus) {
       if (newStatus === "confirmed") {
         if (custEmail) {
-          getOrCreateCustomerAccount(custEmail, custName)
-            .then(({ isNew, password }) => {
-              const subject = "Your booking is confirmed — Smart Shine Car Valeting";
-              if (isNew && password) {
-                return sendEmail({
-                  to: [{ email: custEmail, name: custName }],
-                  subject,
-                  htmlContent: customerWelcomeEmail({
-                    customerName: custName,
-                    email: custEmail,
-                    password,
-                    serviceName: booking.serviceName as string,
-                    date: booking.date as string,
-                    time: booking.time as string,
-                    portalUrl,
-                    businessPhone,
-                  }),
-                });
-              } else {
-                return sendEmail({
-                  to: [{ email: custEmail, name: custName }],
-                  subject,
-                  htmlContent: bookingConfirmedCustomerEmail({
-                    customerName: custName,
-                    serviceName: booking.serviceName as string,
-                    date: booking.date as string,
-                    time: booking.time as string,
-                    businessPhone,
-                  }),
-                });
-              }
-            })
-            .catch(err => logger.error({ err }, "Booking confirmed email/account failed"));
+          // Try to create/find customer account, but send confirmation email regardless.
+          const accountResult = await getOrCreateCustomerAccount(custEmail, custName).catch(err => {
+            logger.error({ err }, "Customer account create failed — sending confirmation without portal credentials");
+            return { isNew: false, password: undefined };
+          });
+
+          const subject = "Your booking is confirmed — Smart Shine Car Valeting";
+          const htmlContent = (accountResult.isNew && accountResult.password)
+            ? customerWelcomeEmail({
+                customerName: custName,
+                email: custEmail,
+                password: accountResult.password,
+                serviceName: booking.serviceName as string,
+                date: booking.date as string,
+                time: booking.time as string,
+                portalUrl,
+                businessPhone,
+              })
+            : bookingConfirmedCustomerEmail({
+                customerName: custName,
+                serviceName: booking.serviceName as string,
+                date: booking.date as string,
+                time: booking.time as string,
+                businessPhone,
+              });
+
+          sendEmail({ to: [{ email: custEmail, name: custName }], subject, htmlContent })
+            .catch(err => logger.error({ err }, "Booking confirmed email failed"));
         }
 
         sendBookingConfirmationSms({

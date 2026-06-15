@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Car, LogOut, Calendar, Clock, CheckCircle2, XCircle,
   Loader2, AlertTriangle, Sparkles, ChevronRight, X, RefreshCw, Pencil,
-  Star, MessageSquare, StickyNote, PlusCircle,
+  Star, MessageSquare, StickyNote, PlusCircle, FileText, Send,
 } from "lucide-react";
 import {
   useCustomerAuth,
@@ -271,6 +271,132 @@ function AddNoteModal({ booking, onClose, onSaved }: {
   );
 }
 
+function QuoteModal({ customer, onClose }: {
+  customer: { name: string; email: string };
+  onClose: () => void;
+}) {
+  const [description, setDescription] = useState("");
+  const [phone, setPhone] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [sent, setSent] = useState(false);
+  const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const API = BASE ? `${BASE}/api` : "/api";
+
+  const handleSend = async () => {
+    if (!description.trim()) { setError("Please describe what you need a quote for."); return; }
+    setSaving(true);
+    setError("");
+    try {
+      const res = await fetch(`${API}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: customer.name,
+          email: customer.email,
+          phone: phone.trim() || undefined,
+          message: description.trim(),
+          source: "quote",
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to send quote request");
+      setSent(true);
+    } catch (err: any) {
+      setError(err.message ?? "Failed to send quote request");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+      onClick={() => !saving && onClose()}
+    >
+      <motion.div
+        initial={{ scale: 0.93, opacity: 0, y: 12 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.93, opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center">
+              <FileText className="h-5 w-5 text-emerald-600" />
+            </div>
+            <div>
+              <p className="font-black text-gray-900">Request a Quote</p>
+              <p className="text-xs text-gray-500">We'll get back to you within 24 hours</p>
+            </div>
+          </div>
+          <button onClick={onClose} disabled={saving} className="text-gray-400 hover:text-gray-600 p-1 rounded-lg transition">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {sent ? (
+          <div className="text-center py-6">
+            <div className="h-14 w-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 className="h-7 w-7 text-green-600" />
+            </div>
+            <p className="font-black text-gray-900 text-lg">Quote Request Sent!</p>
+            <p className="text-gray-500 text-sm mt-2">
+              We'll review your request and reply to <strong>{customer.email}</strong> within 24 hours.
+            </p>
+            <button onClick={onClose}
+              className="mt-5 rounded-xl bg-gray-100 hover:bg-gray-200 px-5 py-2.5 text-sm font-bold text-gray-700 transition">
+              Close
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Your Request</label>
+              <textarea
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                placeholder="e.g. I have a 2019 BMW X5 with leather interior. I'd like a full valet including engine bay clean and paint correction. What would this cost?"
+                rows={5}
+                className="w-full rounded-xl border-2 border-gray-200 px-4 py-2.5 text-sm resize-none focus:outline-none focus:border-emerald-400 transition"
+              />
+              <p className="text-xs text-gray-400 mt-1.5">Include your vehicle make/model and the services you're interested in.</p>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                Phone <span className="font-normal text-gray-400">(optional)</span>
+              </label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={e => setPhone(e.target.value)}
+                placeholder="07700 900000"
+                className="w-full rounded-xl border-2 border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-400 transition"
+              />
+            </div>
+            {error && (
+              <div className="rounded-xl bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 flex-shrink-0" /> {error}
+              </div>
+            )}
+            <div className="flex gap-3 mt-2">
+              <button onClick={onClose} disabled={saving}
+                className="flex-1 rounded-xl border-2 border-gray-200 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition disabled:opacity-50">
+                Cancel
+              </button>
+              <button onClick={handleSend} disabled={saving || !description.trim()}
+                className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 py-2.5 text-sm font-bold text-white transition flex items-center justify-center gap-2 disabled:opacity-50">
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                {saving ? "Sending…" : "Send Request"}
+              </button>
+            </div>
+          </div>
+        )}
+      </motion.div>
+    </motion.div>
+  );
+}
+
 function EditBookingModal({
   booking,
   onClose,
@@ -532,6 +658,7 @@ export default function CustomerDashboard() {
   const [editBooking, setEditBooking] = useState<Booking | null>(null);
   const [reviewBooking, setReviewBooking] = useState<Booking | null>(null);
   const [noteBooking, setNoteBooking] = useState<Booking | null>(null);
+  const [showQuoteModal, setShowQuoteModal] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !customer) navigate("/my-account");
@@ -694,6 +821,26 @@ export default function CustomerDashboard() {
                 </a>
               </div>
             )}
+
+            <section>
+              <div className="rounded-2xl border border-white/10 p-5 flex items-center justify-between gap-4" style={{ background: "rgba(255,255,255,0.03)" }}>
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(16,185,129,0.15)" }}>
+                    <FileText className="h-5 w-5 text-emerald-400" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-white text-sm">Need a custom quote?</p>
+                    <p className="text-gray-400 text-xs">Describe your vehicle &amp; requirements — we'll reply within 24h</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowQuoteModal(true)}
+                  className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 hover:text-emerald-300 rounded-lg px-3 py-2 transition border border-emerald-500/30 hover:bg-emerald-500/10 flex-shrink-0"
+                >
+                  Get a Quote <ChevronRight className="h-3 w-3" />
+                </button>
+              </div>
+            </section>
           </>
         )}
       </main>
@@ -770,6 +917,15 @@ export default function CustomerDashboard() {
             booking={noteBooking}
             onClose={() => setNoteBooking(null)}
             onSaved={handleNoteSaved}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showQuoteModal && customer && (
+          <QuoteModal
+            customer={customer}
+            onClose={() => setShowQuoteModal(false)}
           />
         )}
       </AnimatePresence>

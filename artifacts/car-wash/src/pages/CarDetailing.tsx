@@ -120,7 +120,7 @@ function HeroCarousel({ slides }: { slides: typeof HERO_SLIDES }) {
                 transition={{ delay: 0.34 }}
                 className="flex flex-wrap gap-3"
               >
-                <a href="#contact">
+                <a href="/contact#contact-form">
                   <button className="inline-flex items-center gap-2 rounded-full bg-blue-600 hover:bg-blue-500 active:scale-95 px-7 py-3 text-[14px] font-black text-white transition-all duration-150 shadow-xl shadow-blue-600/40">
                     Get Free Quote
                     <ArrowRight className="h-4 w-4" />

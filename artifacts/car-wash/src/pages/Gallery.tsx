@@ -269,7 +269,7 @@ function HeroCarousel() {
                   View Gallery <Images className="h-4 w-4" />
                 </motion.button>
               </a>
-              <a href="#contact">
+              <a href="/contact#contact-form">
                 <motion.button
                   whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
                   className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm px-7 py-3.5 text-sm font-black text-white hover:bg-white/20 transition-all"

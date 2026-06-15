@@ -594,11 +594,11 @@ export default function Home() {
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </a>
-                <Link href="/contact">
+                <a href="/contact#contact-form">
                   <button className="inline-flex items-center gap-2 rounded-full border border-white/30 hover:bg-white/10 px-7 py-3 text-[14px] font-bold text-white transition-all duration-150">
                     Get Free Quote
                   </button>
-                </Link>
+                </a>
               </div>
             </div>
           </FadeIn>

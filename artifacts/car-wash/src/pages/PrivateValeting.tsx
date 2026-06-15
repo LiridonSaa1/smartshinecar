@@ -132,7 +132,7 @@ function HeroCarousel({ slides }: { slides: typeof HERO_SLIDES }) {
                 transition={{ delay: 0.34 }}
                 className="flex flex-wrap gap-3"
               >
-                <a href="#contact">
+                <a href="/contact#contact-form">
                   <button className="inline-flex items-center gap-2 rounded-full bg-blue-600 hover:bg-blue-500 active:scale-95 px-7 py-3 text-[14px] font-black text-white transition-all duration-150 shadow-xl shadow-blue-600/40">
                     Get Free Quote
                     <ArrowRight className="h-4 w-4" />
@@ -503,7 +503,7 @@ export default function PrivateValeting() {
                     <h4 className="font-black text-[#0a0f2e] text-[15px] mb-1">{pkg.name}</h4>
                     <p className="text-gray-500 text-[13px] leading-relaxed">{pkg.desc}</p>
                   </div>
-                  <a href="#contact" className="mt-auto inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 text-[13px] font-bold transition-colors group">
+                  <a href="/contact#contact-form" className="mt-auto inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 text-[13px] font-bold transition-colors group">
                     Get Free Quote
                     <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
                   </a>

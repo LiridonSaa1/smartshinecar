@@ -151,7 +151,7 @@ function HeroCarousel({ slides }: { slides: typeof HERO_SLIDES }) {
               {slide.sub}
             </p>
             <div className="flex flex-wrap gap-3">
-              <a href="#contact">
+              <a href="/contact#contact-form">
                 <motion.button
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.97 }}
@@ -594,7 +594,7 @@ export default function CommercialValeting() {
                 {body.paragraph3}
               </p>
               <div className="flex flex-wrap gap-3">
-                <a href="#contact">
+                <a href="/contact#contact-form">
                   <motion.button
                     whileHover={{ scale: 1.04 }}
                     whileTap={{ scale: 0.97 }}

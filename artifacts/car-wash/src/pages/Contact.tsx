@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useInView } from "framer-motion";
 import { Link } from "wouter";
 import logoSrc from "@assets/Professional_Car_Valeting_Logo_in_Navy_and_Silver_1781123501610.png";
@@ -54,6 +54,13 @@ function FadeIn({
 
 export default function Contact() {
   const { data: settings } = useGetSettings();
+
+  useEffect(() => {
+    if (window.location.hash === "#contact-form") {
+      const el = document.getElementById("contact-form");
+      if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 300);
+    }
+  }, []);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -215,7 +222,7 @@ export default function Contact() {
       </section>
 
       {/* 3. CONTACT FORM + MAP */}
-      <section className="py-20 bg-white px-6">
+      <section id="contact-form" className="py-20 bg-white px-6">
         <div className="mx-auto max-w-6xl">
           <FadeIn className="text-center mb-14">
             <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 rounded-full px-4 py-1.5 text-sm font-bold mb-4">

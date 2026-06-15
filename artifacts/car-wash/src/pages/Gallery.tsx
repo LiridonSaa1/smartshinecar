@@ -261,14 +261,13 @@ function HeroCarousel() {
             </h1>
             <p className="text-white/80 text-base md:text-lg max-w-2xl leading-relaxed mb-8">{slide.sub}</p>
             <div className="flex flex-wrap gap-3">
-              <a href="#gallery">
-                <motion.button
-                  whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
-                  className="inline-flex items-center gap-2 rounded-full bg-blue-500 hover:bg-blue-400 px-7 py-3.5 text-sm font-black text-white shadow-lg shadow-blue-500/30 transition-all"
-                >
-                  View Gallery <Images className="h-4 w-4" />
-                </motion.button>
-              </a>
+              <motion.button
+                onClick={() => document.getElementById("gallery")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
+                className="inline-flex items-center gap-2 rounded-full bg-blue-500 hover:bg-blue-400 px-7 py-3.5 text-sm font-black text-white shadow-lg shadow-blue-500/30 transition-all"
+              >
+                View Gallery <Images className="h-4 w-4" />
+              </motion.button>
               <a href="/contact#contact-form">
                 <motion.button
                   whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}

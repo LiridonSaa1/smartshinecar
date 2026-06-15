@@ -302,12 +302,16 @@ router.put("/bookings/:id", async (req, res) => {
         if (custEmail) {
           sendEmail({
             to: [{ email: custEmail, name: custName }],
-            subject: "Your car is ready! — Smart Shine Car Valeting",
+            subject: "Your car is ready for collection ✓ — Smart Shine Car Valeting",
             htmlContent: bookingReadyCustomerEmail({
               customerName: custName,
               serviceName: booking.serviceName as string,
+              servicePrice: booking.servicePrice as string,
               date: booking.date as string,
+              time: booking.time as string,
+              notes: existingRow?.notes ?? undefined,
               businessPhone,
+              portalUrl,
             }),
           }).catch(err => logger.error({ err }, "Booking done email failed"));
         }

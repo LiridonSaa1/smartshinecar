@@ -319,23 +319,52 @@ export function customerWelcomeEmail(opts: {
 export function bookingReadyCustomerEmail(opts: {
   customerName: string;
   serviceName: string;
+  servicePrice?: string;
   date: string;
+  time?: string;
+  notes?: string;
   businessPhone: string;
+  portalUrl?: string;
 }) {
   return `
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#ffffff">
       <div style="background:linear-gradient(135deg,#166534,#15803d);padding:24px 32px;border-radius:8px 8px 0 0">
-        <h1 style="color:#ffffff;margin:0;font-size:22px">Your Car is Ready! 🚗✨</h1>
-        <p style="color:rgba(255,255,255,0.7);margin:4px 0 0;font-size:14px">Smart Shine Car Valeting Centre</p>
+        <h1 style="color:#ffffff;margin:0;font-size:24px">Your Car is Ready! 🚗✨</h1>
+        <p style="color:rgba(255,255,255,0.75);margin:6px 0 0;font-size:14px">Smart Shine Car Valeting Centre</p>
       </div>
-      <div style="padding:24px 32px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
-        <p style="color:#374151;font-size:15px">Hi ${opts.customerName},</p>
-        <p style="color:#374151;font-size:15px">Your <strong>${opts.serviceName}</strong> on <strong>${opts.date}</strong> has been completed. Your vehicle is ready to collect!</p>
-        <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:20px;margin:20px 0;text-align:center">
-          <p style="margin:0;font-size:18px;font-weight:bold;color:#166534">Your car is ready for collection ✓</p>
+      <div style="padding:28px 32px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
+        <p style="color:#374151;font-size:15px;margin:0 0 8px">Hi <strong>${opts.customerName}</strong>,</p>
+        <p style="color:#374151;font-size:15px;margin:0 0 20px">Great news — your vehicle is now fully valeted and <strong>ready to collect</strong>. Thank you for choosing Smart Shine Car Valeting Centre!</p>
+
+        <div style="background:#f0fdf4;border:2px solid #86efac;border-radius:10px;padding:20px;margin:0 0 20px">
+          <p style="margin:0 0 14px;font-size:13px;font-weight:bold;color:#166534;text-transform:uppercase;letter-spacing:0.06em">✅ Your Car is Ready for Collection</p>
+          <table style="width:100%;border-collapse:collapse;font-size:14px">
+            <tr>
+              <td style="padding:9px 12px;background:#ffffff;font-weight:bold;color:#374151;width:130px;border:1px solid #bbf7d0;border-radius:4px 0 0 0">Service</td>
+              <td style="padding:9px 12px;background:#ffffff;color:#111827;border:1px solid #bbf7d0;border-radius:0 4px 0 0">${opts.serviceName}</td>
+            </tr>
+            <tr>
+              <td style="padding:9px 12px;background:#f9fafb;font-weight:bold;color:#374151;border:1px solid #bbf7d0;border-top:none">Date</td>
+              <td style="padding:9px 12px;background:#f9fafb;color:#111827;border:1px solid #bbf7d0;border-top:none">${opts.date}</td>
+            </tr>
+            ${opts.time ? `<tr><td style="padding:9px 12px;background:#ffffff;font-weight:bold;color:#374151;border:1px solid #bbf7d0;border-top:none">Time</td><td style="padding:9px 12px;background:#ffffff;color:#111827;border:1px solid #bbf7d0;border-top:none">${opts.time}</td></tr>` : ""}
+            ${opts.servicePrice ? `<tr><td style="padding:9px 12px;background:#f9fafb;font-weight:bold;color:#374151;border:1px solid #bbf7d0;border-top:none">Price</td><td style="padding:9px 12px;background:#f9fafb;color:#111827;font-weight:bold;border:1px solid #bbf7d0;border-top:none">£${opts.servicePrice}</td></tr>` : ""}
+            ${opts.notes ? `<tr><td style="padding:9px 12px;background:#ffffff;font-weight:bold;color:#374151;border:1px solid #bbf7d0;border-top:none;vertical-align:top">Notes</td><td style="padding:9px 12px;background:#ffffff;color:#6b7280;font-style:italic;border:1px solid #bbf7d0;border-top:none">${opts.notes.replace(/\n/g, "<br/>")}</td></tr>` : ""}
+          </table>
         </div>
-        <p style="color:#374151;font-size:14px">If you have any questions, call us on <a href="tel:${opts.businessPhone}" style="color:#2563eb;font-weight:bold">${opts.businessPhone}</a>.</p>
-        <p style="color:#374151;font-size:14px">Thank you for choosing Smart Shine Car Valeting Centre!<br/>Guildford, Surrey</p>
+
+        ${opts.portalUrl ? `
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:16px;margin:0 0 20px;text-align:center">
+          <p style="margin:0 0 10px;font-size:14px;color:#1e40af">View your booking history and leave a review in your account portal</p>
+          <a href="${opts.portalUrl}" style="display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;padding:10px 24px;border-radius:6px;font-size:14px;font-weight:bold">My Account →</a>
+        </div>` : ""}
+
+        <div style="border-top:1px solid #e5e7eb;padding-top:18px;margin-top:4px">
+          <p style="color:#374151;font-size:14px;margin:0 0 6px">Need anything? Give us a call:</p>
+          <p style="margin:0;font-size:16px;font-weight:bold"><a href="tel:${opts.businessPhone}" style="color:#2563eb;text-decoration:none">${opts.businessPhone}</a></p>
+        </div>
+
+        <p style="color:#9ca3af;font-size:12px;margin:20px 0 0">Smart Shine Car Valeting Centre · Guildford, Surrey · Mon–Sun 08:00–19:00</p>
       </div>
     </div>
   `;

@@ -169,10 +169,10 @@ export function bookingReceivedCustomerEmail(opts: {
   email?: string;
   password?: string;
 }) {
-  const accountSection = opts.isNewAccount && opts.password ? `
+  const accountSection = opts.password ? `
         <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:20px;margin:20px 0">
-          <p style="margin:0 0 10px;font-size:13px;font-weight:bold;color:#1d4ed8;text-transform:uppercase;letter-spacing:0.05em">🔑 Your Customer Portal Account</p>
-          <p style="margin:0 0 8px;color:#374151;font-size:14px">We've created a portal account so you can track your booking, see when your car is ready, and view your history.</p>
+          <p style="margin:0 0 10px;font-size:13px;font-weight:bold;color:#1d4ed8;text-transform:uppercase;letter-spacing:0.05em">🔑 Your Customer Portal</p>
+          <p style="margin:0 0 8px;color:#374151;font-size:14px">Use these details to log in and track your booking, see when your car is ready, and view your history.</p>
           <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:12px">
             <tr><td style="padding:8px 10px;background:#ffffff;font-weight:bold;color:#374151;width:100px;border:1px solid #dbeafe">Email</td><td style="padding:8px 10px;background:#ffffff;color:#111827;border:1px solid #dbeafe">${opts.email}</td></tr>
             <tr><td style="padding:8px 10px;background:#ffffff;font-weight:bold;color:#374151;border:1px solid #dbeafe;border-top:none">Password</td><td style="padding:8px 10px;background:#ffffff;color:#111827;font-family:monospace;letter-spacing:0.05em;border:1px solid #dbeafe;border-top:none"><strong>${opts.password}</strong></td></tr>

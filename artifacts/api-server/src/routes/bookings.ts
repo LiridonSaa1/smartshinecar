@@ -34,9 +34,17 @@ function generatePassword(length = 10): string {
 async function getOrCreateCustomerAccount(
   email: string,
   name: string
-): Promise<{ isNew: boolean; password?: string }> {
-  const existing = await db.select({ id: customerAccountsTable.id }).from(customerAccountsTable).where(eq(customerAccountsTable.email, email.toLowerCase())).limit(1);
-  if (existing.length > 0) return { isNew: false };
+): Promise<{ isNew: boolean; password: string }> {
+  const existing = await db
+    .select({ id: customerAccountsTable.id, plainPassword: customerAccountsTable.plainPassword })
+    .from(customerAccountsTable)
+    .where(eq(customerAccountsTable.email, email.toLowerCase()))
+    .limit(1);
+
+  if (existing.length > 0) {
+    // Return stored plain password so it can be included in the email again
+    return { isNew: false, password: existing[0].plainPassword ?? "" };
+  }
 
   const password = generatePassword();
   const passwordHash = await bcrypt.hash(password, 10);
@@ -45,6 +53,7 @@ async function getOrCreateCustomerAccount(
     email: email.toLowerCase(),
     name,
     passwordHash,
+    plainPassword: password,
   });
 
   return { isNew: true, password };
@@ -167,7 +176,7 @@ router.post("/bookings", async (req, res) => {
       // Try to create customer portal account, but send the email regardless of outcome.
       const accountResult = await getOrCreateCustomerAccount(customerEmail, customerName).catch(err => {
         logger.error({ err }, "Customer account create failed — sending email without portal credentials");
-        return { isNew: false, password: undefined };
+        return { isNew: false, password: "" };
       });
 
       sendEmail({
@@ -253,7 +262,7 @@ router.put("/bookings/:id", async (req, res) => {
           // Try to create/find customer account, but send confirmation email regardless.
           const accountResult = await getOrCreateCustomerAccount(custEmail, custName).catch(err => {
             logger.error({ err }, "Customer account create failed — sending confirmation without portal credentials");
-            return { isNew: false, password: undefined };
+            return { isNew: false, password: "" };
           });
 
           const subject = "Your booking is confirmed — Smart Shine Car Valeting";

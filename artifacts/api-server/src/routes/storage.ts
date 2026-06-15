@@ -3,13 +3,9 @@ import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
 import { existsSync, mkdirSync } from "fs";
-import { createClient } from "@supabase/supabase-js";
-import ws from "ws";
 import sharp from "sharp";
 
 const router: IRouter = Router();
-
-const BUCKET = "uploads";
 
 const MAX_WIDTH = 2560;
 const MAX_HEIGHT = 1600;
@@ -40,31 +36,6 @@ async function optimizeImage(buffer: Buffer, originalMime: string): Promise<{ bu
     return { buffer, mime: originalMime, ext };
   }
 }
-
-function getSupabaseAdmin() {
-  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
-  if (!url || !key) return null;
-  return createClient(url, key, { realtime: { transport: ws as any } });
-}
-
-async function ensureBucket() {
-  const supabase = getSupabaseAdmin();
-  if (!supabase) return;
-  try {
-    const { data: buckets } = await supabase.storage.listBuckets();
-    const exists = buckets?.some((b) => b.name === BUCKET);
-    if (!exists) {
-      await supabase.storage.createBucket(BUCKET, {
-        public: true,
-        allowedMimeTypes: ["image/*"],
-        fileSizeLimit: 15 * 1024 * 1024,
-      });
-    }
-  } catch {}
-}
-
-ensureBucket();
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.resolve(currentDir, "..", "..", "public", "uploads");
@@ -98,27 +69,6 @@ router.post("/storage/uploads", upload.single("file"), async (req: Request, res:
     console.log(
       `[storage] Optimized: ${(req.file.size / 1024).toFixed(0)}KB → ${(optimized.length / 1024).toFixed(0)}KB (${ext})`
     );
-
-    const supabase = getSupabaseAdmin();
-
-    if (supabase) {
-      const { error } = await supabase.storage
-        .from(BUCKET)
-        .upload(fileName, optimized, {
-          contentType: mime,
-          upsert: false,
-        });
-
-      if (error) {
-        console.error("[storage] Supabase upload error:", error.message);
-        res.status(500).json({ error: "Upload failed: " + error.message });
-        return;
-      }
-
-      const { data: { publicUrl } } = supabase.storage.from(BUCKET).getPublicUrl(fileName);
-      res.json({ url: publicUrl });
-      return;
-    }
 
     const { writeFile } = await import("fs/promises");
     await writeFile(path.join(uploadsDir, fileName), optimized);

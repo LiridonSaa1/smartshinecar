@@ -149,32 +149,50 @@ export default function Dashboard() {
           ) : recent.length === 0 ? (
             <p className="text-muted-foreground text-sm py-6 text-center">No bookings yet.</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-2 px-3 text-muted-foreground font-medium">Customer</th>
-                    <th className="text-left py-2 px-3 text-muted-foreground font-medium">Service</th>
-                    <th className="text-left py-2 px-3 text-muted-foreground font-medium">Date</th>
-                    <th className="text-left py-2 px-3 text-muted-foreground font-medium">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recent.map((b) => (
-                    <tr key={b.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors" data-testid={`row-booking-${b.id}`}>
-                      <td className="py-3 px-3 font-medium text-card-foreground">{b.customerName}</td>
-                      <td className="py-3 px-3 text-muted-foreground">{b.serviceName}</td>
-                      <td className="py-3 px-3 text-muted-foreground">{b.date} {b.time}</td>
-                      <td className="py-3 px-3">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${STATUS_COLORS[b.status] ?? ""}`}>
-                          {b.status.replace("_", " ")}
-                        </span>
-                      </td>
+            <>
+              {/* Mobile cards */}
+              <div className="md:hidden divide-y divide-border">
+                {recent.map((b) => (
+                  <div key={b.id} className="py-3 space-y-1" data-testid={`row-booking-${b.id}`}>
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="font-medium text-card-foreground text-sm truncate">{b.customerName}</p>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize flex-shrink-0 ${STATUS_COLORS[b.status] ?? ""}`}>
+                        {b.status.replace("_", " ")}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{b.serviceName}</p>
+                    <p className="text-xs text-muted-foreground">{b.date} · {b.time}</p>
+                  </div>
+                ))}
+              </div>
+              {/* Desktop table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-2 px-3 text-muted-foreground font-medium">Customer</th>
+                      <th className="text-left py-2 px-3 text-muted-foreground font-medium">Service</th>
+                      <th className="text-left py-2 px-3 text-muted-foreground font-medium">Date</th>
+                      <th className="text-left py-2 px-3 text-muted-foreground font-medium">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {recent.map((b) => (
+                      <tr key={b.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors" data-testid={`row-booking-${b.id}`}>
+                        <td className="py-3 px-3 font-medium text-card-foreground">{b.customerName}</td>
+                        <td className="py-3 px-3 text-muted-foreground">{b.serviceName}</td>
+                        <td className="py-3 px-3 text-muted-foreground">{b.date} {b.time}</td>
+                        <td className="py-3 px-3">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${STATUS_COLORS[b.status] ?? ""}`}>
+                            {b.status.replace("_", " ")}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
       </div>

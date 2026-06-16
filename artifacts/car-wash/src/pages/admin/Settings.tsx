@@ -448,12 +448,12 @@ export default function AdminSettings() {
 
             {/* Email Configuration */}
             <div className="bg-card border border-border rounded-2xl p-6 space-y-5">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <h2 className="font-semibold text-card-foreground">Email Configuration</h2>
                   <p className="text-xs text-muted-foreground mt-0.5">Powered by Brevo (Sendinblue)</p>
                 </div>
-                <div className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${brevoConfigured ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"}`}>
+                <div className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full flex-shrink-0 ${brevoConfigured ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"}`}>
                   {brevoConfigured
                     ? <><CheckCircle className="h-3 w-3" /> Connected</>
                     : <><AlertCircle className="h-3 w-3" /> Not configured</>
@@ -565,12 +565,12 @@ export default function AdminSettings() {
 
             {/* SMS / Twilio Configuration */}
             <div className="bg-card border border-border rounded-2xl p-6 space-y-5">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <h2 className="font-semibold text-card-foreground">SMS Notifications</h2>
                   <p className="text-xs text-muted-foreground mt-0.5">Powered by Twilio — sends SMS to customers on booking events</p>
                 </div>
-                <div className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${twilioConfigured ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"}`}>
+                <div className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full flex-shrink-0 ${twilioConfigured ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"}`}>
                   {twilioConfigured
                     ? <><CheckCircle className="h-3 w-3" /> Connected</>
                     : <><AlertCircle className="h-3 w-3" /> Not configured</>

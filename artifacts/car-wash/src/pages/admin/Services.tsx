@@ -98,55 +98,88 @@ export default function AdminServices() {
           </div>
         ) : (
           <div className="bg-card border border-border rounded-2xl overflow-hidden">
-            <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border bg-muted/40">
-                  <th className="text-left py-3 px-5 text-muted-foreground font-medium">Service</th>
-                  <th className="text-left py-3 px-5 text-muted-foreground font-medium">Duration</th>
-                  <th className="text-left py-3 px-5 text-muted-foreground font-medium">Price</th>
-                  <th className="text-left py-3 px-5 text-muted-foreground font-medium">Status</th>
-                  <th className="text-left py-3 px-5 text-muted-foreground font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {services?.map((s) => (
-                  <tr key={s.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors" data-testid={`row-service-${s.id}`}>
-                    <td className="py-4 px-5">
+            {/* Mobile card view */}
+            <div className="md:hidden divide-y divide-border">
+              {services?.map((s) => (
+                <div key={s.id} className="p-4 space-y-2" data-testid={`row-service-${s.id}`}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
                       <p className="font-medium text-card-foreground">{s.name}</p>
-                      <p className="text-xs text-muted-foreground">{s.description || "No description"}</p>
-                    </td>
-                    <td className="py-4 px-5">
-                      <span className="flex items-center gap-1.5 text-card-foreground">
-                        <Clock className="h-3.5 w-3.5 text-primary" />
-                        {s.duration} min
-                      </span>
-                    </td>
-                    <td className="py-4 px-5">
-                      <span className="flex items-center gap-1 font-semibold text-primary">
-                        <DollarSign className="h-3.5 w-3.5" />
-                        {s.price}
-                      </span>
-                    </td>
-                    <td className="py-4 px-5">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${s.isActive ? "bg-green-100 text-green-800" : "bg-muted text-muted-foreground"}`}>
-                        {s.isActive ? "Active" : "Inactive"}
-                      </span>
-                    </td>
-                    <td className="py-4 px-5">
-                      <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(s)} data-testid={`button-edit-service-${s.id}`}>
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteId(s.id)} data-testid={`button-delete-service-${s.id}`}>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </td>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{s.description || "No description"}</p>
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(s)} data-testid={`button-edit-service-${s.id}`}>
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteId(s.id)} data-testid={`button-delete-service-${s.id}`}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="flex items-center gap-1 text-xs text-card-foreground">
+                      <Clock className="h-3.5 w-3.5 text-primary" />{s.duration} min
+                    </span>
+                    <span className="flex items-center gap-0.5 text-xs font-semibold text-primary">
+                      <DollarSign className="h-3.5 w-3.5" />{s.price}
+                    </span>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${s.isActive ? "bg-green-100 text-green-800" : "bg-muted text-muted-foreground"}`}>
+                      {s.isActive ? "Active" : "Inactive"}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* Desktop table view */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-muted/40">
+                    <th className="text-left py-3 px-5 text-muted-foreground font-medium">Service</th>
+                    <th className="text-left py-3 px-5 text-muted-foreground font-medium">Duration</th>
+                    <th className="text-left py-3 px-5 text-muted-foreground font-medium">Price</th>
+                    <th className="text-left py-3 px-5 text-muted-foreground font-medium">Status</th>
+                    <th className="text-left py-3 px-5 text-muted-foreground font-medium">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {services?.map((s) => (
+                    <tr key={s.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors" data-testid={`row-service-${s.id}`}>
+                      <td className="py-4 px-5">
+                        <p className="font-medium text-card-foreground">{s.name}</p>
+                        <p className="text-xs text-muted-foreground">{s.description || "No description"}</p>
+                      </td>
+                      <td className="py-4 px-5">
+                        <span className="flex items-center gap-1.5 text-card-foreground">
+                          <Clock className="h-3.5 w-3.5 text-primary" />
+                          {s.duration} min
+                        </span>
+                      </td>
+                      <td className="py-4 px-5">
+                        <span className="flex items-center gap-1 font-semibold text-primary">
+                          <DollarSign className="h-3.5 w-3.5" />
+                          {s.price}
+                        </span>
+                      </td>
+                      <td className="py-4 px-5">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${s.isActive ? "bg-green-100 text-green-800" : "bg-muted text-muted-foreground"}`}>
+                          {s.isActive ? "Active" : "Inactive"}
+                        </span>
+                      </td>
+                      <td className="py-4 px-5">
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(s)} data-testid={`button-edit-service-${s.id}`}>
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteId(s.id)} data-testid={`button-delete-service-${s.id}`}>
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}

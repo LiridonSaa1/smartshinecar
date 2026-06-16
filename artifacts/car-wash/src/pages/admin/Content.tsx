@@ -124,7 +124,7 @@ function HeroSlidesEditor() {
       </div>
       <div className="border border-gray-200 rounded-xl p-4 bg-blue-50/50 space-y-3">
         <p className="text-sm font-semibold text-gray-700 mb-1">Carousel buttons</p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div><label className="block text-xs font-semibold text-gray-600 mb-1">Button 1 — label</label><Input value={local.btn1Label ?? ""} onChange={e => mark({ ...local, btn1Label: e.target.value })} placeholder="Book Your Valet" /></div>
           <div><label className="block text-xs font-semibold text-gray-600 mb-1">Button 1 — link</label><Input value={local.btn1Link ?? ""} onChange={e => mark({ ...local, btn1Link: e.target.value })} placeholder="/booking" /></div>
           <div><label className="block text-xs font-semibold text-gray-600 mb-1">Button 2 — label</label><Input value={local.btn2Label ?? ""} onChange={e => mark({ ...local, btn2Label: e.target.value })} placeholder="Get Free Quote" /></div>
@@ -1396,9 +1396,26 @@ export default function AdminContent() {
         <p className="text-sm text-gray-500 mt-1">Select a page and section to edit the content shown on your website.</p>
       </div>
 
+      {/* Mobile section picker */}
+      <div className="md:hidden mb-4">
+        <select
+          value={active}
+          onChange={e => setActive(e.target.value)}
+          className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          {PAGE_GROUPS.map(group => (
+            <optgroup key={group.page} label={`${group.page} Page`}>
+              {group.sections.map(s => (
+                <option key={s.key} value={s.key}>{s.label}</option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+      </div>
+
       <div className="flex gap-6 min-h-[600px]">
-        {/* Sidebar */}
-        <aside className="w-64 flex-shrink-0 space-y-4">
+        {/* Sidebar — desktop only */}
+        <aside className="hidden md:block w-64 flex-shrink-0 space-y-4">
           {PAGE_GROUPS.map(group => {
             const gc = COLOR_MAP[group.color];
             const PageIcon = group.icon;
@@ -1437,8 +1454,8 @@ export default function AdminContent() {
         </aside>
 
         {/* Editor Panel */}
-        <div className="flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm p-6 min-w-0">
-          <div className="flex items-start gap-3 mb-6 pb-5 border-b border-gray-100">
+        <div className="flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6 min-w-0">
+          <div className="flex flex-wrap items-start gap-3 mb-6 pb-5 border-b border-gray-100">
             <div className={`flex h-10 w-10 items-center justify-center rounded-xl flex-shrink-0 ${
               activeSection.color === "blue" ? "bg-blue-50" :
               activeSection.color === "violet" ? "bg-violet-50" :
@@ -1447,11 +1464,11 @@ export default function AdminContent() {
             }`}>
               <activeSection.icon className={`h-5 w-5 ${colors.icon}`} />
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <h2 className="text-base font-bold text-gray-900">{activeSection.label}</h2>
               <p className="text-sm text-gray-500">{activeSection.description}</p>
             </div>
-            <Badge variant="outline" className="ml-auto text-xs font-mono text-gray-400 border-gray-200">{active}</Badge>
+            <Badge variant="outline" className="text-xs font-mono text-gray-400 border-gray-200 hidden sm:inline-flex">{active}</Badge>
           </div>
           <ActiveEditor />
         </div>

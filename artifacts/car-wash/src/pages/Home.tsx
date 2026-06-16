@@ -21,21 +21,21 @@ const HERO_SLIDES_DEFAULT = {
   slides: [
     {
       id: 0,
-      image: "",
+      image: whyUsImg,
       headline: "Premium Car\nValeting Service",
       sub: "Professional valeting that restores your vehicle to showroom condition. Serving Guildford and surrounding areas.",
       accent: "from-black/60 via-black/30 to-transparent",
     },
     {
       id: 1,
-      image: "",
+      image: completeImg,
       headline: "Showroom Finish,\nEvery Time",
       sub: "Deep paint correction and interior detailing to restore your vehicle to pristine condition.",
       accent: "from-black/60 via-black/30 to-transparent",
     },
     {
       id: 2,
-      image: "",
+      image: whyUsImg,
       headline: "Trusted by\nThousands of Drivers",
       sub: "Over 25 years of experience. Over 5,000 happy customers. Experience the Smart Shine difference.",
       accent: "from-black/60 via-black/30 to-transparent",

@@ -144,6 +144,9 @@ function BrandSlider({ brand }: { brand: typeof BRANDS[0] }) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.35 }}
             className="absolute inset-0 w-full h-full object-cover"
+            loading="eager"
+            fetchPriority={idx === 0 ? "high" : "auto"}
+            style={{ transform: "translateZ(0)", backfaceVisibility: "hidden" }}
           />
         </AnimatePresence>
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />

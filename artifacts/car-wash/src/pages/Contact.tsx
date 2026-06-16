@@ -437,6 +437,18 @@ export default function Contact() {
         </div>
       </section>
 
+      {/* SEO Text Section */}
+      <section className="py-14 bg-gray-50 px-6 border-t border-gray-100">
+        <div className="mx-auto max-w-3xl">
+          <h2 className="text-2xl md:text-3xl font-black text-[#0a0f2e] tracking-tight mb-4">
+            Dent removal for vehicles in Guildford
+          </h2>
+          <p className="text-gray-600 text-[15px] leading-relaxed">
+            Whether it is dent removals for private vehicles or a complete inside-and-out valeting for a fleet of commercial vehicles, the specialists at Smart Shine Car Valeting Centre are always committed to meeting your expectations. We offer a wide range of car services, including scratch removal, machine polish, interior valeting and exterior valeting. Contact us using any of the methods below, and we will be happy to help.
+          </p>
+        </div>
+      </section>
+
       {/* 4. FOOTER */}
       <footer className="bg-gray-900 pt-12 pb-6">
         <div className="mx-auto max-w-7xl px-6">

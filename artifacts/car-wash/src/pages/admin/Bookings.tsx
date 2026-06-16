@@ -193,63 +193,110 @@ export default function AdminBookings() {
               <p className="text-muted-foreground">No bookings found.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-muted/40">
-                    <th className="text-left py-3 px-4 text-muted-foreground font-medium">#</th>
-                    <th className="text-left py-3 px-4 text-muted-foreground font-medium">Customer</th>
-                    <th className="text-left py-3 px-4 text-muted-foreground font-medium">Service</th>
-                    <th className="text-left py-3 px-4 text-muted-foreground font-medium">Date & Time</th>
-                    <th className="text-left py-3 px-4 text-muted-foreground font-medium">Status</th>
-                    <th className="text-left py-3 px-4 text-muted-foreground font-medium">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((b) => (
-                    <tr key={b.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors" data-testid={`row-booking-${b.id}`}>
-                      <td className="py-3 px-4 text-muted-foreground">#{b.id}</td>
-                      <td className="py-3 px-4">
-                        <p className="font-medium text-card-foreground">{b.customerName}</p>
+            <>
+              {/* Mobile card view */}
+              <div className="md:hidden divide-y divide-border">
+                {filtered.map((b) => (
+                  <div key={b.id} className="p-4 space-y-2" data-testid={`row-booking-${b.id}`}>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-medium text-card-foreground truncate">{b.customerName}</p>
                         <p className="text-xs text-muted-foreground">{b.customerPhone}</p>
-                      </td>
-                      <td className="py-3 px-4 text-card-foreground">{b.serviceName}</td>
-                      <td className="py-3 px-4 text-muted-foreground">{b.date} {b.time}</td>
-                      <td className="py-3 px-4">
-                        <select
-                          value={b.status}
-                          onChange={e => {
-                            const newStatus = e.target.value as Status;
-                            updateBooking.mutate(
-                              { id: b.id, data: { status: newStatus } },
-                              {
-                                onSuccess: () => { toast.success(`Status → ${newStatus.replace("_", " ")}`); invalidate(); },
-                                onError: () => toast.error("Status update failed."),
-                              }
-                            );
-                          }}
-                          className={`rounded-full px-2.5 py-0.5 text-xs font-medium capitalize border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary ${STATUS_COLORS[b.status] ?? ""}`}
-                        >
-                          {ALL_STATUSES.map(s => (
-                            <option key={s} value={s}>{s.replace("_", " ")}</option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(b)} data-testid={`button-edit-booking-${b.id}`}>
-                            <Pencil className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteId(b.id)} data-testid={`button-delete-booking-${b.id}`}>
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                      </td>
+                      </div>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(b)} data-testid={`button-edit-booking-${b.id}`}>
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteId(b.id)} data-testid={`button-delete-booking-${b.id}`}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                    <p className="text-sm text-card-foreground">{b.serviceName}</p>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs text-muted-foreground">{b.date} {b.time}</span>
+                      <select
+                        value={b.status}
+                        onChange={e => {
+                          const newStatus = e.target.value as Status;
+                          updateBooking.mutate(
+                            { id: b.id, data: { status: newStatus } },
+                            {
+                              onSuccess: () => { toast.success(`Status → ${newStatus.replace("_", " ")}`); invalidate(); },
+                              onError: () => toast.error("Status update failed."),
+                            }
+                          );
+                        }}
+                        className={`rounded-full px-2.5 py-0.5 text-xs font-medium capitalize border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary ${STATUS_COLORS[b.status] ?? ""}`}
+                      >
+                        {ALL_STATUSES.map(s => (
+                          <option key={s} value={s}>{s.replace("_", " ")}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop table view */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/40">
+                      <th className="text-left py-3 px-4 text-muted-foreground font-medium">#</th>
+                      <th className="text-left py-3 px-4 text-muted-foreground font-medium">Customer</th>
+                      <th className="text-left py-3 px-4 text-muted-foreground font-medium">Service</th>
+                      <th className="text-left py-3 px-4 text-muted-foreground font-medium">Date & Time</th>
+                      <th className="text-left py-3 px-4 text-muted-foreground font-medium">Status</th>
+                      <th className="text-left py-3 px-4 text-muted-foreground font-medium">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {filtered.map((b) => (
+                      <tr key={b.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors" data-testid={`row-booking-${b.id}`}>
+                        <td className="py-3 px-4 text-muted-foreground">#{b.id}</td>
+                        <td className="py-3 px-4">
+                          <p className="font-medium text-card-foreground">{b.customerName}</p>
+                          <p className="text-xs text-muted-foreground">{b.customerPhone}</p>
+                        </td>
+                        <td className="py-3 px-4 text-card-foreground">{b.serviceName}</td>
+                        <td className="py-3 px-4 text-muted-foreground">{b.date} {b.time}</td>
+                        <td className="py-3 px-4">
+                          <select
+                            value={b.status}
+                            onChange={e => {
+                              const newStatus = e.target.value as Status;
+                              updateBooking.mutate(
+                                { id: b.id, data: { status: newStatus } },
+                                {
+                                  onSuccess: () => { toast.success(`Status → ${newStatus.replace("_", " ")}`); invalidate(); },
+                                  onError: () => toast.error("Status update failed."),
+                                }
+                              );
+                            }}
+                            className={`rounded-full px-2.5 py-0.5 text-xs font-medium capitalize border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary ${STATUS_COLORS[b.status] ?? ""}`}
+                          >
+                            {ALL_STATUSES.map(s => (
+                              <option key={s} value={s}>{s.replace("_", " ")}</option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-2">
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(b)} data-testid={`button-edit-booking-${b.id}`}>
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteId(b.id)} data-testid={`button-delete-booking-${b.id}`}>
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
       </div>

@@ -82,12 +82,12 @@ export default function AdminServices() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Services</h1>
             <p className="text-muted-foreground mt-1">Manage the services you offer.</p>
           </div>
-          <Button onClick={openAdd} data-testid="button-add-service">
+          <Button onClick={openAdd} data-testid="button-add-service" className="w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" /> Add Service
           </Button>
         </div>
@@ -98,6 +98,7 @@ export default function AdminServices() {
           </div>
         ) : (
           <div className="bg-card border border-border rounded-2xl overflow-hidden">
+            <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/40">
@@ -146,6 +147,7 @@ export default function AdminServices() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         )}
       </div>

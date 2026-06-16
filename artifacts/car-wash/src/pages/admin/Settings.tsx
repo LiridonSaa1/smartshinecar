@@ -332,7 +332,7 @@ export default function AdminSettings() {
             {/* Branding */}
             <div className="bg-card border border-border rounded-2xl p-6 space-y-5">
               <h2 className="font-semibold text-card-foreground">Branding</h2>
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <label className="text-sm font-medium mb-2 block">Logo</label>
                   <ImageUpload
@@ -366,7 +366,7 @@ export default function AdminSettings() {
                 <label className="text-sm font-medium mb-1.5 block">Address</label>
                 <Input data-testid="input-business-address" value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium mb-1.5 block">Phone</label>
                   <Input data-testid="input-business-phone" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
@@ -381,7 +381,7 @@ export default function AdminSettings() {
             {/* Working Hours */}
             <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
               <h2 className="font-semibold text-card-foreground">Working Hours & Slots</h2>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium mb-1.5 block">Opening Time</label>
                   <Input data-testid="input-open-time" type="time" value={form.openTime} onChange={e => setForm(f => ({ ...f, openTime: e.target.value }))} />
@@ -514,7 +514,7 @@ export default function AdminSettings() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium mb-1.5 block">Sender Name</label>
                   <Input

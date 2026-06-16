@@ -4,20 +4,20 @@ import * as schema from "./schema";
 
 const { Pool } = pg;
 
-// On Render (production), prefer SUPABASE_DATABASE_URL (requires SSL).
-// On Replit (development), use DATABASE_URL (local Postgres, no SSL).
-const isRender = process.env.RENDER === "true";
-const connectionString = isRender
-  ? (process.env.SUPABASE_DATABASE_URL ?? process.env.DATABASE_URL)
-  : (process.env.DATABASE_URL ?? process.env.SUPABASE_DATABASE_URL);
+// Prefer SUPABASE_DATABASE_URL when available (works both on Replit dev and Render prod).
+// Fall back to DATABASE_URL (Replit local Postgres) only if Supabase URL is not set.
+const connectionString =
+  process.env.SUPABASE_DATABASE_URL ?? process.env.DATABASE_URL;
 
 if (!connectionString) {
   throw new Error("DATABASE_URL must be set.");
 }
 
+const usesSsl = !!process.env.SUPABASE_DATABASE_URL;
+
 export const pool = new Pool({
   connectionString,
-  ssl: isRender ? { rejectUnauthorized: false } : false,
+  ssl: usesSsl ? { rejectUnauthorized: false } : false,
 });
 export const db = drizzle(pool, { schema });
 

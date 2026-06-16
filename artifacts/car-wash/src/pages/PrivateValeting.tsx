@@ -138,11 +138,12 @@ function HeroCarousel({ slides }: { slides: typeof HERO_SLIDES }) {
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </a>
-                <a href="#packages">
-                  <button className="inline-flex items-center gap-2 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 border border-white/35 px-7 py-3 text-[14px] font-bold text-white backdrop-blur-sm transition-all duration-150">
-                    View Packages
-                  </button>
-                </a>
+                <button
+                  onClick={() => document.getElementById("packages")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                  className="inline-flex items-center gap-2 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 border border-white/35 px-7 py-3 text-[14px] font-bold text-white backdrop-blur-sm transition-all duration-150"
+                >
+                  View Packages
+                </button>
               </motion.div>
             </motion.div>
           </AnimatePresence>

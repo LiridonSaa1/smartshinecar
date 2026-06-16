@@ -1,7 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { setAuthTokenGetter } from "@/lib/api-client";
 
 const TOKEN_KEY = "admin_token";
 const USER_KEY  = "admin_user";
+
+// Wire the admin token into the API client so every customFetch call
+// automatically attaches Authorization: Bearer <token> when logged in.
+setAuthTokenGetter(() => localStorage.getItem(TOKEN_KEY));
 
 interface AdminUser {
   id: string;

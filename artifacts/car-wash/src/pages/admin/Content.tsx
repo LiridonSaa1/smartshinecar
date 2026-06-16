@@ -1363,14 +1363,6 @@ const PAGE_GROUPS: PageGroup[] = [
       { key: "contact_us", label: "Contact Details", description: "Address, email, phone and hours", icon: MapPin, editor: ContactUsEditor },
     ],
   },
-  {
-    page: "About",
-    icon: Shield,
-    color: "violet",
-    sections: [
-      { key: "about_features", label: "Why Choose Us Cards", description: "Feature cards on the About page", icon: Info, editor: AboutFeaturesEditor },
-    ],
-  },
 ];
 
 const COLOR_MAP: Record<string, { active: string; dot: string; header: string; icon: string }> = {
@@ -1383,11 +1375,26 @@ const COLOR_MAP: Record<string, { active: string; dot: string; header: string; i
 
 export default function AdminContent() {
   const [active, setActive] = useState(PAGE_GROUPS[0].sections[0].key);
+  // Start with only the first group expanded; others collapsed
+  const [expanded, setExpanded] = useState<Record<string, boolean>>(
+    Object.fromEntries(PAGE_GROUPS.map((g, i) => [g.page, i === 0]))
+  );
 
   const allSections = PAGE_GROUPS.flatMap(g => g.sections.map(s => ({ ...s, color: g.color })));
   const activeSection = allSections.find(s => s.key === active)!;
   const ActiveEditor = activeSection.editor;
   const colors = COLOR_MAP[activeSection.color];
+
+  const toggleGroup = (page: string) => {
+    setExpanded(prev => ({ ...prev, [page]: !prev[page] }));
+  };
+
+  const handleSelectSection = (key: string) => {
+    setActive(key);
+    // Auto-expand the group that contains the selected section
+    const group = PAGE_GROUPS.find(g => g.sections.some(s => s.key === key));
+    if (group) setExpanded(prev => ({ ...prev, [group.page]: true }));
+  };
 
   return (
     <AdminLayout>
@@ -1400,7 +1407,7 @@ export default function AdminContent() {
       <div className="md:hidden mb-4">
         <select
           value={active}
-          onChange={e => setActive(e.target.value)}
+          onChange={e => handleSelectSection(e.target.value)}
           className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           {PAGE_GROUPS.map(group => (
@@ -1415,39 +1422,57 @@ export default function AdminContent() {
 
       <div className="flex gap-6 min-h-[600px]">
         {/* Sidebar — desktop only */}
-        <aside className="hidden md:block w-64 flex-shrink-0 space-y-4">
+        <aside className="hidden md:block w-64 flex-shrink-0 space-y-1">
           {PAGE_GROUPS.map(group => {
             const gc = COLOR_MAP[group.color];
             const PageIcon = group.icon;
+            const isOpen = expanded[group.page] ?? false;
+            const hasActive = group.sections.some(s => s.key === active);
             return (
-              <div key={group.page}>
-                <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-black uppercase tracking-widest mb-1 ${gc.header}`}>
-                  <PageIcon className={`h-3.5 w-3.5 ${gc.icon}`} />
-                  {group.page} Page
-                </div>
-                <nav className="space-y-0.5 pl-1">
-                  {group.sections.map(s => {
-                    const Icon = s.icon;
-                    const isActive = s.key === active;
-                    const sc = COLOR_MAP[group.color];
-                    return (
-                      <button
-                        key={s.key}
-                        onClick={() => setActive(s.key)}
-                        className={`w-full flex items-start gap-2.5 text-left px-3 py-2.5 rounded-xl transition-all duration-150 group ${
-                          isActive ? sc.active : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                        }`}
-                      >
-                        <Icon className={`h-4 w-4 flex-shrink-0 mt-0.5 ${isActive ? "text-white/80" : "text-gray-400 group-hover:text-gray-600"}`} />
-                        <div className="min-w-0 flex-1">
-                          <div className={`text-sm font-semibold leading-snug ${isActive ? "text-white" : ""}`}>{s.label}</div>
-                          <div className={`text-[10px] leading-snug mt-0.5 truncate ${isActive ? "text-white/70" : "text-gray-400"}`}>{s.description}</div>
-                        </div>
-                        {isActive && <ChevronRight className="h-3.5 w-3.5 text-white/60 flex-shrink-0 ml-auto mt-0.5" />}
-                      </button>
-                    );
-                  })}
-                </nav>
+              <div key={group.page} className="overflow-hidden rounded-xl border border-gray-100">
+                {/* Collapsible header */}
+                <button
+                  onClick={() => toggleGroup(group.page)}
+                  className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-black uppercase tracking-widest transition-colors ${
+                    hasActive ? gc.header : "bg-gray-50 text-gray-500 hover:bg-gray-100"
+                  } ${hasActive ? "border-b border-current/10" : ""}`}
+                >
+                  <PageIcon className={`h-3.5 w-3.5 flex-shrink-0 ${hasActive ? gc.icon : "text-gray-400"}`} />
+                  <span className="flex-1 text-left">{group.page}</span>
+                  {hasActive && !isOpen && (
+                    <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${gc.dot}`} />
+                  )}
+                  <ChevronRight
+                    className={`h-3.5 w-3.5 flex-shrink-0 transition-transform duration-200 ${isOpen ? "rotate-90" : ""} ${hasActive ? gc.icon : "text-gray-400"}`}
+                  />
+                </button>
+
+                {/* Sections — shown when open */}
+                {isOpen && (
+                  <nav className="space-y-0.5 p-1 bg-white">
+                    {group.sections.map(s => {
+                      const Icon = s.icon;
+                      const isActive = s.key === active;
+                      const sc = COLOR_MAP[group.color];
+                      return (
+                        <button
+                          key={s.key}
+                          onClick={() => setActive(s.key)}
+                          className={`w-full flex items-start gap-2.5 text-left px-3 py-2.5 rounded-xl transition-all duration-150 group ${
+                            isActive ? sc.active : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                          }`}
+                        >
+                          <Icon className={`h-4 w-4 flex-shrink-0 mt-0.5 ${isActive ? "text-white/80" : "text-gray-400 group-hover:text-gray-600"}`} />
+                          <div className="min-w-0 flex-1">
+                            <div className={`text-sm font-semibold leading-snug ${isActive ? "text-white" : ""}`}>{s.label}</div>
+                            <div className={`text-[10px] leading-snug mt-0.5 truncate ${isActive ? "text-white/70" : "text-gray-400"}`}>{s.description}</div>
+                          </div>
+                          {isActive && <ChevronRight className="h-3.5 w-3.5 text-white/60 flex-shrink-0 ml-auto mt-0.5" />}
+                        </button>
+                      );
+                    })}
+                  </nav>
+                )}
               </div>
             );
           })}

@@ -17,6 +17,11 @@ type GalleryCar = { id: string; make: string; model: string; year: number; image
 
 const API = "/api/content";
 
+function authHeaders(extra: Record<string, string> = {}): Record<string, string> {
+  const token = localStorage.getItem("admin_token");
+  return { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...extra };
+}
+
 function fetchSection(key: string) {
   return fetch(`${API}/${key}`).then(r => r.ok ? r.json() : null);
 }
@@ -24,7 +29,7 @@ function fetchSection(key: string) {
 function saveSection(key: string, body: unknown) {
   return fetch(`${API}/${key}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(body),
   }).then(r => { if (!r.ok) throw new Error("Save failed"); return r.json(); });
 }
@@ -406,7 +411,7 @@ function ReviewsHeaderEditor() {
   };
 
   const handleDelete = async (id: number) => {
-    await fetch(`/api/reviews/${id}`, { method: "DELETE" });
+    await fetch(`/api/reviews/${id}`, { method: "DELETE", headers: authHeaders() });
     qc.invalidateQueries({ queryKey: ["admin-reviews"] });
     qc.invalidateQueries({ queryKey: ["reviews"] });
   };
@@ -419,7 +424,7 @@ function ReviewsHeaderEditor() {
     setEditSaving(true);
     await fetch(`/api/reviews/${editId}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({ ...editData, rating: Number(editData.rating) }),
     });
     setEditSaving(false);

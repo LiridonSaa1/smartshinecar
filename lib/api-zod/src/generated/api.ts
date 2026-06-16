@@ -338,7 +338,18 @@ export const GetSettingsResponse = zod.object({
   "closeTime": zod.string(),
   "slotDuration": zod.number().describe('Duration of each slot in minutes'),
   "workingDays": zod.array(zod.string()),
-  "phoneValidationEnabled": zod.boolean().optional().describe('Whether to enforce UK phone number validation on the booking form')
+  "phoneValidationEnabled": zod.boolean().optional().describe('Whether to enforce UK phone number validation on the booking form'),
+  "notificationEmail": zod.string().optional().describe('Email address that receives new booking and contact form alerts'),
+  "logoUrl": zod.string().optional().describe('URL of the business logo image'),
+  "faviconUrl": zod.string().optional().describe('URL of the favicon image'),
+  "brevoApiKey": zod.string().optional().describe('Brevo (Sendinblue) API key for sending emails'),
+  "senderEmail": zod.string().optional().describe('Verified sender email address in Brevo'),
+  "senderName": zod.string().optional().describe('Display name used as the email sender'),
+  "emailNotificationsEnabled": zod.boolean().optional().describe('Whether email notifications are enabled'),
+  "smsNotificationsEnabled": zod.boolean().optional().describe('Whether SMS notifications are enabled'),
+  "twilioAccountSid": zod.string().optional().describe('Twilio Account SID for sending SMS'),
+  "twilioAuthToken": zod.string().optional().describe('Twilio Auth Token'),
+  "twilioFromNumber": zod.string().optional().describe('Twilio phone number or Messaging Service SID to send SMS from')
 })
 
 
@@ -354,7 +365,18 @@ export const UpdateSettingsBody = zod.object({
   "closeTime": zod.string(),
   "slotDuration": zod.number().describe('Duration of each slot in minutes'),
   "workingDays": zod.array(zod.string()),
-  "phoneValidationEnabled": zod.boolean().optional().describe('Whether to enforce UK phone number validation on the booking form')
+  "phoneValidationEnabled": zod.boolean().optional().describe('Whether to enforce UK phone number validation on the booking form'),
+  "notificationEmail": zod.string().optional().describe('Email address that receives new booking and contact form alerts'),
+  "logoUrl": zod.string().optional().describe('URL of the business logo image'),
+  "faviconUrl": zod.string().optional().describe('URL of the favicon image'),
+  "brevoApiKey": zod.string().optional().describe('Brevo (Sendinblue) API key for sending emails'),
+  "senderEmail": zod.string().optional().describe('Verified sender email address in Brevo'),
+  "senderName": zod.string().optional().describe('Display name used as the email sender'),
+  "emailNotificationsEnabled": zod.boolean().optional().describe('Whether email notifications are enabled'),
+  "smsNotificationsEnabled": zod.boolean().optional().describe('Whether SMS notifications are enabled'),
+  "twilioAccountSid": zod.string().optional().describe('Twilio Account SID for sending SMS'),
+  "twilioAuthToken": zod.string().optional().describe('Twilio Auth Token'),
+  "twilioFromNumber": zod.string().optional().describe('Twilio phone number or Messaging Service SID to send SMS from')
 })
 
 export const UpdateSettingsResponse = zod.object({
@@ -366,7 +388,18 @@ export const UpdateSettingsResponse = zod.object({
   "closeTime": zod.string(),
   "slotDuration": zod.number().describe('Duration of each slot in minutes'),
   "workingDays": zod.array(zod.string()),
-  "phoneValidationEnabled": zod.boolean().optional().describe('Whether to enforce UK phone number validation on the booking form')
+  "phoneValidationEnabled": zod.boolean().optional().describe('Whether to enforce UK phone number validation on the booking form'),
+  "notificationEmail": zod.string().optional().describe('Email address that receives new booking and contact form alerts'),
+  "logoUrl": zod.string().optional().describe('URL of the business logo image'),
+  "faviconUrl": zod.string().optional().describe('URL of the favicon image'),
+  "brevoApiKey": zod.string().optional().describe('Brevo (Sendinblue) API key for sending emails'),
+  "senderEmail": zod.string().optional().describe('Verified sender email address in Brevo'),
+  "senderName": zod.string().optional().describe('Display name used as the email sender'),
+  "emailNotificationsEnabled": zod.boolean().optional().describe('Whether email notifications are enabled'),
+  "smsNotificationsEnabled": zod.boolean().optional().describe('Whether SMS notifications are enabled'),
+  "twilioAccountSid": zod.string().optional().describe('Twilio Account SID for sending SMS'),
+  "twilioAuthToken": zod.string().optional().describe('Twilio Auth Token'),
+  "twilioFromNumber": zod.string().optional().describe('Twilio phone number or Messaging Service SID to send SMS from')
 })
 
 

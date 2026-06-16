@@ -741,6 +741,39 @@ components:
         phoneValidationEnabled:
           type: boolean
           description: Whether to enforce UK phone number validation on the booking form
+        notificationEmail:
+          type: string
+          description: Email address that receives new booking and contact form alerts
+        logoUrl:
+          type: string
+          description: URL of the business logo image
+        faviconUrl:
+          type: string
+          description: URL of the favicon image
+        brevoApiKey:
+          type: string
+          description: Brevo (Sendinblue) API key for sending emails
+        senderEmail:
+          type: string
+          description: Verified sender email address in Brevo
+        senderName:
+          type: string
+          description: Display name used as the email sender
+        emailNotificationsEnabled:
+          type: boolean
+          description: Whether email notifications are enabled
+        smsNotificationsEnabled:
+          type: boolean
+          description: Whether SMS notifications are enabled
+        twilioAccountSid:
+          type: string
+          description: Twilio Account SID for sending SMS
+        twilioAuthToken:
+          type: string
+          description: Twilio Auth Token
+        twilioFromNumber:
+          type: string
+          description: Twilio phone number or Messaging Service SID to send SMS from
       required: [businessName, address, phone, email, openTime, closeTime, slotDuration, workingDays]
 
     UploadUrlRequest:

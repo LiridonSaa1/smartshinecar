@@ -18,4 +18,26 @@ export interface BusinessSettings {
   workingDays: string[];
   /** Whether to enforce UK phone number validation on the booking form */
   phoneValidationEnabled?: boolean;
+  /** Email address that receives new booking and contact form alerts */
+  notificationEmail?: string;
+  /** URL of the business logo image */
+  logoUrl?: string;
+  /** URL of the favicon image */
+  faviconUrl?: string;
+  /** Brevo (Sendinblue) API key for sending emails */
+  brevoApiKey?: string;
+  /** Verified sender email address in Brevo */
+  senderEmail?: string;
+  /** Display name used as the email sender */
+  senderName?: string;
+  /** Whether email notifications are enabled */
+  emailNotificationsEnabled?: boolean;
+  /** Whether SMS notifications are enabled */
+  smsNotificationsEnabled?: boolean;
+  /** Twilio Account SID for sending SMS */
+  twilioAccountSid?: string;
+  /** Twilio Auth Token */
+  twilioAuthToken?: string;
+  /** Twilio phone number or Messaging Service SID to send SMS from */
+  twilioFromNumber?: string;
 }

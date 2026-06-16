@@ -32,19 +32,19 @@ import heroSlide3 from "@assets/image_1781255016349.png";
 const HERO_SLIDES = [
   {
     id: 0,
-    image: "",
+    image: heroSlide1,
     headline: "Top-Class Commercial Vehicle\nValeting Service in Guildford",
     sub: "Commercial vehicles see much more wear and tear than private cars due to the amount of usage, and therefore need regular valeting. Count on Smart Shine Car Valeting Centre to clean your car or van and bring its shine back.",
   },
   {
     id: 1,
-    image: "",
+    image: vanImg,
     headline: "Full & Part Valet Services\nAt Competitive Prices",
     sub: "We offer full valet and part valet services at competitive prices. Whether you need interior valeting or exterior valeting, you can rely on us.",
   },
   {
     id: 2,
-    image: "",
+    image: kenworthImg,
     headline: "Serving Guildford,\nGodalming & Woking",
     sub: "Based in Guildford, we welcome customers from Godalming, Woking and the surrounding areas. Get in touch with us and let us know your requirements.",
   },
@@ -125,6 +125,9 @@ function HeroCarousel({ slides }: { slides: typeof HERO_SLIDES }) {
               src={slide.image}
               alt=""
               className="w-full h-full object-cover"
+              loading="eager"
+              fetchPriority="high"
+              style={{ transform: "translateZ(0)", backfaceVisibility: "hidden" }}
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />

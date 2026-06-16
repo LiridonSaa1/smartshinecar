@@ -19,19 +19,19 @@ import packagesImg from "@assets/516887103_745437798174154_273580891758286555_n_
 const HERO_SLIDES = [
   {
     id: 0,
-    image: "",
+    image: defenderImg,
     headline: "Excellent Private Vehicle\nValeting Service in Guildford",
     sub: "At Smart Shine Car Valeting Centre, we provide a wide variety of individually tailored valeting packages to suit all your requirements in the Guildford area. We also welcome customers from Godalming and Woking.",
   },
   {
     id: 1,
-    image: "",
+    image: shineImg,
     headline: "Professional Valeting\nFor Every Vehicle",
     sub: "From a quick mini valet to a full premier package — we restore your vehicle to showroom condition. Fully insured, friendly and thorough service every time.",
   },
   {
     id: 2,
-    image: "",
+    image: packagesImg,
     headline: "Interior & Exterior\nValeting Specialists",
     sub: "Whether it's an interior deep clean or a full exterior polish — Smart Shine delivers showroom results every time. We also offer dent removal and machine polish.",
   },

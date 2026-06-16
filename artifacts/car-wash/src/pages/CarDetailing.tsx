@@ -16,19 +16,19 @@ import shineImg from "@assets/469570167_588163753901560_1761922679835222318_n_17
 const HERO_SLIDES = [
   {
     id: 0,
-    image: "",
+    image: shineImg,
     headline: "Car Detailing Service\nin Guildford",
     sub: "Smart Shine Car Valeting Centre uses premium products to rejuvenate your car to showroom condition. Serving Guildford, Godalming, Woking and surrounding areas.",
   },
   {
     id: 1,
-    image: "",
+    image: shineImg,
     headline: "Premium Products.\nShowroom Results.",
     sub: "From paintwork correction to scratch and dent removal — our car detailing service brings your vehicle back to its best, regardless of make or model.",
   },
   {
     id: 2,
-    image: "",
+    image: shineImg,
     headline: "Interior & Exterior\nDetailing Specialists",
     sub: "Machine polish, clear coat correction, 3D hologram removal — we remove defects and reveal a flawless, defect-free surface every time.",
   },

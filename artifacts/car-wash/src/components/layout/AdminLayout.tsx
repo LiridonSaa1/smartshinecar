@@ -12,6 +12,7 @@ import {
   Menu,
   FileText,
   MessageSquare,
+  Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/bookings", label: "Bookings", icon: CalendarCheck },
+  { href: "/admin/customers", label: "Customers", icon: Users },
   { href: "/admin/services", label: "Services", icon: Car },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart },
   { href: "/admin/content", label: "Content", icon: FileText },

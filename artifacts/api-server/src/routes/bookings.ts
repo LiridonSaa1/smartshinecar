@@ -2,8 +2,9 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import { db } from "@workspace/db";
 import { bookingsTable, servicesTable, settingsTable, customerAccountsTable } from "@workspace/db/schema";
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, and } from "drizzle-orm";
 import { logger } from "../lib/logger";
+import { adminAuth } from "../lib/adminAuth";
 import { sendEmail, getNotificationEmail, newBookingAdminEmail, bookingConfirmedCustomerEmail, bookingReadyCustomerEmail, customerWelcomeEmail, bookingReceivedCustomerEmail } from "../lib/email";
 import { sendBookingReceivedSms, sendBookingConfirmationSms, sendCarReadySms, sendNewBookingAdminSms } from "../lib/sms";
 
@@ -36,14 +37,13 @@ async function getOrCreateCustomerAccount(
   name: string
 ): Promise<{ isNew: boolean; password: string }> {
   const existing = await db
-    .select({ id: customerAccountsTable.id, plainPassword: customerAccountsTable.plainPassword })
+    .select({ id: customerAccountsTable.id })
     .from(customerAccountsTable)
     .where(eq(customerAccountsTable.email, email.toLowerCase()))
     .limit(1);
 
   if (existing.length > 0) {
-    // Return stored plain password so it can be included in the email again
-    return { isNew: false, password: existing[0].plainPassword ?? "" };
+    return { isNew: false, password: "" };
   }
 
   const password = generatePassword();
@@ -53,7 +53,6 @@ async function getOrCreateCustomerAccount(
     email: email.toLowerCase(),
     name,
     passwordHash,
-    plainPassword: password,
   });
 
   return { isNew: true, password };
@@ -67,16 +66,15 @@ async function getAdminNotificationEmail(): Promise<string | null> {
   return notifEmail;
 }
 
-router.get("/bookings", async (req, res) => {
+router.get("/bookings", adminAuth, async (req, res) => {
   try {
     const { status, date } = req.query as { status?: string; date?: string };
-    let query = db.select().from(bookingsTable).orderBy(asc(bookingsTable.createdAt));
     const conditions = [];
     if (status) conditions.push(eq(bookingsTable.status, status));
     if (date) conditions.push(eq(bookingsTable.date, date));
     const data = conditions.length > 0
-      ? await db.select().from(bookingsTable).where(conditions.length === 1 ? conditions[0] : conditions.reduce((a, b) => a))
-      : await query;
+      ? await db.select().from(bookingsTable).where(conditions.length === 1 ? conditions[0] : and(...conditions)).orderBy(asc(bookingsTable.createdAt))
+      : await db.select().from(bookingsTable).orderBy(asc(bookingsTable.createdAt));
     return res.json(data.map(mapBooking));
   } catch (err) {
     logger.error({ err }, "List bookings error");
@@ -105,10 +103,14 @@ router.get("/bookings/slots", async (req, res) => {
     const openMinutes = openH * 60 + openM;
     const closeMinutes = closeH * 60 + closeM;
 
-    const existingBookings = await db.select({ time: bookingsTable.time }).from(bookingsTable).where(
-      eq(bookingsTable.date, date)
+    const existingBookings = await db.select({ time: bookingsTable.time, status: bookingsTable.status }).from(bookingsTable).where(
+      and(eq(bookingsTable.date, date))
     );
-    const bookedTimes = new Set(existingBookings.filter(b => b.time).map(b => b.time));
+    const bookedTimes = new Set(
+      existingBookings
+        .filter(b => b.time && b.status !== "cancelled")
+        .map(b => b.time)
+    );
 
     const slots = [];
     for (let m = openMinutes; m + serviceDuration <= closeMinutes; m += slotDuration) {
@@ -129,6 +131,16 @@ router.post("/bookings", async (req, res) => {
     const { customerName, customerPhone, customerEmail, serviceId, date, time, notes } = req.body;
     if (!customerName || !customerPhone || !serviceId || !date || !time) {
       return res.status(400).json({ error: "Required fields missing" });
+    }
+
+    const conflict = await db.select({ id: bookingsTable.id })
+      .from(bookingsTable)
+      .where(and(eq(bookingsTable.date, date), eq(bookingsTable.time, time)))
+      .limit(1)
+      .then(rows => rows.filter(r => r));
+
+    if (conflict.length > 0) {
+      return res.status(409).json({ error: "This time slot is already booked. Please choose another time." });
     }
 
     const serviceRows = await db.select({ name: servicesTable.name, price: servicesTable.price }).from(servicesTable).where(eq(servicesTable.id, serviceId)).limit(1);
@@ -173,7 +185,6 @@ router.post("/bookings", async (req, res) => {
     }
 
     if (customerEmail) {
-      // Try to create customer portal account, but send the email regardless of outcome.
       const accountResult = await getOrCreateCustomerAccount(customerEmail, customerName).catch(err => {
         logger.error({ err }, "Customer account create failed — sending email without portal credentials");
         return { isNew: false, password: "" };
@@ -211,7 +222,7 @@ router.post("/bookings", async (req, res) => {
   }
 });
 
-router.get("/bookings/:id", async (req, res) => {
+router.get("/bookings/:id", adminAuth, async (req, res) => {
   try {
     const [data] = await db.select().from(bookingsTable).where(eq(bookingsTable.id, parseInt(req.params.id)));
     if (!data) return res.status(404).json({ error: "Not found" });
@@ -222,7 +233,7 @@ router.get("/bookings/:id", async (req, res) => {
   }
 });
 
-router.put("/bookings/:id", async (req, res) => {
+router.put("/bookings/:id", adminAuth, async (req, res) => {
   try {
     const { customerName, customerPhone, customerEmail, serviceId, date, time, status, notes } = req.body;
     const updates: Partial<typeof bookingsTable.$inferInsert> = {};
@@ -259,7 +270,6 @@ router.put("/bookings/:id", async (req, res) => {
     if (prevStatus !== newStatus) {
       if (newStatus === "confirmed") {
         if (custEmail) {
-          // Try to create/find customer account, but send confirmation email regardless.
           const accountResult = await getOrCreateCustomerAccount(custEmail, custName).catch(err => {
             logger.error({ err }, "Customer account create failed — sending confirmation without portal credentials");
             return { isNew: false, password: "" };
@@ -332,7 +342,7 @@ router.put("/bookings/:id", async (req, res) => {
   }
 });
 
-router.delete("/bookings/:id", async (req, res) => {
+router.delete("/bookings/:id", adminAuth, async (req, res) => {
   try {
     await db.delete(bookingsTable).where(eq(bookingsTable.id, parseInt(req.params.id)));
     return res.status(204).send();

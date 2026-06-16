@@ -4,6 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { existsSync, mkdirSync } from "fs";
 import sharp from "sharp";
+import { adminAuth } from "../lib/adminAuth";
 
 const router: IRouter = Router();
 
@@ -56,7 +57,7 @@ const upload = multer({
   },
 });
 
-router.post("/storage/uploads", upload.single("file"), async (req: Request, res: Response) => {
+router.post("/storage/uploads", adminAuth, upload.single("file"), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       res.status(400).json({ error: "No file provided" });

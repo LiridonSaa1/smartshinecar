@@ -3,10 +3,11 @@ import { db } from "@workspace/db";
 import { bookingsTable, reviewsTable } from "@workspace/db/schema";
 import { gte } from "drizzle-orm";
 import { logger } from "../lib/logger";
+import { adminAuth } from "../lib/adminAuth";
 
 const router = Router();
 
-router.get("/analytics/dashboard", async (_req, res) => {
+router.get("/analytics/dashboard", adminAuth, async (_req, res) => {
   try {
     const today = new Date().toISOString().split("T")[0];
     const startOfMonth = new Date();
@@ -50,7 +51,7 @@ router.get("/analytics/dashboard", async (_req, res) => {
   }
 });
 
-router.get("/analytics/bookings-chart", async (req, res) => {
+router.get("/analytics/bookings-chart", adminAuth, async (req, res) => {
   try {
     const days = parseInt((req.query.days as string) ?? "30");
     const since = new Date();
@@ -80,7 +81,7 @@ router.get("/analytics/bookings-chart", async (req, res) => {
   }
 });
 
-router.get("/analytics/top-services", async (_req, res) => {
+router.get("/analytics/top-services", adminAuth, async (_req, res) => {
   try {
     const bookings = await db
       .select({ serviceId: bookingsTable.serviceId, serviceName: bookingsTable.serviceName, servicePrice: bookingsTable.servicePrice })

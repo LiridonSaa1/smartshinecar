@@ -3,6 +3,7 @@ import { db } from "@workspace/db";
 import { siteContentTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 import { logger } from "../lib/logger";
+import { adminAuth } from "../lib/adminAuth";
 
 const router = Router();
 
@@ -28,7 +29,7 @@ router.get("/content/:key", async (req, res) => {
   }
 });
 
-router.put("/content/:key", async (req, res) => {
+router.put("/content/:key", adminAuth, async (req, res) => {
   try {
     const { key } = req.params;
     const existing = await db.select({ id: siteContentTable.id }).from(siteContentTable).where(eq(siteContentTable.key, key)).limit(1);

@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import { invalidateEmailConfigCache } from "../lib/email";
 import { invalidateSmsConfigCache } from "../lib/sms";
+import { adminAuth } from "../lib/adminAuth";
 
 const router = Router();
 
@@ -26,7 +27,7 @@ async function ensureSettings() {
   return rows[0];
 }
 
-function mapSettings(row: typeof settingsTable.$inferSelect) {
+function mapPublicSettings(row: typeof settingsTable.$inferSelect) {
   const days = typeof row.workingDays === "string" ? row.workingDays.split(",") : row.workingDays;
   return {
     businessName: row.businessName,
@@ -40,30 +41,56 @@ function mapSettings(row: typeof settingsTable.$inferSelect) {
     notificationEmail: row.notificationEmail ?? null,
     logoUrl: row.logoUrl ?? null,
     faviconUrl: row.faviconUrl ?? null,
-    brevoApiKey: row.brevoApiKey ?? null,
     senderEmail: row.senderEmail ?? null,
     senderName: row.senderName ?? null,
-    twilioAccountSid: row.twilioAccountSid ?? null,
-    twilioAuthToken: row.twilioAuthToken ?? null,
-    twilioFromNumber: row.twilioFromNumber ?? null,
     emailNotificationsEnabled: row.emailNotificationsEnabled ?? true,
     smsNotificationsEnabled: row.smsNotificationsEnabled ?? true,
     phoneValidationEnabled: row.phoneValidationEnabled ?? true,
   };
 }
 
-router.get("/settings", async (_req, res) => {
+function mapFullSettings(row: typeof settingsTable.$inferSelect) {
+  return {
+    ...mapPublicSettings(row),
+    brevoApiKey: row.brevoApiKey ?? null,
+    twilioAccountSid: row.twilioAccountSid ?? null,
+    twilioAuthToken: row.twilioAuthToken ?? null,
+    twilioFromNumber: row.twilioFromNumber ?? null,
+  };
+}
+
+router.get("/settings", async (req, res) => {
   try {
     const settings = await ensureSettings();
     if (!settings) return res.status(500).json({ error: "Could not load settings" });
-    return res.json(mapSettings(settings));
+    const isAdmin = (() => {
+      try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader?.startsWith("Bearer ")) return false;
+        const jwt = require("jsonwebtoken");
+        const payload = jwt.verify(authHeader.slice(7), getJwtSecret()) as any;
+        return payload?.iss === "smartshine-local" && payload?.role === "admin";
+      } catch { return false; }
+    })();
+    return res.json(isAdmin ? mapFullSettings(settings) : mapPublicSettings(settings));
   } catch (err) {
     logger.error({ err }, "Get settings error");
     return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-router.put("/settings", async (req, res) => {
+router.get("/settings/private", adminAuth, async (_req, res) => {
+  try {
+    const settings = await ensureSettings();
+    if (!settings) return res.status(500).json({ error: "Could not load settings" });
+    return res.json(mapFullSettings(settings));
+  } catch (err) {
+    logger.error({ err }, "Get private settings error");
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.put("/settings", adminAuth, async (req, res) => {
   try {
     const settings = await ensureSettings();
     if (!settings) return res.status(500).json({ error: "Could not load settings" });
@@ -104,14 +131,14 @@ router.put("/settings", async (req, res) => {
     invalidateEmailConfigCache();
     invalidateSmsConfigCache();
 
-    return res.json(mapSettings(data));
+    return res.json(mapFullSettings(data));
   } catch (err) {
     logger.error({ err }, "Update settings error");
     return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-router.post("/settings/test-email", async (req, res) => {
+router.post("/settings/test-email", adminAuth, async (req, res) => {
   try {
     const settings = await ensureSettings();
     if (!settings) return res.status(500).json({ ok: false, error: "No settings found" });
@@ -174,12 +201,11 @@ router.post("/settings/test-email", async (req, res) => {
   }
 });
 
-router.post("/settings/test-sms", async (req, res) => {
+router.post("/settings/test-sms", adminAuth, async (req, res) => {
   try {
     const settings = await ensureSettings();
     if (!settings) return res.status(500).json({ ok: false, error: "No settings found" });
 
-    // Allow passing unsaved credentials from the form for pre-save testing
     const accountSid: string = req.body?.twilioAccountSid || settings.twilioAccountSid || "";
     const authToken: string = req.body?.twilioAuthToken || settings.twilioAuthToken || "";
     const fromNumber: string = req.body?.twilioFromNumber || settings.twilioFromNumber || "";
@@ -219,7 +245,7 @@ router.post("/settings/test-sms", async (req, res) => {
 
       const hint =
         twilioCode === 21659
-          ? `Error 21659: "${fromNumber}" is not a Twilio number in your account, or it doesn't match the destination country. Buy a UK number (+44...) from console.twilio.com/phone-numbers, or use a Messaging Service SID (MGXXX...).`
+          ? `Error 21659: "${fromNumber}" is not a Twilio number in your account, or it doesn't match the destination country.`
           : twilioCode === 21211
           ? `Error 21211: The destination phone number is not valid.`
           : twilioCode === 20003

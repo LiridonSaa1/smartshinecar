@@ -3,6 +3,7 @@ import { db } from "@workspace/db";
 import { siteContentTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 import { logger } from "../lib/logger";
+import { adminAuth } from "../lib/adminAuth";
 
 const router = Router();
 const GALLERY_KEY = "gallery_cars";
@@ -54,7 +55,7 @@ router.get("/gallery", async (_req, res) => {
   }
 });
 
-router.put("/gallery", async (req, res) => {
+router.put("/gallery", adminAuth, async (req, res) => {
   try {
     const cars = req.body;
     await saveGalleryCars(cars);
@@ -65,7 +66,7 @@ router.put("/gallery", async (req, res) => {
   }
 });
 
-router.post("/gallery", async (req, res) => {
+router.post("/gallery", adminAuth, async (req, res) => {
   try {
     const cars = await getGalleryCars();
     const newCar = { ...req.body, id: Date.now().toString() };
@@ -78,7 +79,7 @@ router.post("/gallery", async (req, res) => {
   }
 });
 
-router.delete("/gallery/:id", async (req, res) => {
+router.delete("/gallery/:id", adminAuth, async (req, res) => {
   try {
     const cars = await getGalleryCars();
     const updated = cars.filter((c) => c.id !== req.params.id);

@@ -3,6 +3,7 @@ import { db } from "@workspace/db";
 import { servicesTable } from "@workspace/db/schema";
 import { eq, asc } from "drizzle-orm";
 import { logger } from "../lib/logger";
+import { adminAuth } from "../lib/adminAuth";
 
 const router = Router();
 
@@ -29,7 +30,7 @@ router.get("/services", async (_req, res) => {
   }
 });
 
-router.post("/services", async (req, res) => {
+router.post("/services", adminAuth, async (req, res) => {
   try {
     const { name, description, price, duration, imageUrl, isActive } = req.body;
     if (!name || price === undefined || !duration) {
@@ -61,7 +62,7 @@ router.get("/services/:id", async (req, res) => {
   }
 });
 
-router.put("/services/:id", async (req, res) => {
+router.put("/services/:id", adminAuth, async (req, res) => {
   try {
     const { name, description, price, duration, imageUrl, isActive } = req.body;
     const updates: Partial<typeof servicesTable.$inferInsert> = {};
@@ -81,7 +82,7 @@ router.put("/services/:id", async (req, res) => {
   }
 });
 
-router.delete("/services/:id", async (req, res) => {
+router.delete("/services/:id", adminAuth, async (req, res) => {
   try {
     await db.delete(servicesTable).where(eq(servicesTable.id, parseInt(req.params.id)));
     return res.status(204).send();

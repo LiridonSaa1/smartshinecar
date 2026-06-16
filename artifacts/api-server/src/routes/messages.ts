@@ -4,10 +4,11 @@ import { messagesTable, settingsTable } from "@workspace/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import { sendEmail, getNotificationEmail, newContactMessageAdminEmail, newContactMessageUserEmail } from "../lib/email";
+import { adminAuth } from "../lib/adminAuth";
 
 const router = Router();
 
-router.get("/messages", async (_req, res) => {
+router.get("/messages", adminAuth, async (_req, res) => {
   try {
     const data = await db.select().from(messagesTable).orderBy(desc(messagesTable.createdAt));
     return res.json(data);
@@ -63,7 +64,7 @@ router.post("/messages", async (req, res) => {
   }
 });
 
-router.put("/messages/:id", async (req, res) => {
+router.put("/messages/:id", adminAuth, async (req, res) => {
   try {
     const { status } = req.body;
     const [data] = await db.update(messagesTable).set({ status }).where(eq(messagesTable.id, parseInt(req.params.id))).returning();
@@ -75,7 +76,7 @@ router.put("/messages/:id", async (req, res) => {
   }
 });
 
-router.delete("/messages/:id", async (req, res) => {
+router.delete("/messages/:id", adminAuth, async (req, res) => {
   try {
     await db.delete(messagesTable).where(eq(messagesTable.id, parseInt(req.params.id)));
     return res.status(204).send();

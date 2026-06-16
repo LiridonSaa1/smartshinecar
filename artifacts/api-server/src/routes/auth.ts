@@ -5,14 +5,11 @@ import { db } from "@workspace/db";
 import { usersTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 import { logger } from "../lib/logger";
+import { getJwtSecret } from "../lib/adminAuth";
 
 const router = Router();
 
 const LOCAL_ISS = "smartshine-local";
-
-function getJwtSecret(): string {
-  return process.env.JWT_SECRET ?? process.env.SESSION_SECRET ?? "fallback-secret-change-me";
-}
 
 function verifyLocalToken(token: string) {
   try {
@@ -31,7 +28,6 @@ router.post("/auth/login", async (req, res) => {
       return res.status(400).json({ error: "Email and password required" });
     }
 
-    // Look up user in DB
     const [user] = await db
       .select()
       .from(usersTable)

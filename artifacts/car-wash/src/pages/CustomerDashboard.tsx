@@ -465,6 +465,7 @@ export default function CustomerDashboard() {
   const [error, setError] = useState("");
   const [cancelId, setCancelId] = useState<number | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState("");
   const [editBooking, setEditBooking] = useState<Booking | null>(null);
   const [reviewBooking, setReviewBooking] = useState<Booking | null>(null);
   const [noteBooking, setNoteBooking] = useState<Booking | null>(null);
@@ -491,7 +492,7 @@ export default function CustomerDashboard() {
       setBookings(prev => prev.map(b => b.id === cancelId ? { ...b, status: "cancelled" as const } : b));
       setCancelId(null);
     } catch (err: any) {
-      alert(err.message ?? "Failed to cancel booking");
+      setCancelError(err.message ?? "Failed to cancel booking");
     } finally { setCancelling(false); }
   };
 
@@ -655,7 +656,7 @@ export default function CustomerDashboard() {
         {cancelId !== null && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4"
-            onClick={() => !cancelling && setCancelId(null)}>
+            onClick={() => { if (!cancelling) { setCancelId(null); setCancelError(""); } }}>
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
               className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl"
               onClick={e => e.stopPropagation()}>
@@ -676,8 +677,13 @@ export default function CustomerDashboard() {
                 }} className="text-blue-600 font-bold hover:underline">Edit booking</button>
                 {" "}option, or call <a href="tel:07717310046" className="text-blue-600 font-bold">07717 310 046</a>.
               </p>
+              {cancelError && (
+                <div className="mb-4 rounded-xl bg-red-50 border border-red-200 text-red-700 px-4 py-2.5 text-sm flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 flex-shrink-0" /> {cancelError}
+                </div>
+              )}
               <div className="flex gap-3">
-                <button onClick={() => setCancelId(null)} disabled={cancelling}
+                <button onClick={() => { setCancelId(null); setCancelError(""); }} disabled={cancelling}
                   className="flex-1 rounded-xl border-2 border-gray-200 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition disabled:opacity-50">
                   Keep booking
                 </button>

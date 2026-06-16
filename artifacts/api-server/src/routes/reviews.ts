@@ -3,6 +3,7 @@ import { db } from "@workspace/db";
 import { reviewsTable } from "@workspace/db/schema";
 import { eq, asc } from "drizzle-orm";
 import { logger } from "../lib/logger";
+import { adminAuth } from "../lib/adminAuth";
 
 const router = Router();
 
@@ -49,7 +50,7 @@ router.post("/reviews", async (req, res) => {
   }
 });
 
-router.put("/reviews/:id", async (req, res) => {
+router.put("/reviews/:id", adminAuth, async (req, res) => {
   try {
     const { customerName, rating, comment, serviceName } = req.body;
     const [data] = await db.update(reviewsTable).set({
@@ -66,7 +67,7 @@ router.put("/reviews/:id", async (req, res) => {
   }
 });
 
-router.delete("/reviews/:id", async (req, res) => {
+router.delete("/reviews/:id", adminAuth, async (req, res) => {
   try {
     await db.delete(reviewsTable).where(eq(reviewsTable.id, parseInt(req.params.id)));
     return res.status(204).send();

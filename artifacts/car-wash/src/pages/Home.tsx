@@ -466,6 +466,124 @@ function HomeContactForm() {
   );
 }
 
+function ReviewsSlider({ reviews }: { reviews: any[] }) {
+  const [current, setCurrent] = useState(0);
+  const [perPage, setPerPage] = useState(3);
+  const totalPages = Math.ceil(reviews.length / perPage);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    const update = () => setPerPage(window.innerWidth < 768 ? 1 : 3);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  useEffect(() => { setCurrent(0); }, [perPage]);
+
+  const startTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setCurrent(p => (p + 1) % Math.ceil(reviews.length / perPage));
+    }, 5000);
+  }, [reviews.length, perPage]);
+
+  useEffect(() => {
+    if (reviews.length > 3) startTimer();
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [reviews.length, perPage, startTimer]);
+
+  const go = (dir: number) => {
+    setCurrent(p => (p + dir + totalPages) % totalPages);
+    startTimer();
+  };
+
+  const visible = reviews.slice(current * perPage, current * perPage + perPage);
+
+  return (
+    <section className="py-20 bg-white">
+      <div className="mx-auto max-w-7xl px-6">
+        <FadeIn className="text-center mb-14">
+          <div className="inline-flex items-center gap-2 bg-yellow-50 text-yellow-700 rounded-full px-4 py-1.5 text-sm font-bold mb-4">
+            <Star className="h-4 w-4 fill-yellow-500" />
+            Customer Reviews
+          </div>
+          <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
+            What our customers say?
+          </h2>
+        </FadeIn>
+
+        <div className="relative">
+          {reviews.length > 3 && (
+            <>
+              <button
+                onClick={() => go(-1)}
+                className="absolute -left-4 md:-left-6 top-1/2 -translate-y-1/2 z-10 h-11 w-11 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-700 hover:bg-[#0a0f2e] hover:text-white hover:border-[#0a0f2e] transition-all"
+                aria-label="Previous"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => go(1)}
+                className="absolute -right-4 md:-right-6 top-1/2 -translate-y-1/2 z-10 h-11 w-11 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-700 hover:bg-[#0a0f2e] hover:text-white hover:border-[#0a0f2e] transition-all"
+                aria-label="Next"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </>
+          )}
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={current}
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -40 }}
+              transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+              className={`grid gap-6 ${perPage === 1 ? "grid-cols-1" : "grid-cols-1 md:grid-cols-3"}`}
+            >
+              {visible.map((review: any, i: number) => (
+                <div key={review.id ?? i} className="bg-gray-50 border border-gray-100 rounded-3xl p-7 shadow-sm hover:shadow-lg transition-shadow">
+                  <div className="flex gap-0.5 mb-4">
+                    {[1,2,3,4,5].map(s => (
+                      <Star key={s} className={`h-4 w-4 ${s <= (review.rating ?? 5) ? "fill-yellow-400 text-yellow-400" : "text-gray-200"}`} />
+                    ))}
+                  </div>
+                  <p className="text-gray-600 text-[15px] leading-relaxed italic mb-5">
+                    "{review.comment ?? review.text}"
+                  </p>
+                  <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+                    <div className="h-10 w-10 rounded-full bg-[#0a0f2e] flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-black text-sm">{(review.customerName ?? review.name)[0]}</span>
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-900 text-sm">{review.customerName ?? review.name}</p>
+                      {review.serviceName && <p className="text-xs text-blue-600 font-medium">{review.serviceName}</p>}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {reviews.length > 3 && (
+          <div className="flex justify-center gap-2 mt-10">
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => { setCurrent(i); startTimer(); }}
+                className={`h-2.5 rounded-full transition-all duration-300 ${i === current ? "w-8 bg-[#0a0f2e]" : "w-2.5 bg-gray-300 hover:bg-gray-400"}`}
+                aria-label={`Go to page ${i + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   const { data: reviews } = useListReviews();
   const { data: heroContent, isLoading: heroLoading } = useContentSectionWithLoading("hero_slides", HERO_SLIDES_DEFAULT);
@@ -481,7 +599,7 @@ export default function Home() {
   const statsData = (statsContent as typeof STATS_DEFAULT | null)?.items ?? STATS_DEFAULT.items;
   const completeData = (completeContent as typeof COMPLETE_DEFAULT | null) ?? COMPLETE_DEFAULT;
 
-  const displayReviews = reviews?.slice(0, 3).length ? reviews.slice(0, 3) : REVIEWS;
+  const displayReviews = reviews?.length ? reviews : REVIEWS;
   const whyCards = (whyContent as typeof WHY_DEFAULT_CONTENT).cards ?? WHY_CARDS_DEFAULT;
   const whySubtitle = (whyContent as typeof WHY_DEFAULT_CONTENT).subtitle ?? WHY_DEFAULT_CONTENT.subtitle;
   const carServices = (carServicesContent as typeof CAR_SERVICES_DEFAULT).items ?? CAR_SERVICES_DEFAULT.items;
@@ -769,43 +887,7 @@ export default function Home() {
       </section>
 
       {/* 5. WHAT OUR CUSTOMERS SAY */}
-      <section className="py-20 bg-white">
-        <div className="mx-auto max-w-7xl px-6">
-          <FadeIn className="text-center mb-14">
-            <div className="inline-flex items-center gap-2 bg-yellow-50 text-yellow-700 rounded-full px-4 py-1.5 text-sm font-bold mb-4">
-              <Star className="h-4 w-4 fill-yellow-500" />
-              Customer Reviews
-            </div>
-            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
-              What our customers say?
-            </h2>
-          </FadeIn>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {displayReviews.map((review: any, i: number) => (
-              <FadeIn key={review.id ?? i} delay={i * 0.12} className="bg-gray-50 border border-gray-100 rounded-3xl p-7 shadow-sm hover:shadow-lg transition-shadow">
-                <div className="flex gap-0.5 mb-4">
-                  {[1,2,3,4,5].map(s => (
-                    <Star key={s} className={`h-4 w-4 ${s <= (review.rating ?? 5) ? "fill-yellow-400 text-yellow-400" : "text-gray-200"}`} />
-                  ))}
-                </div>
-                <p className="text-gray-600 text-[15px] leading-relaxed italic mb-5">
-                  "{review.comment ?? review.text}"
-                </p>
-                <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
-                  <div className="h-10 w-10 rounded-full bg-[#0a0f2e] flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-black text-sm">{(review.customerName ?? review.name)[0]}</span>
-                  </div>
-                  <div>
-                    <p className="font-bold text-gray-900 text-sm">{review.customerName ?? review.name}</p>
-                    {review.serviceName && <p className="text-xs text-blue-600 font-medium">{review.serviceName}</p>}
-                  </div>
-                </div>
-              </FadeIn>
-            ))}
-          </div>
-        </div>
-      </section>
+      <ReviewsSlider reviews={displayReviews} />
 
       {/* 6. CONTACT FORM */}
       <HomeContactForm />

@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import { invalidateEmailConfigCache } from "../lib/email";
 import { invalidateSmsConfigCache } from "../lib/sms";
-import { adminAuth } from "../lib/adminAuth";
+import { adminAuth, getJwtSecret } from "../lib/adminAuth";
 
 const router = Router();
 

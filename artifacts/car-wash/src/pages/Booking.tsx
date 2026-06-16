@@ -244,8 +244,7 @@ export default function Booking() {
   const phoneValidationEnabled = (settings as Record<string, unknown>)?.phoneValidationEnabled !== false;
 
   // Compute which days of week are disabled (not in workingDays)
-  const workingDayNums: number[] = (settings?.workingDays ?? "Mon,Tue,Wed,Thu,Fri,Sat,Sun")
-    .split(",")
+  const workingDayNums: number[] = (settings?.workingDays ?? ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"])
     .map((d: string) => DAY_NAME_TO_JS[d.trim()])
     .filter((n: number | undefined): n is number => n !== undefined);
   const disabledDays = [0, 1, 2, 3, 4, 5, 6].filter(n => !workingDayNums.includes(n));

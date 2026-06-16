@@ -125,7 +125,7 @@ router.get("/bookings/slots", async (req, res) => {
 
     // A slot at [slotStart, slotStart+serviceDuration) is unavailable if it overlaps any booked range
     const slots = [];
-    for (let m = openMinutes; m + serviceDuration <= closeMinutes; m += serviceDuration) {
+    for (let m = openMinutes; m + serviceDuration <= closeMinutes; m += slotDuration) {
       const h = Math.floor(m / 60);
       const min = m % 60;
       const time = `${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`;

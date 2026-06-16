@@ -94,7 +94,17 @@ function getDurationLabel(minutes: number) {
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 
-function CalendarPicker({ value, onChange }: { value: string; onChange: (d: string) => void }) {
+const DAY_NAME_TO_JS: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+
+function CalendarPicker({
+  value,
+  onChange,
+  disabledDays = [],
+}: {
+  value: string;
+  onChange: (d: string) => void;
+  disabledDays?: number[];
+}) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -164,30 +174,30 @@ function CalendarPicker({ value, onChange }: { value: string; onChange: (d: stri
           const isPast = cellDate < today;
           const isToday = cellDate.getTime() === today.getTime();
           const isSelected = dateStr === value;
-          const isWeekend = cellDate.getDay() === 0 || cellDate.getDay() === 6;
+          const isOffDay = disabledDays.includes(cellDate.getDay());
+          const isUnavailable = isPast || isOffDay;
 
           return (
             <motion.button
               key={idx}
-              whileHover={!isPast ? { scale: 1.1 } : {}}
-              whileTap={!isPast ? { scale: 0.95 } : {}}
-              disabled={isPast}
-              onClick={() => !isPast && onChange(dateStr)}
+              whileHover={!isUnavailable ? { scale: 1.1 } : {}}
+              whileTap={!isUnavailable ? { scale: 0.95 } : {}}
+              disabled={isUnavailable}
+              onClick={() => !isUnavailable && onChange(dateStr)}
               className={cn(
                 "relative aspect-square flex flex-col items-center justify-center rounded-xl text-sm font-medium transition-all duration-200 mx-0.5 my-0.5",
-                isPast
+                isUnavailable
                   ? "text-slate-800 cursor-not-allowed"
                   : isSelected
                   ? "text-white"
                   : isToday
                   ? "text-blue-300 border border-blue-500/40"
-                  : isWeekend
-                  ? "text-slate-400 hover:bg-white/8 hover:text-white"
                   : "text-slate-300 hover:bg-white/8 hover:text-white"
               )}
               style={isSelected ? { background: "linear-gradient(135deg, #3b82f6, #8b5cf6)" } : {}}
+              title={isOffDay ? "Closed on this day" : undefined}
             >
-              {isToday && !isSelected && (
+              {isToday && !isSelected && !isUnavailable && (
                 <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-blue-400" />
               )}
               {dayNum}
@@ -232,6 +242,13 @@ export default function Booking() {
 
   const { data: settings } = useGetSettings({ query: { queryKey: getGetSettingsQueryKey() } });
   const phoneValidationEnabled = (settings as Record<string, unknown>)?.phoneValidationEnabled !== false;
+
+  // Compute which days of week are disabled (not in workingDays)
+  const workingDayNums: number[] = (settings?.workingDays ?? "Mon,Tue,Wed,Thu,Fri,Sat,Sun")
+    .split(",")
+    .map((d: string) => DAY_NAME_TO_JS[d.trim()])
+    .filter((n: number | undefined): n is number => n !== undefined);
+  const disabledDays = [0, 1, 2, 3, 4, 5, 6].filter(n => !workingDayNums.includes(n));
 
   const { data: services, isLoading: servicesLoading } = useListServices();
   const slotsParams = { date: form.date, serviceId: form.serviceId ?? 0 };
@@ -506,6 +523,7 @@ export default function Booking() {
                         <CalendarPicker
                           value={form.date}
                           onChange={(d) => setForm(f => ({ ...f, date: d, time: "" }))}
+                          disabledDays={disabledDays}
                         />
                         {form.date && (
                           <motion.p initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}

@@ -103,21 +103,35 @@ router.get("/bookings/slots", async (req, res) => {
     const openMinutes = openH * 60 + openM;
     const closeMinutes = closeH * 60 + closeM;
 
-    const existingBookings = await db.select({ time: bookingsTable.time, status: bookingsTable.status }).from(bookingsTable).where(
-      and(eq(bookingsTable.date, date))
-    );
-    const bookedTimes = new Set(
-      existingBookings
-        .filter(b => b.time && b.status !== "cancelled")
-        .map(b => b.time)
-    );
+    const existingBookings = await db
+      .select({ time: bookingsTable.time, serviceId: bookingsTable.serviceId, status: bookingsTable.status })
+      .from(bookingsTable)
+      .where(and(eq(bookingsTable.date, date)));
 
+    // Build list of booked time ranges [startMin, endMin) for non-cancelled bookings
+    const bookedRanges: Array<{ start: number; end: number }> = [];
+    for (const b of existingBookings) {
+      if (!b.time || b.status === "cancelled") continue;
+      const [bh, bm] = b.time.split(":").map(Number);
+      const startMin = bh * 60 + bm;
+      // Look up duration of the existing booking's service
+      let existingDuration = slotDuration;
+      if (b.serviceId) {
+        const svc = await db.select({ duration: servicesTable.duration }).from(servicesTable).where(eq(servicesTable.id, b.serviceId)).limit(1);
+        existingDuration = svc[0]?.duration ?? slotDuration;
+      }
+      bookedRanges.push({ start: startMin, end: startMin + existingDuration });
+    }
+
+    // A slot at [slotStart, slotStart+serviceDuration) is unavailable if it overlaps any booked range
     const slots = [];
-    for (let m = openMinutes; m + serviceDuration <= closeMinutes; m += slotDuration) {
+    for (let m = openMinutes; m + serviceDuration <= closeMinutes; m += serviceDuration) {
       const h = Math.floor(m / 60);
       const min = m % 60;
       const time = `${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
-      slots.push({ time, available: !bookedTimes.has(time) });
+      const slotEnd = m + serviceDuration;
+      const available = !bookedRanges.some(r => m < r.end && slotEnd > r.start);
+      slots.push({ time, available });
     }
     return res.json(slots);
   } catch (err) {

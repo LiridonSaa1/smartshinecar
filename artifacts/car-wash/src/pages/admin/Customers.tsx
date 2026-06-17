@@ -28,6 +28,11 @@ function useCustomers() {
       const res = await fetch("/api/admin/customers", {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
+      if (res.status === 401) {
+        localStorage.removeItem("carwash_admin_token");
+        window.location.href = "/admin/login";
+        throw new Error("Session expired");
+      }
       if (!res.ok) throw new Error("Failed to load customers");
       return res.json();
     },

@@ -18,7 +18,7 @@ type Customer = {
 };
 
 function getToken() {
-  return localStorage.getItem("carwash_admin_token") ?? "";
+  return localStorage.getItem("admin_token") ?? "";
 }
 
 function useCustomers() {

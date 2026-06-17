@@ -37,13 +37,23 @@ async function getOrCreateCustomerAccount(
   name: string
 ): Promise<{ isNew: boolean; password: string }> {
   const existing = await db
-    .select({ id: customerAccountsTable.id })
+    .select({ id: customerAccountsTable.id, plainPassword: customerAccountsTable.plainPassword })
     .from(customerAccountsTable)
     .where(eq(customerAccountsTable.email, email.toLowerCase()))
     .limit(1);
 
   if (existing.length > 0) {
-    return { isNew: false, password: "" };
+    const plain = existing[0].plainPassword;
+    if (plain) {
+      return { isNew: false, password: plain };
+    }
+    // Legacy account with no stored plain password — generate one now and save it
+    const newPassword = generatePassword();
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await db.update(customerAccountsTable)
+      .set({ plainPassword: newPassword, passwordHash: newHash })
+      .where(eq(customerAccountsTable.email, email.toLowerCase()));
+    return { isNew: false, password: newPassword };
   }
 
   const password = generatePassword();
@@ -53,6 +63,7 @@ async function getOrCreateCustomerAccount(
     email: email.toLowerCase(),
     name,
     passwordHash,
+    plainPassword: password,
   });
 
   return { isNew: true, password };
